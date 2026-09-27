@@ -15,7 +15,9 @@ Arms:
   recovery    FusionConfig(recovery=RecoveryConfig())     (Phase 9 recovery manager)
   given_mount phase7 with the whole-drive mount (the Phase 4/7 lookahead) -- VAL only,
               to measure what that lookahead was worth
-Both arms report the continuous OUTPUT (OutputSmoother) and the raw FILTER estimate.
+Both arms report the continuous OUTPUT (OutputSmoother; ``display="smoothed"``, so the
+report keeps scoring that output although the app default became the filter position) and
+the raw FILTER estimate.
 
 Per event: error at the event end; then over the following gap: the largest per-step
 position change not explained by the velocity ("jump"), error 10 s / 30 s after, time until
@@ -172,10 +174,10 @@ def main() -> int:
             arms = list(ARMS) + (["given_mount"] if sp == "val" else [])
             for arm in arms:
                 if arm == "given_mount":
-                    eng = NavigationEngine(noise, EngineConfig(fusion=ARMS["phase7"], mount_mode="given"), models,
+                    eng = NavigationEngine(noise, EngineConfig(fusion=ARMS["phase7"], mount_mode="given", display="smoothed"), models,
                                            mount=whole_drive_mount(seg))
                 else:
-                    eng = NavigationEngine(noise, EngineConfig(fusion=ARMS[arm]), models)
+                    eng = NavigationEngine(noise, EngineConfig(fusion=ARMS[arm], display="smoothed"), models)
                 try:
                     res = ReplayEngine(seg, sched, seed=26168).run(eng)
                 except CovarianceError as exc:

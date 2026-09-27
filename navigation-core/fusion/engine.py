@@ -15,8 +15,13 @@ Lifecycle (the same protocol as scripts/evaluate/phase4_baseline.py and phase7):
              parallel for ``mh_window_s``; the one with the lowest mean (capped) GNSS NIS
              plus 50 per lock-out reset is kept
   NAVIGATING a single FusedNavigator
-Output (``EngineOutput``): the navigator's continuous output position (see OutputSmoother),
-the raw filter position, 1-sigma horizontal, GNSS state, mode and counters.
+Output (``EngineOutput``): the DISPLAYED position (``EngineConfig.display``), the raw filter
+position, the smoothed position, 1-sigma horizontal, GNSS state, mode.
+
+DISPLAY DEFAULT = "filter" (project owner, after Phase 9): the filter's own estimate is shown,
+jumps included. Phase 9 measured the continuous smoothed output at a median 63.0 m vs 21.9 m
+for the filter; accuracy wins, and the visible jump marks the moment GNSS is re-fused.
+``display="smoothed"`` remains available (the Phase 9 benchmark uses it to score that output).
 """
 
 from __future__ import annotations
@@ -42,17 +47,20 @@ class EngineConfig:
     mh_window_s: float = 120.0
     n_hypotheses: int = 8
     mount_mode: str = "causal"   # "causal" | "given"
+    display: str = "filter"      # "filter" (default: accuracy) | "smoothed" (continuity)
 
 
 @dataclass
 class EngineOutput:
     t_s: float
     mode: str                 # ALIGNING | NAVIGATING
-    lat_rad: float            # continuous OUTPUT position (never teleports)
+    lat_rad: float            # DISPLAYED position (EngineConfig.display; default = the filter's)
     lon_rad: float
     h_m: float
     filter_lat_rad: float     # the filter's own estimate (jumps when evidence arrives)
     filter_lon_rad: float
+    smoothed_lat_rad: float   # the continuous OutputSmoother position (never teleports)
+    smoothed_lon_rad: float
     sigma_h_m: float          # filter horizontal 1-sigma (root of the EN covariance trace)
     gnss_state: str
     v_enu_mps: np.ndarray
@@ -81,6 +89,8 @@ class NavigationEngine:
         self.cfg = cfg or EngineConfig()
         if self.cfg.mount_mode not in ("causal", "given"):
             raise ValueError(f"mount_mode {self.cfg.mount_mode!r}")
+        if self.cfg.display not in ("filter", "smoothed"):
+            raise ValueError(f"display {self.cfg.display!r}")
         if self.cfg.mount_mode == "given" and mount is None:
             raise ValueError("mount_mode='given' needs a mount")
         self.noise, self.axis_map, self.mount = noise, axis_map, mount
@@ -153,10 +163,12 @@ class NavigationEngine:
             self.chosen_offset_rad = self.navs[0][1]
         nav = self.navs[0][0]  # while ALIGNING: hypothesis 0, flagged by ``mode`` (scoring all 8
         # at every sample would rescan every filter's whole update log)
-        lat, lon, h = nav.output()
+        slat, slon, sh = nav.output()
         s = nav.ekf.nominal
+        lat, lon, h = (s.lat_rad, s.lon_rad, s.h_m) if self.cfg.display == "filter" else (slat, slon, sh)
         return EngineOutput(t_s=t, mode=self.mode, lat_rad=lat, lon_rad=lon, h_m=h, filter_lat_rad=s.lat_rad,
-                            filter_lon_rad=s.lon_rad, sigma_h_m=float(math.sqrt(nav.ekf.P[0, 0] + nav.ekf.P[1, 1])),
+                            filter_lon_rad=s.lon_rad, smoothed_lat_rad=slat, smoothed_lon_rad=slon,
+                            sigma_h_m=float(math.sqrt(nav.ekf.P[0, 0] + nav.ekf.P[1, 1])),
                             gnss_state=nav.sm.state.value, v_enu_mps=s.v_enu_mps.copy())
 
 

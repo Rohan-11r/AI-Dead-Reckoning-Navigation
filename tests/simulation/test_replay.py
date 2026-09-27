@@ -144,3 +144,20 @@ def test_engine_starting_on_the_first_sample_levels_from_the_gravity_channel():
     out = eng.on_sample(0.0, st.acc, st.grav, st.gyro_raw, [fix])
     assert out is not None and out.mode == "ALIGNING" and eng.tilt_source == "gravity_channel"
     assert eng.mount.tilt_rad < math.radians(1.0)  # the synthetic phone is level
+
+
+def test_displayed_position_defaults_to_the_filter_estimate():
+    """Owner decision after Phase 9: show the filter (more accurate; jumps on re-fusion)."""
+    assert EngineConfig().display == "filter"
+    seg = segment(40.0)
+    cfg = EngineConfig(fusion=FusionConfig(use_ai_speed=False, use_nhc=False), mh_window_s=10.0)
+    eng = NavigationEngine(NOISE, cfg)
+    outs = []
+    ReplayEngine(seg).run(eng, on_output=lambda i, o: outs.append(o))
+    assert all(o.lat_rad == o.filter_lat_rad and o.lon_rad == o.filter_lon_rad for o in outs)
+    eng2 = NavigationEngine(NOISE, EngineConfig(fusion=cfg.fusion, mh_window_s=10.0, display="smoothed"))
+    outs2 = []
+    ReplayEngine(seg).run(eng2, on_output=lambda i, o: outs2.append(o))
+    assert all(o.lat_rad == o.smoothed_lat_rad for o in outs2)
+    with pytest.raises(ValueError):
+        NavigationEngine(NOISE, EngineConfig(display="pretty"))

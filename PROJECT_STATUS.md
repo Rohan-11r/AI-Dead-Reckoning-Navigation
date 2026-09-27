@@ -1659,7 +1659,10 @@ Recovery manager ON vs OFF (train + val, p50 per event kind):
 - [x] Replay engine in `simulation/replay/`, deterministic, streaming, causal
 - [x] Unit tests for continuity across LOST → RECOVERING → GOOD; full suite passes
 - [x] Real-drive evaluation of the recovery manager (run 3): mixed, no clear benefit -> OFF
-- [ ] Decide what the app displays: smoothed output (continuous) or filter position (more accurate)
+- [x] Decide what the app displays: **the filter position** (project owner, 2026-09-28: accuracy
+      21.9 m beats continuity 63.0 m for an engineering demonstration, and the visible jump marks
+      the moment GNSS is re-fused). `EngineConfig.display = "filter"` is the default; the
+      smoothed position stays available (`display="smoothed"`, used by the Phase 9 benchmark)
 
 ---
 
