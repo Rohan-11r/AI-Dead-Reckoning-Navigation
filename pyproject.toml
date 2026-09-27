@@ -1,0 +1,171 @@
+[build-system]
+requires = ["setuptools>=80", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sih26168-dead-reckoning"
+version = "0.1.0"
+description = "AI-ML based Intelligent Dead Reckoning system for seamless navigation (SIH26168)"
+readme = "README.md"
+# Validated interpreters: 3.14.4 (chosen) and 3.13.5 (verified fallback). Both have
+# complete win_amd64 wheel coverage for every pin below. See PROJECT_STATUS.md Phase 1.
+requires-python = ">=3.13,<3.15"
+license = { text = "Proprietary" }
+classifiers = [
+  "Private :: Do Not Upload",
+  "Programming Language :: Python :: 3.14",
+]
+
+# NOTE ON DUPLICATION: these pins intentionally mirror requirements.txt exactly.
+# requirements.txt is the authoritative install surface; this list exists so the project
+# is installable as a package. scripts/phase1_validate.py asserts the two agree, so they
+# cannot silently drift (AGENTS.md 4: one source of truth, enforced by a test).
+dependencies = [
+  "numpy==2.5.3",
+  "scipy==1.18.1",
+  "pandas==3.0.6",
+  "pyarrow==25.0.1",
+  "scikit-learn==1.9.1",
+  "joblib==1.6.0",
+  "torch==2.14.0",
+  "onnx==1.23.0",
+  "onnxruntime==1.30.0",
+  "onnxscript==0.7.2",
+  "pyproj==3.8.0",
+  "shapely==2.1.2",
+  "networkx==3.7",
+  "allantools==2024.6",
+  "matplotlib==3.11.2",
+  "seaborn==0.13.2",
+  "tensorboard==2.21.0",
+  "pyyaml==6.0.3",
+  "tqdm==4.70.1",
+  "rich==15.0.0",
+  "psutil==7.2.2",
+  "pytest==9.1.1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "ruff==0.16.9",
+  "mypy==2.3.1",
+  "pytest-cov==7.1.0",
+  "pre-commit==4.6.2",
+  "ipykernel==7.3.0",
+]
+geo = [
+  "geopandas==1.1.4",
+  "pyogrio==0.13.0",
+  "rtree==1.4.1",
+  "osmnx==2.1.1",
+  "folium==0.20.0",
+  "contextily==1.7.1",
+]
+
+# --------------------------------------------------------------------------------------
+# Package layout.
+#
+# `navigation-core/` is a directory name, not a valid Python identifier, so it cannot be
+# imported directly. It is mapped to the `navcore` import namespace:
+#
+#     navigation-core/ins/mechanization.py  ->  import navcore.ins.mechanization
+#
+# The directory keeps the requested monorepo name; the code gets a legal, unambiguous
+# import root. Generic subdirectory names (common, state, filtering) therefore stay
+# namespaced under `navcore` instead of colliding at top level.
+# --------------------------------------------------------------------------------------
+[tool.setuptools]
+package-dir = { navcore = "navigation-core" }
+
+# Packages are listed EXPLICITLY rather than auto-discovered. `packages.find` scans the
+# filesystem for a directory literally named `navcore`, which does not exist -- it cannot
+# see through the `package-dir` remap above, so discovery silently yields zero navcore
+# packages and every `import navcore.*` fails. Verified, not theoretical.
+#
+# This list mirrors LAYOUT in scripts/setup/create_structure.py.
+# scripts/phase1_validate.py asserts the two agree, so they cannot drift.
+packages = [
+  "navcore",
+  "navcore.common",
+  "navcore.sensors",
+  "navcore.calibration",
+  "navcore.alignment",
+  "navcore.imu",
+  "navcore.ins",
+  "navcore.gnss",
+  "navcore.fusion",
+  "navcore.nhc",
+  "navcore.map_matching",
+  "navcore.outage",
+  "navcore.recovery",
+  "navcore.state",
+  "navcore.geometry",
+  "navcore.filtering",
+  "navcore.diagnostics",
+  "training",
+  "training.configs",
+  "training.datasets",
+  "training.preprocessing",
+  "training.features",
+  "training.models",
+  "training.losses",
+  "training.trainers",
+  "training.evaluation",
+  "training.export",
+  "training.visualization",
+  "training.scripts",
+  "simulation",
+  "simulation.replay",
+  "simulation.outage",
+  "simulation.scenarios",
+  "simulation.synthetic",
+  "simulation.visualization",
+  "evaluation",
+  "evaluation.metrics",
+  "evaluation.baselines",
+  "hardware",
+  "hardware.imu_protocol",
+  "hardware.bluetooth",
+  "hardware.usb",
+  "hardware.serial",
+]
+
+[tool.pytest.ini_options]
+minversion = "9.0"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra --strict-markers --strict-config"
+markers = [
+  "slow: takes more than a few seconds",
+  "dataset: requires the IO-VNBD dataset on disk",
+  "parity: Python/Android numerical parity check",
+  "gpu: requires CUDA",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+extend-exclude = ["android-app", "edge-engine", "data", "models", ".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "NPY", "RUF"]
+ignore = [
+  "E501",    # line length is handled by the formatter
+  "B905",    # zip strict= : reviewed case by case
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["B011"]
+
+[tool.mypy]
+python_version = "3.14"
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+# The numerical core carries real type risk (frames, units), so it is checked strictly.
+# Scripts and notebooks are not.
+exclude = ["\\.venv", "android-app", "edge-engine", "build"]
+
+[[tool.mypy.overrides]]
+module = ["allantools.*", "osmnx.*", "contextily.*", "folium.*", "seaborn.*"]
+ignore_missing_imports = true

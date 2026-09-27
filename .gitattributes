@@ -1,0 +1,30 @@
+# Normalise line endings. This is not cosmetic: golden-vector fixtures are shared
+# between the Python and Android implementations (AGENTS.md 4), and a CRLF/LF
+# difference changes file hashes and can change text parsing across platforms.
+* text=auto eol=lf
+
+# Windows-native scripts must keep CRLF or cmd.exe mis-executes them.
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+*.ps1   text eol=crlf
+
+# Binary: never touch.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.pdf   binary
+*.onnx  binary
+*.tflite binary
+*.pt    binary
+*.pth   binary
+*.parquet binary
+*.npy   binary
+*.npz   binary
+*.apk   binary
+*.aab   binary
+*.jar   binary
+*.so    binary
+*.pyd   binary
+
+# Generated / vendored files excluded from language statistics and diffs.
+*.lock  -diff

@@ -1,0 +1,5 @@
+# edge-engine/tests
+# Engine tests, including golden-vector parity fixtures.
+#
+# Placeholder so the directory is tracked while empty. Safe to delete once the
+# directory holds real, tracked content.

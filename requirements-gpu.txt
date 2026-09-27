@@ -1,0 +1,18 @@
+# SIH26168 -- CUDA PyTorch swap for Phase 7/7 GPU training on the RTX 2050.
+#
+# NOT installed by default. The PyPI torch wheel on Windows is CPU-only (118 MB); the
+# CUDA build is ~2.5 GB, and Phases 3-6 are pure physics/data work that needs no GPU.
+#
+# Verified available on 2026-09-27:
+#   torch-2.14.0+cu126-cp314-cp314-win_amd64.whl
+#
+# UNVERIFIED ON THIS MACHINE: the installed NVIDIA driver is 555.97, which reports CUDA
+# 12.5. A cu126 build is expected to run via CUDA minor-version compatibility, but that
+# has NOT been tested here. Before Phase 7, install this and confirm:
+#   python -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name(0))"
+# If it reports False, update the NVIDIA driver to r560+ rather than assuming it works.
+#
+# Install (replaces the CPU torch in the venv):
+#   .venv/Scripts/python.exe -m pip install -r requirements-gpu.txt
+--index-url https://download.pytorch.org/whl/cu126
+torch==2.14.0+cu126

@@ -1,0 +1,51 @@
+====================================================================================================
+SIH26168 -- PHASE 0 ENVIRONMENT & DATASET VALIDATION
+generated: 2026-09-27T15:00:02
+script:    phase0_validate.py
+repo:      C:\Users\Shreeyash\OneDrive\Desktop\dead reckening
+====================================================================================================
+
+  CRITICAL  PASS      Python >= 3.10                                            3.14.4 at C:\Users\Shreeyash\OneDrive\Desktop\dead reckening\.venv\Scripts\python.exe
+  INFO      OBSERVED  OS                                                        Windows 11 10.0.26200
+  INFO      OBSERVED  Machine                                                   AMD64 / Intel64 Family 6 Model 154 Stepping 3, GenuineIntel
+  INFO      OBSERVED  Logical CPUs                                              16
+  INFO      OBSERVED  Physical RAM                                              15.67 GB total, 3.14 GB available
+  CRITICAL  PASS      Free disk space >= 20 GB                                  278.1 GB free of 475 GB
+  INFO      OBSERVED  tool: git                                                 C:\Program Files\Git\mingw64\bin\git.EXE
+  INFO      OBSERVED  tool: java (JDK)                                          NOT FOUND on PATH
+  INFO      OBSERVED  tool: gradle                                              NOT FOUND on PATH
+  INFO      OBSERVED  tool: adb                                                 NOT FOUND on PATH
+  INFO      OBSERVED  env: ANDROID_HOME                                         unset
+  INFO      OBSERVED  env: ANDROID_SDK_ROOT                                     unset
+  INFO      OBSERVED  env: JAVA_HOME                                            unset
+  INFO      OBSERVED  default Android SDK dir                                   absent (C:\Users\Shreeyash\AppData\Local\Android\Sdk)
+  INFO      OBSERVED  ML packages present                                       numpy, scipy, pandas, sklearn, torch, matplotlib, onnx, onnxruntime, pyarrow
+  INFO      OBSERVED  ML packages missing                                       tensorflow
+  INFO      OBSERVED  Network                                                   skipped (--no-network)
+  CRITICAL  PASS      doc: AGENTS.md                                            8781 bytes
+  CRITICAL  PASS      doc: PROJECT_STATUS.md                                    39578 bytes
+  CRITICAL  PASS      doc: TODO.md                                              17288 bytes
+  CRITICAL  PASS      AGENTS.md states the core directive                       3/3 directive clauses present
+  CRITICAL  PASS      IO-VNBD dataset root exists                               C:\Users\Shreeyash\OneDrive\Desktop\SIH26168\data raw  IO-VNBD\Synchronised V abd S datasets\Synchronised V abd S datasets
+  CRITICAL  PASS      CSV count == 288                                          found 288 CSV files, 816.1 MB
+  INFO      OBSERVED  JPG count == 72                                           found 72
+  INFO      OBSERVED  Categorised / Uncategorised CSV split                     144 / 144
+  INFO      OBSERVED  S- / V- prefix split                                      144 smartphone / 144 vehicle (unclassified: 0)
+  INFO      OBSERVED  sample file                                               Categorised IOVNB Dataset\M (Driver B)\S-M.csv
+  CRITICAL  PASS      strict UTF-8 read of dataset fails (encoding is cp1252)   confirmed non-UTF-8 bytes present
+  CRITICAL  PASS      dataset decodes as cp1252                                 cp1252 decoded cleanly
+  CRITICAL  PASS      column count == 24                                        found 24
+  CRITICAL  PASS      expected columns resolve after name normalisation         all 5 present
+  CRITICAL  PASS      sample interval == 100 ms (10 Hz)                         observed deltas [100, 100, 100] ms from t=4227 ms
+  CRITICAL  PASS      first GNSS fix within the UK operating area               lat=52.402565, lon=-1.503471
+  CRITICAL  PASS      gravity magnitude within 0.5 m/s^2 of 9.80665             |g| = 9.80660 m/s^2 (deviation -0.00005)
+  INFO      OBSERVED  GPS SATELLITES IN RANGE is non-numeric (needs splitting)  observed '18 / 19'
+  CRITICAL  PASS      DATE parses with explicit format '%Y-%m-%d %H:%M:%S:%f'   '2019-09-07 09:13:29:506' -> 2019-09-07T09:13:29.506000
+
+----------------------------------------------------------------------------------------------------
+CRITICAL checks: 16/16 passed
+RESULT: PASS
+----------------------------------------------------------------------------------------------------
+
+NOTE: missing java/gradle/adb/Android SDK are recorded as OBSERVED, not FAIL.
+      Phase 0 does not require them; Phases 12-14 do. See PROJECT_STATUS.md 0.8.

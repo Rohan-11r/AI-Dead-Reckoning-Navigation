@@ -1,0 +1,38 @@
+========================================================================================================
+SIH26168 -- PHASE 1 VALIDATION (structure, environment, packages, imports, export)
+generated: 2026-09-27T15:00:06
+script:    phase1_validate.py
+repo:      C:\Users\Shreeyash\OneDrive\Desktop\dead reckening
+python:    3.14.4  (C:\Users\Shreeyash\OneDrive\Desktop\dead reckening\.venv\Scripts\python.exe)
+========================================================================================================
+
+  CRITICAL  PASS      all 82 manifest directories exist                        all present
+  CRITICAL  PASS      every package has __init__.py / dir has .gitkeep         all present
+  INFO      OBSERVED  manifest composition                                     82 entries = 51 python packages + 31 plain dirs
+  CRITICAL  PASS      venv directory exists                                    C:\Users\Shreeyash\OneDrive\Desktop\dead reckening\.venv
+  CRITICAL  PASS      interpreter is isolated from the global install          prefix=C:\Users\Shreeyash\OneDrive\Desktop\dead reckening\.venv  base=C:\Python314
+  CRITICAL  PASS      running interpreter IS the project venv                  running from C:\Users\Shreeyash\OneDrive\Desktop\dead reckening\.venv
+  INFO      OBSERVED  python version                                           3.14.4 (C:\Users\Shreeyash\OneDrive\Desktop\dead reckening\.venv\Scripts\python.exe)
+  INFO      OBSERVED  PYTHONUTF8                                               1
+  INFO      OBSERVED  stdout encoding                                          utf-8
+  INFO      OBSERVED  requirements.txt pins parsed                             22 exact pins
+  CRITICAL  PASS      all pinned requirements installed at the pinned version  22/22 exact
+  CRITICAL  PASS      requirements.txt and pyproject.toml pins agree           22 pins identical
+  CRITICAL  PASS      pyproject `packages` matches the layout manifest         43 packages agree
+  CRITICAL  PASS      navcore -> navigation-core remap declared                package-dir = {'navcore': 'navigation-core'}
+  CRITICAL  PASS      all 22 third-party modules import                        22/22 imported
+  INFO      OBSERVED  key versions                                             numpy=2.5.3, scipy=1.18.1, pandas=3.0.6, torch=2.14.0+cpu, onnx=1.23.0, onnxruntime=1.30.0, onnxscript=0.7.2
+  CRITICAL  PASS      all 43 project packages import                           43/43 imported
+  CRITICAL  PASS      navcore.* resolves to navigation-core/ on disk           C:\Users\Shreeyash\OneDrive\Desktop\dead reckening\navigation-core\ins\__init__.py
+  CRITICAL  PASS      ONNX export numerically matches PyTorch (tol 1e-5)       max |torch - onnxruntime| = 2.980e-08 over 6 outputs
+  INFO      OBSERVED  onnxruntime providers                                    AzureExecutionProvider, CPUExecutionProvider
+  INFO      OBSERVED  torch CUDA                                               available=False  build=2.14.0+cpu  (CPU wheel; see requirements-gpu.txt for Phase 7)
+  CRITICAL  PASS      all 12 foundational files present and non-empty          all present
+  CRITICAL  PASS      architecture.md contains a pipeline diagram block        67 lines in the first fenced block
+  CRITICAL  PASS      diagram contains all 8 pipeline stages                   8/8 stages present
+  CRITICAL  PASS      pipeline stages appear in the mandated order             Sensors -> Calibration -> AI -> INS -> Fusion -> NHC -> Map -> Output
+
+--------------------------------------------------------------------------------------------------------
+CRITICAL checks: 17/17 passed
+RESULT: PASS
+--------------------------------------------------------------------------------------------------------

@@ -1,0 +1,71 @@
+# SIH26168 -- core pinned dependencies (Phases 3-9)
+#
+# Interpreter: CPython 3.14.4 (win_amd64). See docs/architecture.md "Toolchain decision"
+# and PROJECT_STATUS.md Phase 2 for why 3.14 was chosen over 3.13 on wheel evidence.
+#
+# Every pin below was verified against PyPI on 2026-09-27 as the newest stable release
+# publishing a win_amd64 wheel installable on CPython 3.14 (native cp314, or cp3xx-abi3).
+# Pins are exact (==) deliberately: AGENTS.md 5 requires reproducibility, and a floating
+# dependency makes a numerical result unreproducible.
+#
+# torch here is the CPU-only PyPI wheel (~118 MB). For CUDA on the RTX 2050, install
+# requirements-gpu.txt instead -- see that file. Phases 3-6 need no GPU at all.
+#
+# Install:
+#   .venv/Scripts/python.exe -m pip install -r requirements.txt
+
+# ---- numerics ------------------------------------------------------------------------
+numpy==2.5.3
+scipy==1.18.1
+
+# ---- tabular / columnar IO -----------------------------------------------------------
+pandas==3.0.6
+pyarrow==25.0.1
+
+# ---- classical ML (baselines, calibration fits, scalers) -----------------------------
+scikit-learn==1.9.1
+joblib==1.6.0
+
+# ---- deep learning -------------------------------------------------------------------
+# CPU wheel. Swap via requirements-gpu.txt when Phase 7 training starts.
+torch==2.14.0
+
+# ---- model export + on-device runtime parity -----------------------------------------
+# onnx 1.23.0 installs on 3.14 through its cp312-abi3 win_amd64 wheel.
+onnx==1.23.0
+onnxruntime==1.30.0
+# REQUIRED by torch.onnx.export in torch 2.14 (the dynamo-based exporter imports it),
+# but NOT declared as a torch dependency. Omitting it fails only at export time, which
+# would surface in Phase 12 rather than here. Found by the Phase 2 round-trip smoke test.
+onnxscript==0.7.2
+
+# ---- geodesy oracle ------------------------------------------------------------------
+# AGENTS.md 2.1 requires our OWN audited geodesy path. pyproj is used strictly as an
+# independent cross-check oracle in Phase 3 tests, never in the runtime position path.
+pyproj==3.8.0
+shapely==2.1.2
+
+# ---- graph algorithms (Phase 10 HMM map matching over the road network) ---------------
+networkx==3.7
+
+# ---- sensor noise characterisation ---------------------------------------------------
+# Oracle for Phase 4 Allan-variance analysis; our own implementation is the reference.
+allantools==2024.6
+
+# ---- plotting ------------------------------------------------------------------------
+matplotlib==3.11.2
+seaborn==0.13.2
+
+# ---- experiment tracking -------------------------------------------------------------
+tensorboard==2.21.0
+
+# ---- configuration, CLI, progress ----------------------------------------------------
+pyyaml==6.0.3
+tqdm==4.70.1
+rich==15.0.0
+
+# ---- runtime resource measurement (Phase 13 honest battery/CPU numbers) --------------
+psutil==7.2.2
+
+# ---- testing -------------------------------------------------------------------------
+pytest==9.1.1

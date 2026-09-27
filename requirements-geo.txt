@@ -1,0 +1,12 @@
+# SIH26168 -- geospatial stack for Phase 10 (map matching) and map-based plots.
+#
+# Deferred out of requirements.txt on purpose: these carry the heaviest transitive
+# constraint surface (GDAL via pyogrio) and are not needed until Phase 10.
+#   .venv/Scripts/python.exe -m pip install -r requirements-geo.txt
+-r requirements.txt
+geopandas==1.1.4
+pyogrio==0.13.0
+rtree==1.4.1
+osmnx==2.1.1
+folium==0.20.0
+contextily==1.7.1

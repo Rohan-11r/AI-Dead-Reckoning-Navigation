@@ -1,0 +1,111 @@
+# ---- Python virtual environment -------------------------------------------------------
+.venv/
+venv/
+ENV/
+
+# ---- Python bytecode / build ----------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# ---- Tooling caches -------------------------------------------------------------------
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.coverage
+coverage.xml
+htmlcov/
+
+# ---- DATA: raw data is read-only and NEVER committed ----------------------------------
+# AGENTS.md 5. The dataset lives outside the repo; these trees hold regenerable
+# derivatives. .gitkeep markers are kept so the structure survives a clean clone.
+data/raw/*
+data/interim/*
+data/processed/*
+!data/**/.gitkeep
+*.parquet
+*.feather
+*.h5
+*.hdf5
+*.npy
+*.npz
+
+# Split MANIFESTS are small, reviewable, and provenance-critical -- keep them tracked.
+!data/splits/**
+
+# ---- MODEL ARTEFACTS: binaries are not source -----------------------------------------
+models/checkpoints/*
+models/exported/*
+models/normalization/*
+!models/**/.gitkeep
+*.ckpt
+*.pt
+*.pth
+*.onnx
+*.tflite
+*.pkl
+# Model CARDS are documentation -- keep them tracked.
+!models/metadata/**
+
+# ---- GENERATED OUTPUTS ----------------------------------------------------------------
+evaluation/reports/*
+evaluation/plots/*
+!evaluation/**/.gitkeep
+runs/
+lightning_logs/
+tensorboard/
+wandb/
+*.log
+
+# Phase validation reports ARE evidence and stay tracked (PROJECT_STATUS.md cites them).
+!reports/**
+
+# ---- Map data (large, re-downloadable) ------------------------------------------------
+*.osm
+*.osm.pbf
+*.mbtiles
+*.gpkg
+*.shp
+*.dbf
+*.shx
+
+# ---- Android / Gradle -----------------------------------------------------------------
+android-app/.gradle/
+android-app/build/
+android-app/app/build/
+android-app/local.properties
+android-app/.idea/
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# ---- Native build ---------------------------------------------------------------------
+edge-engine/build/
+edge-engine/cmake-build-*/
+*.o
+*.a
+*.obj
+
+# ---- Editors / OS ---------------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*~
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ---- Secrets: never commit credentials ------------------------------------------------
+.env
+.env.*
+!.env.example
+secrets.yaml
+*.pem
