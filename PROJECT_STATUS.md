@@ -3,7 +3,7 @@
 **Project:** AI-ML based Intelligent Dead Reckoning system for seamless navigation
 **Workspace:** `C:\Users\Shreeyash\OneDrive\Desktop\dead reckening`
 **Governing document:** [`AGENTS.md`](./AGENTS.md) — the core directive overrides anything here.
-**Last updated:** 2026-09-27 (Phase 7)
+**Last updated:** 2026-09-27 (Phase 8)
 
 > **Status honesty rule.** A phase is `COMPLETED` only when its exit criteria are met by
 > code in this repo that anyone can re-run. Nothing is marked done on intent. No metric
@@ -34,9 +34,9 @@
 | 5 | ML Training Pipeline (pipeline + smoke test; full training not yet run) | **COMPLETED** |
 | 6 | ML Evaluation & Export (sweep, selection, evaluation, ONNX + parity gate) | **COMPLETED** |
 | 7 | Sensor Fusion & NHC (AI-assisted EKF, NHC, GNSS state machine; real-data gain mixed) | **COMPLETED** |
-| 8 | Fusion Engine (Error-State EKF) | `NOT STARTED` |
+| 8 | Offline Map Matching (OSM road graph, HMM matcher; real gain only while drift < ~30 m) | **COMPLETED** |
 | 9 | Non-Holonomic Constraints (NHC) | `NOT STARTED` |
-| 10 | Map Matching | `NOT STARTED` |
+| 10 | *(was Map Matching — delivered in Phase 8)* | — |
 | 11 | Evaluation Harness & Benchmarking | `NOT STARTED` |
 | 12 | Model Export & Python/Android Numerical Parity | `NOT STARTED` |
 | 13 | Android Application | `NOT STARTED` |
@@ -1407,26 +1407,111 @@ the last digit (the evaluation is deterministic), and the `default` arm equals
 
 ---
 
-## Phase 8 — Fusion Engine (Error-State EKF)
+## Phase 8 — Offline Map Matching
 
-**Status:** `NOT STARTED`
+**Status:** `COMPLETED` for its defined scope. **Measured real-drive benefit: marginal
+overall; a real gain only while dead reckoning is within ~30 m of the truth (§8.4).**
+**Date:** 2026-09-27
+**Evidence:** `reports/phase8/map_matching_evaluation.json`, `reports/phase8/osm_manifest.json`;
+`tests/navigation/test_map_matching.py` (15); `ruff check .` clean
+**Scope note:** redefined by the user as "Offline Map Matching". It delivers the original
+Phase 10 plan (`docs/map_matching.md`, which now opens with an "as built" section). The
+original Phase 8 (fusion EKF) and Phase 9 (NHC) plans were delivered in Phases 4 and 7.
 
-**Objective:** Fuse INS with AI estimates and GNSS-when-valid, with statistically
-defensible uncertainty.
+**Run:**
 
-**Planned scope**
-- Error-state (indirect) EKF: position, velocity, attitude, IMU bias states.
-- Process noise from Phase 4 Allan variance; measurement noise from Phase 7 variance heads.
-- Measurement models: GNSS position/velocity (gated by accuracy and satellite count),
-  AI speed/displacement, ZUPT during detected stationarity.
-- Innovation gating and outlier rejection; NIS/NEES consistency testing.
-- Covariance symmetry and positive-definiteness assertions (`AGENTS.md` §3).
-- GNSS-outage simulation driven by the evaluation harness masking columns, not by flags.
+```
+.venv/Scripts/python.exe scripts/download/fetch_osm_roads.py            # ONCE: offline road cache
+.venv/Scripts/python.exe scripts/evaluate/phase8_map_matching_eval.py  # record, tune on TRAIN, report VAL
+```
 
-**Exit criteria**
-- [ ] Filter consistency demonstrated (NEES within bounds), not merely low error
-- [ ] Outage-duration vs error curves versus the Phase 6 pure-INS baseline
-- [ ] Covariance assertions active and passing
+### 8.1 What was built (`navigation-core/map_matching/`)
+
+| Component | Content |
+| --- | --- |
+| `road_network.RoadNetwork` | OSM XML → drivable ways → **directed** straight segments in the local tangent plane (metres, via `LocalTangentPlane`); one-way / `oneway=-1` / roundabout / motorway rules; 50 m grid index; bounded Dijkstra route distance (U-turns only at nodes); `.npz` offline cache |
+| `hmm.HmmMapMatcher` | online HMM: emission = Mahalanobis with the **filter's 2×2 covariance** (+ 5 m map error) + heading agreement with the directed segment; transition = −\|route − travelled\|/β, **probability 0 when no route exists** (no teleports); forward-filter output + Viterbi `decode()`; `map_match_confidence` = posterior mass within 10 m of the chosen point; off-network suspension (χ² gate, 3 epochs) and re-entry; deterministic ordering |
+| `outage.DeadReckoningMapMatcher` | takes the fused INS/AI/NHC trajectory (**reads the EKF, never writes it**), runs at 1 Hz, accumulates the path travelled between epochs, returns a road-constrained lat/lon + `map_match_confidence`, or `matched=False` with no position |
+| Offline data | `scripts/download/fetch_osm_roads.py`: one Overpass query (Coventry core, drivable classes), 30.6 MB, 231,943 nodes → 450,775 directed segments, 46,301 ways; parsed in 2.2 s, cache reload 1.1 s; query 0.05 ms, 300 m route search 0.07 ms. Map data © OpenStreetMap contributors, ODbL. **No network code in the package** (static test) |
+
+### 8.2 Tests (15)
+
+OSM parsing and one-way rules; spatial index = brute force; route distance respects
+topology, one-way streets and the cutoff; **crossroads**: dead reckoning 12 m off the road
+makes nearest-road snapping jump onto the crossing road, the HMM stays on the through road
+(and a mutation check shows it jumps too once transitions and heading are disabled); a real
+**turn** at the junction is followed, with a Viterbi path that has no impossible
+transition; **parallel roads** never flip; **dual carriageway**: direction of travel picks
+the carriageway although the other is nearer; **off-network** suspension and re-entry with
+no invented position; search radius follows the covariance; confidence ≈ 0.5 when two
+roads are equally likely; matched point lies on its segment; cache round-trip identical;
+the matcher leaves the EKF untouched; course σ matches Monte Carlo.
+
+### 8.3 Real-drive protocol
+
+The Phase 7 fused navigator with the shipped defaults (AI speed + NHC, Model B off) and
+the Phase 7 outage schedule (30 s / 60 s every 4 min), recorded once per drive. β and a
+covariance inflation were chosen on **TRAIN drives only** (S1, S2, S4; grid β ∈ {5, 10,
+20, 40} m × inflation ∈ {1, 4, 9}). The criterion was the median output error in outages.
+Every setting landed within 125.4–127.9 m vs 128.9 m fused; selected β = 5 m, ×9. Reported
+on **VAL** (S3a, S3b, S3c). Output policy: the matched position if matched and confidence
+≥ 0.5, else the fused one. "Correct road" = within 20 m of the VBOX track's own match
+(evaluation only).
+
+### 8.4 Results (VAL, `reports/phase8/map_matching_evaluation.json`)
+
+| | Fused p50 / p90 | Map-matched p50 / p90 | Cross-track p50 | Along-track p50 | Correct road |
+| --- | --- | --- | --- | --- | --- |
+| All outage epochs (n 1,154) | 83.9 / 374 m | **80.7** / 366 m | 47.7 → **39.2** m | 47.6 → 47.3 m | 20 % |
+| End of 30 s outage (n 14) | 287 / 374 m | 270 / 368 m | 205 → 203 m | 96 → 97 m | **0 %** |
+| End of 60 s outage (n 12) | 348 / 1,032 m | 344 / 1,012 m | 160 → 152 m | 201 → 191 m | **0 %** |
+| With GNSS (n 4,906) | 12.6 / 224 m | 12.3 / 220 m | 6.9 → **4.9** m | 7.9 → 9.9 m | 68 % |
+
+**Where it helps — outage epochs by how far dead reckoning has already drifted:**
+
+| Fused error | n | Fused → matched p50 | Cross-track | Correct road |
+| --- | --- | --- | --- | --- |
+| < 15 m | 158 | 8.3 → 8.6 m | 4.2 → 4.5 m | 82 % |
+| **15–30 m** | 84 | **23.5 → 17.6 m** | **11.4 → 5.4 m** | 63 % |
+| 30–60 m | 191 | 42.5 → 43.9 m | 29.7 → 22.0 m | 9 % |
+| 60–120 m | 251 | 81.7 → 79.6 m | 62.0 → 50.5 m | 0.5 % |
+| > 120 m | 470 | 255 → 239 m | 167 → 150 m | 0 % |
+
+Confidence vs correctness: conf ≥ 0.95 → 69 % correct, 0.8–0.95 → 62 %, 0.5–0.8 → 35 %.
+
+Read plainly:
+- **Map matching cannot rescue a drifted trajectory in a city.** Once dead reckoning is
+  more than ~30 m off, the candidate set holds many roads that fit its shape, and the matcher
+  picks a wrong one almost every time (0 % correct at the end of 30 s and 60 s outages). The
+  numbers improve slightly only because the wrong road is often a little nearer.
+- **It does help while drift is small** (15–30 m: cross-track error halves, 11.4 → 5.4 m,
+  63 % on the correct road). That is the first seconds of an outage, and short outages.
+  With GNSS, it cuts cross-track error by 29 % but adds 2 m along-track (snapping moves the
+  point along the road).
+- **Confidence is informative but over-stated**: it ranks correctness correctly, but
+  "≥ 0.95" is right only 69 % of the time. A consumer should gate on both confidence and
+  the fused σ.
+- It is a refinement, as designed. It never feeds back into the filter, so it cannot make
+  the navigation estimate worse; only the displayed point.
+- Caveat: 3 VAL drives, all driver A, urban Coventry.
+
+### 8.5 Exit criteria
+
+- [x] Map-matching engine in `navigation-core/map_matching/`
+- [x] Offline OSM road network load and query; no cloud access at run time (static test)
+- [x] Probabilistic (HMM) matcher using distance, road heading and route continuity; no nearest-road snapping
+- [x] Integration: the dead-reckoned trajectory in, a constrained position + `map_match_confidence` out
+- [x] Unit tests on synthetic intersections, turns, parallel roads, dual carriageways, off-network
+- [x] Real-drive evaluation, including where it does not help
+
+### 8.6 Carried forward
+
+| Item | Note |
+| --- | --- |
+| Gate the map-matched output on the fused σ (e.g. use it only while σ < ~30 m) | the band table says where it helps |
+| Confidence calibration (69 % at "≥ 0.95") | recalibrate on TRAIN |
+| Feed matched heading back into the filter | deliberately not done (`docs/map_matching.md` §5) |
+| On-device graph size / memory for the operating area | Android phase |
 
 ---
 
@@ -1449,25 +1534,10 @@ defensible uncertainty.
 
 ---
 
-## Phase 10 — Map Matching
+## Phase 10 — (was: Map Matching)
 
-**Status:** `NOT STARTED`
-
-**Objective:** Snap the fused trajectory to the road network as a **refinement**. Per
-`AGENTS.md` §1, map matching never originates a position.
-
-**Planned scope**
-- OSM road network for the Coventry, UK operating area; spatial index.
-- HMM map matching (emission from filter covariance, transition from route topology).
-- Off-network detection — car parks and private roads must not be force-snapped.
-- Optional feedback of matched heading into fusion, only with an honest assessment of
-  the correlation risk it introduces.
-- Ablation with map matching disabled.
-
-**Exit criteria**
-- [ ] Match rate and error improvement measured on real routes
-- [ ] Failure modes documented (parallel roads, junctions, off-network travel)
-- [ ] Positions still traceable to integrated physics with map matching removed
+**Status:** delivered in **Phase 8** (Offline Map Matching). This slot is free for the
+next redefined phase.
 
 ---
 
@@ -1574,3 +1644,4 @@ defensible uncertainty.
 | 2026-09-27 | Phase 5 COMPLETED (redefined "ML Training Pipeline"): configs/training.yaml, windowed datasets with gap/segment/target gates and CAN/coordinate guards, mount-invariant features + rotation/noise/bias/jitter augmentation, model registry (TCN/CNN1D/GRU/LSTM, heteroscedastic heads), Huber+NLL loss, trainer with CUDA-OOM -> smaller batch -> CPU fallback, scripts/train/train_all.py. Smoke test passes on CPU; limited run: Model A val MAE 5.92 m/s vs 7.02 constant reference. Full training NOT yet run; CUDA torch not installed. 199 tests pass. |
 | 2026-09-27 | Phase 6 COMPLETED (redefined "ML Evaluation & Export"): CUDA torch on RTX 2050; 16-run sweep; selected model_a_cnn1d_w50 (test MAE 3.91 m/s vs 5.47 constant, bias +2.81) and model_b_lstm_w20 (test 0.455 vs 0.474 m/s², weak); ONNX export + model cards; parity gate atol 1e-5 + rtol 1e-6 with an fp64-referenced stress set (agreed with the owner), both PASS; EKF reduced-IMU tilt fix. Committed e0eca3c. |
 | 2026-09-27 | Phase 7 COMPLETED (redefined "Sensor Fusion & NHC"): ONNX wrapper with integrity checks, Model B pre-predict correction, Model A speed update by GNSS state, NHC, GNSS state machine, FusedNavigator; 15 fusion tests incl. 8-seed dropout test. Fixed: AI speed applied at 10 Hz as independent (aided 7 -> 42 m on S3a). **Phase 4 correction:** withheld GNSS speed leaked into stillness detection (val 60 s 1,226 -> 1,989 m). Real data: AI speed cuts 60 s outage error 2,814 -> 490 m but worsens some 30 s outages; NHC alone hurts and diverged once; Model B hurts. |
+| 2026-09-27 | Phase 8 COMPLETED (redefined "Offline Map Matching"): OSM drivable network cached once (Overpass, 30.6 MB, 450,775 directed segments, ODbL) with provenance manifest; `navcore.map_matching` RoadNetwork (directed, one-way rules, grid index, bounded Dijkstra, npz cache), online HMM (covariance emission + heading, route-continuity transition, Viterbi, off-network suspension, map_match_confidence), DeadReckoningMapMatcher (read-only on the EKF); 15 tests. VAL: outage epochs 83.9 -> 80.7 m, cross-track 47.7 -> 39.2 m, correct road 20 % (0 % at outage ends); gain only while drift < ~30 m (15-30 m band: cross-track 11.4 -> 5.4 m). |

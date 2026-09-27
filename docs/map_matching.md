@@ -9,6 +9,28 @@ Module: `navigation-core/map_matching` (imports as `navcore.map_matching`). Phas
 
 ---
 
+## 0. As built (Phase 8) — read this first
+
+Implemented in `navcore.map_matching` (Phase 8 of the revised roadmap; this document's
+"Phase 10" references predate the renumbering):
+
+| Design item | As built |
+| --- | --- |
+| Road network source | OSM XML cached once by `scripts/download/fetch_osm_roads.py` (Overpass, drivable classes, Coventry core; provenance + SHA-256 in `reports/phase8/osm_manifest.json`). **Not `osmnx`**: a stdlib parser, so no new dependency and no network code in the package (static test) |
+| Graph | directed segments per travel direction; one-way / roundabout / motorway rules; U-turns only at nodes |
+| Spatial index | uniform 50 m grid (not an R-tree); checked equal to brute force |
+| Emission | Mahalanobis with the filter's 2×2 covariance + (5 m)² map error, **plus a heading term** (directed segment vs course) — §3.2 had no heading term |
+| Transition | `-|route − travelled| / β`, route by bounded Dijkstra; no route within the cutoff ⇒ probability 0 |
+| Decoding | online forward filter for the live output + windowed Viterbi `decode()` |
+| `map_match_confidence` | filtered posterior mass within 10 m of the chosen point |
+| Off-network | χ² gate; suspend after 3 implausible epochs, re-enter after 3 plausible |
+| Feedback into the filter | **none** (§5) — tested: the matcher never writes to the EKF |
+| β, covariance inflation | chosen on TRAIN drives (S1, S2, S4) as §3.3 requires |
+
+**Measured result (VAL, `reports/phase8/map_matching_evaluation.json`): a marginal gain.**
+The road network cannot identify the road once dead reckoning has drifted by ~80 m or more
+in a dense street grid; see PROJECT_STATUS.md Phase 8 for the numbers.
+
 ## 1. What This Stage Is, and What It Is Not
 
 **It is:** a way to exploit the fact that a road vehicle's position is not free in ℝ² — it

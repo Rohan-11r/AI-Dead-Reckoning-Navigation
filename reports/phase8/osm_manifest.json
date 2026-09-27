@@ -1,0 +1,16 @@
+{
+ "file": "data/raw/osm/coventry_drivable.osm",
+ "bytes": 30564873,
+ "sha256": "36668868cf7c4bc15f8b758a3e512e847884ccfa2e49c903a0fe3b35320a711c",
+ "downloaded_utc": "2026-09-27T17:11:52+00:00",
+ "endpoint": "https://overpass-api.de/api/interpreter",
+ "query": "[out:xml][timeout:300];(way[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|service|living_street|road|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link)$\"](52.34,-1.62,52.58,-1.21););(._;>;);out body;",
+ "bbox_s_w_n_e_deg": [
+  52.34,
+  -1.62,
+  52.58,
+  -1.21
+ ],
+ "licence": "Map data (c) OpenStreetMap contributors, ODbL 1.0 (https://www.openstreetmap.org/copyright)",
+ "note": "one-time offline cache; the matcher never accesses the network"
+}

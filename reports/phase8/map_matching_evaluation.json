@@ -1,0 +1,890 @@
+{
+ "generated": "2026-09-27T23:18:58",
+ "script": "scripts/evaluate/phase8_map_matching_eval.py",
+ "network": {
+  "source": "reports/phase8/osm_manifest.json",
+  "segments": 450775,
+  "nodes": 231943,
+  "ways": 46301
+ },
+ "fusion": "FusionConfig() shipped defaults (AI speed + NHC, Model B off)",
+ "output_policy": "matched position if matched and confidence >= 0.5, else fused",
+ "correct_road": "matched point within 20.0 m of the VBOX-truth-track match (reference)",
+ "train_sessions": [
+  "S1",
+  "S2",
+  "S4"
+ ],
+ "val_sessions": [
+  "S3a",
+  "S3b",
+  "S3c"
+ ],
+ "tuning_on_train": [
+  {
+   "beta_m": 5.0,
+   "cov_scale": 1.0,
+   "outage_output_p50_m": 126.20904243493334,
+   "outage_fused_p50_m": 128.89463800069893,
+   "correct_road_rate": 0.2080462937448333,
+   "used_rate": 0.8882667964946446
+  },
+  {
+   "beta_m": 5.0,
+   "cov_scale": 4.0,
+   "outage_output_p50_m": 126.43684092345954,
+   "outage_fused_p50_m": 128.89463800069893,
+   "correct_road_rate": 0.21337579617834396,
+   "used_rate": 0.8451801363193768
+  },
+  {
+   "beta_m": 5.0,
+   "cov_scale": 9.0,
+   "outage_output_p50_m": 125.43971724681617,
+   "outage_fused_p50_m": 128.89463800069893,
+   "correct_road_rate": 0.2104798351486606,
+   "used_rate": 0.8313047711781889
+  },
+  {
+   "beta_m": 10.0,
+   "cov_scale": 1.0,
+   "outage_output_p50_m": 126.54068971513391,
+   "outage_fused_p50_m": 128.89463800069893,
+   "correct_road_rate": 0.21604024859425866,
+   "used_rate": 0.8276533592989289
+  },
+  {
+   "beta_m": 10.0,
+   "cov_scale": 4.0,
+   "outage_output_p50_m": 127.16257518116558,
+   "outage_fused_p50_m": 128.89463800069893,
+   "correct_road_rate": 0.2286936492267193,
+   "used_rate": 0.7446445959104186
+  },
+  {
+   "beta_m": 10.0,
+   "cov_scale": 9.0,
+   "outage_output_p50_m": 126.72898659918397,
+   "outage_fused_p50_m": 128.89463800069893,
+   "correct_road_rate": 0.22674813306177868,
+   "used_rate": 0.7210321324245375
+  },
+  {
+   "beta_m": 20.0,
+   "cov_scale": 1.0,
+   "outage_output_p50_m": 127.25237160029963,
+   "outage_fused_p50_m": 128.89463800069893,
+   "correct_road_rate": 0.23713420787083753,
+   "used_rate": 0.7268743914313535
+  },
+  {
+   "beta_m": 20.0,
+   "cov_scale": 4.0,
+   "outage_output_p50_m": 127.5241775822978,
+   "outage_fused_p50_m": 128.89463800069893,
+   "correct_road_rate": 0.24454649827784156,
+   "used_rate": 0.6394839337877313
+  },
+  {
+   "beta_m": 20.0,
+   "cov_scale": 9.0,
+   "outage_output_p50_m": 127.5241775822978,
+   "outage_fused_p50_m": 128.89463800069893,
+   "correct_road_rate": 0.2343062774890044,
+   "used_rate": 0.6119766309639727
+  },
+  {
+   "beta_m": 40.0,
+   "cov_scale": 1.0,
+   "outage_output_p50_m": 126.54068971513391,
+   "outage_fused_p50_m": 128.89463800069893,
+   "correct_road_rate": 0.24658545588778147,
+   "used_rate": 0.6623661148977604
+  },
+  {
+   "beta_m": 40.0,
+   "cov_scale": 4.0,
+   "outage_output_p50_m": 127.74047803119909,
+   "outage_fused_p50_m": 128.89463800069893,
+   "correct_road_rate": 0.2528138528138528,
+   "used_rate": 0.5654819863680624
+  },
+  {
+   "beta_m": 40.0,
+   "cov_scale": 9.0,
+   "outage_output_p50_m": 127.90808976397841,
+   "outage_fused_p50_m": 128.89463800069893,
+   "correct_road_rate": 0.2340028024287716,
+   "used_rate": 0.5243427458617332
+  }
+ ],
+ "selected": {
+  "beta_m": 5.0,
+  "cov_scale": 9.0,
+  "outage_output_p50_m": 125.43971724681617,
+  "outage_fused_p50_m": 128.89463800069893,
+  "correct_road_rate": 0.2104798351486606,
+  "used_rate": 0.8313047711781889
+ },
+ "val": {
+  "outage_epochs": {
+   "fused": {
+    "n": 1154,
+    "p50_m": 83.87772571277961,
+    "p90_m": 374.0864514369807,
+    "along_p50_m": 47.647209954512526,
+    "cross_p50_m": 47.6760008611685
+   },
+   "output": {
+    "n": 1154,
+    "p50_m": 80.65954527603924,
+    "p90_m": 365.70577949741727,
+    "along_p50_m": 47.28986563011098,
+    "cross_p50_m": 39.24480777518998
+   },
+   "match_rate": 0.9948006932409013,
+   "used_rate": 0.854419410745234,
+   "correct_road_rate": 0.1993704092339979,
+   "n_judged": 953,
+   "modes": {
+    "suspended": 4,
+    "no_candidates": 2,
+    "matched": 1148
+   }
+  },
+  "aided_epochs": {
+   "fused": {
+    "n": 4906,
+    "p50_m": 12.594615042857367,
+    "p90_m": 224.03041661570666,
+    "along_p50_m": 7.857120903622109,
+    "cross_p50_m": 6.857752519070361
+   },
+   "output": {
+    "n": 4906,
+    "p50_m": 12.292498758153734,
+    "p90_m": 220.3798924453051,
+    "along_p50_m": 9.886224357326519,
+    "cross_p50_m": 4.874509525943571
+   },
+   "match_rate": 0.9922543823889115,
+   "used_rate": 0.9174480228291888,
+   "correct_road_rate": 0.6823261117445838,
+   "n_judged": 4385,
+   "modes": {
+    "suspended": 32,
+    "no_candidates": 6,
+    "matched": 4868
+   }
+  },
+  "outage_end_30s": {
+   "fused": {
+    "n": 14,
+    "p50_m": 286.76031573332,
+    "p90_m": 373.9440415253945,
+    "along_p50_m": 95.83020687522611,
+    "cross_p50_m": 205.2389693817044
+   },
+   "output": {
+    "n": 14,
+    "p50_m": 270.40106456209776,
+    "p90_m": 367.5015447622568,
+    "along_p50_m": 96.64694440858364,
+    "cross_p50_m": 203.2197903322464
+   },
+   "match_rate": 1.0,
+   "used_rate": 0.7857142857142857,
+   "correct_road_rate": 0.0,
+   "n_judged": 11,
+   "modes": {
+    "matched": 14
+   }
+  },
+  "outage_end_60s": {
+   "fused": {
+    "n": 12,
+    "p50_m": 348.2376725270423,
+    "p90_m": 1031.5213853811451,
+    "along_p50_m": 200.56002912051167,
+    "cross_p50_m": 160.3265025225253
+   },
+   "output": {
+    "n": 12,
+    "p50_m": 344.2648703890072,
+    "p90_m": 1012.3480518894005,
+    "along_p50_m": 191.18249131956964,
+    "cross_p50_m": 151.84326546234925
+   },
+   "match_rate": 0.9166666666666666,
+   "used_rate": 0.6666666666666666,
+   "correct_road_rate": 0.0,
+   "n_judged": 8,
+   "modes": {
+    "suspended": 1,
+    "matched": 11
+   }
+  },
+  "outage_by_fused_error": [
+   {
+    "fused_error_m": [
+     0,
+     15
+    ],
+    "n": 158,
+    "fused_p50_m": 8.266333565253081,
+    "output_p50_m": 8.574526674924606,
+    "fused_cross_p50_m": 4.176413827596207,
+    "output_cross_p50_m": 4.47167203630544,
+    "used_rate": 0.9683544303797469,
+    "correct_road_rate": 0.8223684210526315
+   },
+   {
+    "fused_error_m": [
+     15,
+     30
+    ],
+    "n": 84,
+    "fused_p50_m": 23.51834707187834,
+    "output_p50_m": 17.566444303585115,
+    "fused_cross_p50_m": 11.415768058170483,
+    "output_cross_p50_m": 5.44892606303287,
+    "used_rate": 0.9642857142857143,
+    "correct_road_rate": 0.6296296296296297
+   },
+   {
+    "fused_error_m": [
+     30,
+     60
+    ],
+    "n": 191,
+    "fused_p50_m": 42.53271218252351,
+    "output_p50_m": 43.89430025982042,
+    "fused_cross_p50_m": 29.720376256371743,
+    "output_cross_p50_m": 21.967341031040224,
+    "used_rate": 0.8952879581151832,
+    "correct_road_rate": 0.08552631578947369
+   },
+   {
+    "fused_error_m": [
+     60,
+     120
+    ],
+    "n": 251,
+    "fused_p50_m": 81.72541397708854,
+    "output_p50_m": 79.55064768548407,
+    "fused_cross_p50_m": 61.99037208618822,
+    "output_cross_p50_m": 50.47711385968957,
+    "used_rate": 0.9043824701195219,
+    "correct_road_rate": 0.004672897196261682
+   },
+   {
+    "fused_error_m": [
+     120,
+     null
+    ],
+    "n": 470,
+    "fused_p50_m": 255.39647067127592,
+    "output_p50_m": 239.317239284844,
+    "fused_cross_p50_m": 166.54088537313032,
+    "output_cross_p50_m": 149.9005981864782,
+    "used_rate": 0.7531914893617021,
+    "correct_road_rate": 0.0
+   }
+  ],
+  "confidence_calibration": [
+   {
+    "conf": [
+     0.5,
+     0.8
+    ],
+    "n": 1184,
+    "correct_rate": 0.35050675675675674
+   },
+   {
+    "conf": [
+     0.8,
+     0.95
+    ],
+    "n": 1396,
+    "correct_rate": 0.6210601719197708
+   },
+   {
+    "conf": [
+     0.95,
+     1.0
+    ],
+    "n": 2758,
+    "correct_rate": 0.6889050036258159
+   }
+  ]
+ },
+ "val_per_session": {
+  "S3a": {
+   "outage_epochs": {
+    "fused": {
+     "n": 434,
+     "p50_m": 124.57560723277567,
+     "p90_m": 450.1114525522446,
+     "along_p50_m": 63.48549126358437,
+     "cross_p50_m": 52.94871146275121
+    },
+    "output": {
+     "n": 434,
+     "p50_m": 113.65945214046421,
+     "p90_m": 455.90903840908186,
+     "along_p50_m": 60.74402035467632,
+     "cross_p50_m": 37.771378639696486
+    },
+    "match_rate": 1.0,
+    "used_rate": 0.8894009216589862,
+    "correct_road_rate": 0.22597402597402597,
+    "n_judged": 385,
+    "modes": {
+     "matched": 434
+    }
+   },
+   "aided_epochs": {
+    "fused": {
+     "n": 1824,
+     "p50_m": 9.474718374031415,
+     "p90_m": 226.02498555017635,
+     "along_p50_m": 6.013150944069881,
+     "cross_p50_m": 4.954680664458445
+    },
+    "output": {
+     "n": 1824,
+     "p50_m": 9.4768642494559,
+     "p90_m": 221.11117826634379,
+     "along_p50_m": 7.6569898086323125,
+     "cross_p50_m": 5.0483659410853
+    },
+    "match_rate": 0.9989035087719298,
+    "used_rate": 0.9583333333333334,
+    "correct_road_rate": 0.7363896848137536,
+    "n_judged": 1745,
+    "modes": {
+     "no_candidates": 2,
+     "matched": 1822
+    }
+   },
+   "outage_end_30s": {
+    "fused": {
+     "n": 5,
+     "p50_m": 318.72283651958656,
+     "p90_m": 339.23977561308243,
+     "along_p50_m": 60.50345625517204,
+     "cross_p50_m": 296.20109282335363
+    },
+    "output": {
+     "n": 5,
+     "p50_m": 269.35732172672135,
+     "p90_m": 324.9886564484423,
+     "along_p50_m": 60.68561037328962,
+     "cross_p50_m": 268.982626866105
+    },
+    "match_rate": 1.0,
+    "used_rate": 1.0,
+    "correct_road_rate": 0.0,
+    "n_judged": 5,
+    "modes": {
+     "matched": 5
+    }
+   },
+   "outage_end_60s": {
+    "fused": {
+     "n": 5,
+     "p50_m": 445.6260351982966,
+     "p90_m": 890.9760973004147,
+     "along_p50_m": 200.7845407160036,
+     "cross_p50_m": 331.1028491997248
+    },
+    "output": {
+     "n": 5,
+     "p50_m": 426.9841580731089,
+     "p90_m": 878.4178091761651,
+     "along_p50_m": 199.186584907025,
+     "cross_p50_m": 332.11271552011567
+    },
+    "match_rate": 1.0,
+    "used_rate": 0.8,
+    "correct_road_rate": 0.0,
+    "n_judged": 4,
+    "modes": {
+     "matched": 5
+    }
+   },
+   "outage_by_fused_error": [
+    {
+     "fused_error_m": [
+      0,
+      15
+     ],
+     "n": 97,
+     "fused_p50_m": 7.542796069729462,
+     "output_p50_m": 12.284787854267158,
+     "fused_cross_p50_m": 2.5299874859784333,
+     "output_cross_p50_m": 5.574298657601932,
+     "used_rate": 0.979381443298969,
+     "correct_road_rate": 0.723404255319149
+    },
+    {
+     "fused_error_m": [
+      15,
+      30
+     ],
+     "n": 35,
+     "fused_p50_m": 22.28763947541425,
+     "output_p50_m": 19.43544853878166,
+     "fused_cross_p50_m": 5.590443645451377,
+     "output_cross_p50_m": 5.3949689289914655,
+     "used_rate": 0.9714285714285714,
+     "correct_road_rate": 0.5294117647058824
+    },
+    {
+     "fused_error_m": [
+      30,
+      60
+     ],
+     "n": 33,
+     "fused_p50_m": 43.957553900901154,
+     "output_p50_m": 44.62612043053194,
+     "fused_cross_p50_m": 13.414519918408521,
+     "output_cross_p50_m": 5.407606853057758,
+     "used_rate": 0.9696969696969697,
+     "correct_road_rate": 0.0
+    },
+    {
+     "fused_error_m": [
+      60,
+      120
+     ],
+     "n": 47,
+     "fused_p50_m": 93.06707023393156,
+     "output_p50_m": 80.14803135605867,
+     "fused_cross_p50_m": 45.812763608546945,
+     "output_cross_p50_m": 41.83756098267534,
+     "used_rate": 1.0,
+     "correct_road_rate": 0.02127659574468085
+    },
+    {
+     "fused_error_m": [
+      120,
+      null
+     ],
+     "n": 222,
+     "fused_p50_m": 271.85267438216584,
+     "output_p50_m": 254.4809267529154,
+     "fused_cross_p50_m": 189.47432216219946,
+     "output_cross_p50_m": 164.9449897794982,
+     "used_rate": 0.8018018018018018,
+     "correct_road_rate": 0.0
+    }
+   ],
+   "confidence_calibration": [
+    {
+     "conf": [
+      0.5,
+      0.8
+     ],
+     "n": 442,
+     "correct_rate": 0.3936651583710407
+    },
+    {
+     "conf": [
+      0.8,
+      0.95
+     ],
+     "n": 532,
+     "correct_rate": 0.6597744360902256
+    },
+    {
+     "conf": [
+      0.95,
+      1.0
+     ],
+     "n": 1156,
+     "correct_rate": 0.7326989619377162
+    }
+   ]
+  },
+  "S3b": {
+   "outage_epochs": {
+    "fused": {
+     "n": 83,
+     "p50_m": 94.76051897561689,
+     "p90_m": 267.5922017081886,
+     "along_p50_m": 73.73920381973561,
+     "cross_p50_m": 19.666008272831967
+    },
+    "output": {
+     "n": 83,
+     "p50_m": 89.13714896206652,
+     "p90_m": 266.23861304787545,
+     "along_p50_m": 67.20305489064893,
+     "cross_p50_m": 9.797201740464509
+    },
+    "match_rate": 1.0,
+    "used_rate": 0.8072289156626506,
+    "correct_road_rate": 0.40298507462686567,
+    "n_judged": 67,
+    "modes": {
+     "matched": 83
+    }
+   },
+   "aided_epochs": {
+    "fused": {
+     "n": 233,
+     "p50_m": 11.738082471800013,
+     "p90_m": 156.27277489998085,
+     "along_p50_m": 6.688116269950733,
+     "cross_p50_m": 6.137271871193986
+    },
+    "output": {
+     "n": 233,
+     "p50_m": 9.563971813045017,
+     "p90_m": 147.61406962589405,
+     "along_p50_m": 7.80448652543621,
+     "cross_p50_m": 2.538695363308506
+    },
+    "match_rate": 1.0,
+    "used_rate": 0.9227467811158798,
+    "correct_road_rate": 0.7441860465116279,
+    "n_judged": 215,
+    "modes": {
+     "matched": 233
+    }
+   },
+   "outage_end_30s": {
+    "fused": {
+     "n": 1,
+     "p50_m": 184.09005789532193,
+     "p90_m": 184.09005789532193,
+     "along_p50_m": 127.39938290330394,
+     "cross_p50_m": 132.88546441112481
+    },
+    "output": {
+     "n": 1,
+     "p50_m": 193.06596840541286,
+     "p90_m": 193.06596840541286,
+     "along_p50_m": 143.92752583037023,
+     "cross_p50_m": 128.68308150129135
+    },
+    "match_rate": 1.0,
+    "used_rate": 1.0,
+    "correct_road_rate": 0.0,
+    "n_judged": 1,
+    "modes": {
+     "matched": 1
+    }
+   },
+   "outage_end_60s": {
+    "fused": {
+     "n": 0,
+     "p50_m": null,
+     "p90_m": null,
+     "along_p50_m": null,
+     "cross_p50_m": null
+    },
+    "output": {
+     "n": 0,
+     "p50_m": null,
+     "p90_m": null,
+     "along_p50_m": null,
+     "cross_p50_m": null
+    },
+    "match_rate": null,
+    "used_rate": null,
+    "correct_road_rate": null,
+    "n_judged": 0,
+    "modes": {}
+   },
+   "outage_by_fused_error": [
+    {
+     "fused_error_m": [
+      0,
+      15
+     ],
+     "n": 20,
+     "fused_p50_m": 10.60797319495876,
+     "output_p50_m": 5.354337929142783,
+     "fused_cross_p50_m": 9.240053417914105,
+     "output_cross_p50_m": 2.2381191340275506,
+     "used_rate": 1.0,
+     "correct_road_rate": 1.0
+    },
+    {
+     "fused_error_m": [
+      15,
+      30
+     ],
+     "n": 7,
+     "fused_p50_m": 17.85060353877611,
+     "output_p50_m": 14.086315302418276,
+     "fused_cross_p50_m": 12.03358200154382,
+     "output_cross_p50_m": 1.372275658876001,
+     "used_rate": 1.0,
+     "correct_road_rate": 1.0
+    },
+    {
+     "fused_error_m": [
+      30,
+      60
+     ],
+     "n": 8,
+     "fused_p50_m": 40.95060731086462,
+     "output_p50_m": 34.313910959572915,
+     "fused_cross_p50_m": 15.123188116280003,
+     "output_cross_p50_m": 1.8880665999238344,
+     "used_rate": 1.0,
+     "correct_road_rate": 0.0
+    },
+    {
+     "fused_error_m": [
+      60,
+      120
+     ],
+     "n": 12,
+     "fused_p50_m": 92.34658023197579,
+     "output_p50_m": 85.3581013165338,
+     "fused_cross_p50_m": 21.817357182621052,
+     "output_cross_p50_m": 6.952421947948009,
+     "used_rate": 0.8333333333333334,
+     "correct_road_rate": 0.0
+    },
+    {
+     "fused_error_m": [
+      120,
+      null
+     ],
+     "n": 36,
+     "fused_p50_m": 197.42856297822374,
+     "output_p50_m": 199.61985054397576,
+     "fused_cross_p50_m": 121.75872523977479,
+     "output_cross_p50_m": 122.85101340379941,
+     "used_rate": 0.6111111111111112,
+     "correct_road_rate": 0.0
+    }
+   ],
+   "confidence_calibration": [
+    {
+     "conf": [
+      0.5,
+      0.8
+     ],
+     "n": 65,
+     "correct_rate": 0.49230769230769234
+    },
+    {
+     "conf": [
+      0.8,
+      0.95
+     ],
+     "n": 69,
+     "correct_rate": 0.6956521739130435
+    },
+    {
+     "conf": [
+      0.95,
+      1.0
+     ],
+     "n": 148,
+     "correct_rate": 0.722972972972973
+    }
+   ]
+  },
+  "S3c": {
+   "outage_epochs": {
+    "fused": {
+     "n": 637,
+     "p50_m": 80.28850622846186,
+     "p90_m": 321.39792325759447,
+     "along_p50_m": 41.818360097484835,
+     "cross_p50_m": 48.045227055536614
+    },
+    "output": {
+     "n": 637,
+     "p50_m": 77.69373951704561,
+     "p90_m": 317.07117630391394,
+     "along_p50_m": 41.042950624811155,
+     "cross_p50_m": 40.79739424002732
+    },
+    "match_rate": 0.9905808477237049,
+    "used_rate": 0.8367346938775511,
+    "correct_road_rate": 0.15169660678642716,
+    "n_judged": 501,
+    "modes": {
+     "suspended": 4,
+     "no_candidates": 2,
+     "matched": 631
+    }
+   },
+   "aided_epochs": {
+    "fused": {
+     "n": 2849,
+     "p50_m": 16.22411835321042,
+     "p90_m": 230.3169144898799,
+     "along_p50_m": 9.603068115063262,
+     "cross_p50_m": 8.753259669189436
+    },
+    "output": {
+     "n": 2849,
+     "p50_m": 15.516338554278414,
+     "p90_m": 229.6865349317129,
+     "along_p50_m": 11.973953245566076,
+     "cross_p50_m": 4.786318037924824
+    },
+    "match_rate": 0.9873639873639873,
+    "used_rate": 0.8908388908388908,
+    "correct_road_rate": 0.6379381443298969,
+    "n_judged": 2425,
+    "modes": {
+     "suspended": 32,
+     "no_candidates": 4,
+     "matched": 2813
+    }
+   },
+   "outage_end_30s": {
+    "fused": {
+     "n": 8,
+     "p50_m": 279.78804973884746,
+     "p90_m": 390.3792019381991,
+     "along_p50_m": 95.83020687522611,
+     "cross_p50_m": 205.2389693817044
+    },
+    "output": {
+     "n": 8,
+     "p50_m": 273.12873471598414,
+     "p90_m": 419.3206985857556,
+     "along_p50_m": 96.64694440858364,
+     "cross_p50_m": 203.2197903322464
+    },
+    "match_rate": 1.0,
+    "used_rate": 0.625,
+    "correct_road_rate": 0.0,
+    "n_judged": 5,
+    "modes": {
+     "matched": 8
+    }
+   },
+   "outage_end_60s": {
+    "fused": {
+     "n": 7,
+     "p50_m": 172.14223614447013,
+     "p90_m": 941.8323913323893,
+     "along_p50_m": 172.09381969666603,
+     "cross_p50_m": 68.90248643200313
+    },
+    "output": {
+     "n": 7,
+     "p50_m": 172.14223614447013,
+     "p90_m": 939.8169835001688,
+     "along_p50_m": 172.09381969666603,
+     "cross_p50_m": 56.79109270744751
+    },
+    "match_rate": 0.8571428571428571,
+    "used_rate": 0.5714285714285714,
+    "correct_road_rate": 0.0,
+    "n_judged": 4,
+    "modes": {
+     "suspended": 1,
+     "matched": 6
+    }
+   },
+   "outage_by_fused_error": [
+    {
+     "fused_error_m": [
+      0,
+      15
+     ],
+     "n": 41,
+     "fused_p50_m": 8.325857899202031,
+     "output_p50_m": 5.304810385973399,
+     "fused_cross_p50_m": 6.437278458073688,
+     "output_cross_p50_m": 3.366849519698442,
+     "used_rate": 0.926829268292683,
+     "correct_road_rate": 0.9736842105263158
+    },
+    {
+     "fused_error_m": [
+      15,
+      30
+     ],
+     "n": 42,
+     "fused_p50_m": 25.115440325548974,
+     "output_p50_m": 17.566444303585115,
+     "fused_cross_p50_m": 14.808946854977162,
+     "output_cross_p50_m": 6.378160964343984,
+     "used_rate": 0.9523809523809523,
+     "correct_road_rate": 0.65
+    },
+    {
+     "fused_error_m": [
+      30,
+      60
+     ],
+     "n": 150,
+     "fused_p50_m": 40.056089213011575,
+     "output_p50_m": 44.278947061719265,
+     "fused_cross_p50_m": 31.87433750682889,
+     "output_cross_p50_m": 27.161767239103085,
+     "used_rate": 0.8733333333333333,
+     "correct_road_rate": 0.11607142857142858
+    },
+    {
+     "fused_error_m": [
+      60,
+      120
+     ],
+     "n": 192,
+     "fused_p50_m": 80.84190186509488,
+     "output_p50_m": 79.54143244137688,
+     "fused_cross_p50_m": 67.38694765061592,
+     "output_cross_p50_m": 51.17826229147839,
+     "used_rate": 0.8854166666666666,
+     "correct_road_rate": 0.0
+    },
+    {
+     "fused_error_m": [
+      120,
+      null
+     ],
+     "n": 212,
+     "fused_p50_m": 245.0976137450773,
+     "output_p50_m": 232.22747787185878,
+     "fused_cross_p50_m": 157.43225130731167,
+     "output_cross_p50_m": 146.76952288516082,
+     "used_rate": 0.7264150943396226,
+     "correct_road_rate": 0.0
+    }
+   ],
+   "confidence_calibration": [
+    {
+     "conf": [
+      0.5,
+      0.8
+     ],
+     "n": 677,
+     "correct_rate": 0.3087149187592319
+    },
+    {
+     "conf": [
+      0.8,
+      0.95
+     ],
+     "n": 795,
+     "correct_rate": 0.5886792452830188
+    },
+    {
+     "conf": [
+      0.95,
+      1.0
+     ],
+     "n": 1454,
+     "correct_rate": 0.6506189821182944
+    }
+   ]
+  }
+ },
+ "caveat": "3 VAL drives; Phase 6/7 choices were also made on VAL -> optimistic; TEST reserved",
+ "runtime_s": 357
+}

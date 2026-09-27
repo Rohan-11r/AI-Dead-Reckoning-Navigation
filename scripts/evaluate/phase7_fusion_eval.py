@@ -87,7 +87,9 @@ def build_fixes(d: pd.DataFrame, t0) -> list[GnssSample]:
 
 
 def run_arm(arm: str, d: pd.DataFrame, truth: pd.DataFrame, fixes: list[GnssSample], mount, noise,
-            models: dict) -> dict:
+            models: dict, observer=None, cfg: FusionConfig | None = None) -> dict:
+    """``observer(i, nav, in_outage)`` (optional, read-only) is called after every step once a
+    single heading hypothesis remains -- Phase 8 uses it to feed the map matcher."""
     t0 = d["t_utc"].iloc[0]
     t = (d["t_utc"] - t0).dt.total_seconds().to_numpy()
     acc = d[["acc_x_mps2", "acc_y_mps2", "acc_z_mps2"]].to_numpy()
@@ -101,7 +103,7 @@ def run_arm(arm: str, d: pd.DataFrame, truth: pd.DataFrame, fixes: list[GnssSamp
     veh_yaw = math.pi / 2 - f0.bearing_rad
     v0 = f0.velocity_enu()
     mount_ok = mount.acceptable()
-    cfg = ARMS[arm]
+    cfg = cfg or ARMS[arm]
     offsets = [0.0] if mount_ok else [k * math.pi / 4 for k in range(8)]
 
     def make(offset):
@@ -145,6 +147,8 @@ def run_arm(arm: str, d: pd.DataFrame, truth: pd.DataFrame, fixes: list[GnssSamp
                     g = [min(r.nis, 50.0) if r.accepted else 50.0 for r in item[0].ekf.log if r.kind == "gnss"]
                     return (np.mean(g) if g else np.inf) + 50.0 * item[0].reset.n_resets
                 navs = [min(navs, key=score)]
+            if len(navs) == 1 and observer is not None:
+                observer(i, navs[0][0], bool(in_out[i]))
             if len(navs) == 1 and truth["gt_valid"].iat[i]:
                 nav = navs[0][0]
                 de, dn = err_en_m(nav.ekf.nominal.lat_rad, nav.ekf.nominal.lon_rad,
