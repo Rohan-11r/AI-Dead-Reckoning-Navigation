@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SIH26168 Dead Reckoning</string>
+    <string name="notification_channel">Navigation acquisition</string>
+    <string name="notification_text">Recording sensors and GNSS</string>
+</resources>

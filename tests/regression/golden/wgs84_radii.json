@@ -1,0 +1,56 @@
+{
+ "generator": "scripts/parity/generate_golden_vectors.py",
+ "reference": "navcore.geometry.geodesy",
+ "rows": [
+  {
+   "lat_rad": -1.5690509975429023,
+   "meridian_m": 6399593.428686273,
+   "prime_vertical_m": 6399593.560067752
+  },
+  {
+   "lat_rad": -0.9145525280450286,
+   "meridian_m": 6375584.448176979,
+   "prime_vertical_m": 6391580.537367514
+  },
+  {
+   "lat_rad": -0.5235987755982988,
+   "meridian_m": 6351377.103715514,
+   "prime_vertical_m": 6383480.9176901085
+  },
+  {
+   "lat_rad": 0.0,
+   "meridian_m": 6335439.3272928195,
+   "prime_vertical_m": 6378137.0
+  },
+  {
+   "lat_rad": 1.7453292519943295e-08,
+   "meridian_m": 6335439.3272928195,
+   "prime_vertical_m": 6378137.0
+  },
+  {
+   "lat_rad": 0.5235987755982988,
+   "meridian_m": 6351377.103715514,
+   "prime_vertical_m": 6383480.9176901085
+  },
+  {
+   "lat_rad": 0.7853981633974483,
+   "meridian_m": 6367381.815619548,
+   "prime_vertical_m": 6388838.290121148
+  },
+  {
+   "lat_rad": 0.9145525280450286,
+   "meridian_m": 6375584.448176979,
+   "prime_vertical_m": 6391580.537367514
+  },
+  {
+   "lat_rad": 1.0471975511965976,
+   "meridian_m": 6383453.857229077,
+   "prime_vertical_m": 6394209.173847894
+  },
+  {
+   "lat_rad": 1.5690509975429023,
+   "meridian_m": 6399593.428686273,
+   "prime_vertical_m": 6399593.560067752
+  }
+ ]
+}

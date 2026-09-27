@@ -1,0 +1,124 @@
+{
+ "cases": [
+  {
+   "accepted": true,
+   "input": {
+    "h_m": 100.0,
+    "horizontal_accuracy_m": 4.0,
+    "lat_rad": 0.9145525280450286,
+    "lon_rad": -0.026179938779914945,
+    "t_s": 1.0
+   },
+   "name": "ok"
+  },
+  {
+   "accepted": true,
+   "input": {
+    "bearing_rad": 4.71238898038469,
+    "h_m": 100.0,
+    "horizontal_accuracy_m": 4.0,
+    "lat_rad": 0.9145525280450286,
+    "lon_rad": -0.026179938779914945,
+    "speed_mps": 12.0,
+    "t_s": 1.0
+   },
+   "name": "ok_speed_bearing"
+  },
+  {
+   "accepted": false,
+   "input": {
+    "h_m": 0.0,
+    "horizontal_accuracy_m": 4.0,
+    "lat_rad": 52.4,
+    "lon_rad": -0.026179938779914945,
+    "t_s": 1.0
+   },
+   "name": "lat_in_degrees"
+  },
+  {
+   "accepted": false,
+   "input": {
+    "h_m": 0.0,
+    "horizontal_accuracy_m": 4.0,
+    "lat_rad": 0.9145525280450286,
+    "lon_rad": 4.0,
+    "t_s": 1.0
+   },
+   "name": "lon_in_degrees"
+  },
+  {
+   "accepted": false,
+   "input": {
+    "h_m": 0.0,
+    "horizontal_accuracy_m": 0.0,
+    "lat_rad": 0.9145525280450286,
+    "lon_rad": -0.026179938779914945,
+    "t_s": 1.0
+   },
+   "name": "zero_accuracy"
+  },
+  {
+   "accepted": false,
+   "input": {
+    "h_m": 0.0,
+    "horizontal_accuracy_m": 4.0,
+    "lat_rad": 0.9145525280450286,
+    "lon_rad": -0.026179938779914945,
+    "t_received_s": 1.0,
+    "t_s": 2.0
+   },
+   "name": "received_before_epoch"
+  },
+  {
+   "accepted": false,
+   "input": {
+    "h_m": 0.0,
+    "horizontal_accuracy_m": 4.0,
+    "lat_rad": 0.9145525280450286,
+    "lon_rad": -0.026179938779914945,
+    "speed_mps": 3.0,
+    "t_s": 1.0
+   },
+   "name": "speed_without_bearing"
+  },
+  {
+   "accepted": false,
+   "input": {
+    "bearing_rad": 0.0,
+    "h_m": 0.0,
+    "horizontal_accuracy_m": 4.0,
+    "lat_rad": 0.9145525280450286,
+    "lon_rad": -0.026179938779914945,
+    "speed_mps": 100.5,
+    "t_s": 1.0
+   },
+   "name": "speed_too_high"
+  },
+  {
+   "accepted": false,
+   "input": {
+    "h_m": 20001.0,
+    "horizontal_accuracy_m": 4.0,
+    "lat_rad": 0.9145525280450286,
+    "lon_rad": -0.026179938779914945,
+    "t_s": 1.0
+   },
+   "name": "height_implausible"
+  },
+  {
+   "accepted": false,
+   "input": {
+    "bearing_rad": 0.0,
+    "h_m": 0.0,
+    "horizontal_accuracy_m": 4.0,
+    "lat_rad": 0.9145525280450286,
+    "lon_rad": -0.026179938779914945,
+    "speed_mps": -0.1,
+    "t_s": 1.0
+   },
+   "name": "negative_speed"
+  }
+ ],
+ "generator": "scripts/parity/generate_golden_vectors.py",
+ "reference": "navcore.sensors.samples.GnssSample"
+}

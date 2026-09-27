@@ -1,0 +1,2639 @@
+{
+ "config": {
+  "degraded_accuracy_m": 10.0,
+  "degraded_age_s": 12.0,
+  "good_streak": 2,
+  "lost_age_s": 25.0,
+  "recover_streak": 3
+ },
+ "events": [
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 0.5
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 3.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 1.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 3.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 2.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 3.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 3.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 4.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0001,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 5.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 3.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 6.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 3.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 7.0
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 3.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 8.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 3.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 9.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 3.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 10.0
+  },
+  {
+   "expect": "GOOD",
+   "op": "time",
+   "t": 22.0
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 22.1
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 35.0
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 35.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 30.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 36.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 3.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 37.0
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 3.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 38.0
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 70.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 3.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 71.0
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 97.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 113.0
+  },
+  {
+   "expect": "RECOVERING",
+   "op": "time",
+   "t": 122.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 149.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 150.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 150.1
+  },
+  {
+   "expect": "GOOD",
+   "op": "time",
+   "t": 150.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 163.2
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 164.2
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 177.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 178.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 187.2
+  },
+  {
+   "expect": "GOOD",
+   "op": "time",
+   "t": 187.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 200.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 201.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 214.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 223.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 232.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 245.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 258.3
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 285.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 298.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 307.3
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 307.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 334.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 347.4
+  },
+  {
+   "expect": "GOOD",
+   "op": "time",
+   "t": 356.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 383.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 384.4
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 393.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 393.5
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 406.5
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 433.5
+  },
+  {
+   "expect": "GOOD",
+   "op": "time",
+   "t": 433.6
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 433.7
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 10.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 442.7
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 451.7
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 464.7
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 465.7
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 465.8
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 465.9
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 492.9
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 519.9
+  },
+  {
+   "expect": "RECOVERING",
+   "op": "time",
+   "t": 520.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 533.0
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 560.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 560.1
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 560.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 560.3
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 561.3
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 562.3
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 575.3
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 602.3
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 611.3
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 638.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 651.3
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 660.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 673.3
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 673.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 686.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 699.4
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 726.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 727.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 728.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 729.4
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 738.4
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 747.4
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 774.4
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 775.4
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 9.9,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 784.4
+  },
+  {
+   "expect": "RECOVERING",
+   "op": "time",
+   "t": 785.4
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 794.4
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 807.4
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 820.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 829.4
+  },
+  {
+   "expect": "RECOVERING",
+   "op": "time",
+   "t": 838.4
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 5.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 847.4
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 848.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 849.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 849.5
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 850.5
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 851.5
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 851.6
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 852.6
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 861.6
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 862.6
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 889.6
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 916.6
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 943.6
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 943.7
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 952.7
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 979.7
+  },
+  {
+   "expect": "RECOVERING",
+   "op": "time",
+   "t": 988.7
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 10.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1001.7
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1001.8
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1014.8
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 1041.8
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 5.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1050.8
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 1077.8
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 1104.8
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 1131.8
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 1144.8
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 1153.8
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 1166.8
+  },
+  {
+   "expect": "RECOVERING",
+   "op": "time",
+   "t": 1179.8
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 1188.8
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 1215.8
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 1216.8
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 1217.8
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1218.8
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1218.9
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1219.9
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1246.9
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1247.9
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1248.9
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1275.9
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 1276.0
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1289.0
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1298.0
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 1311.0
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 1320.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 1333.0
+  },
+  {
+   "expect": "RECOVERING",
+   "op": "time",
+   "t": 1346.0
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 1359.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 1372.0
+  },
+  {
+   "expect": "RECOVERING",
+   "op": "time",
+   "t": 1381.0
+  },
+  {
+   "expect": "RECOVERING",
+   "op": "time",
+   "t": 1394.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1403.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1412.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 1425.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1434.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1443.0
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1444.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1444.1
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1445.1
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 5.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1445.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1458.2
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 1485.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 1494.2
+  },
+  {
+   "expect": "RECOVERING",
+   "op": "time",
+   "t": 1507.2
+  },
+  {
+   "expect": "RECOVERING",
+   "op": "time",
+   "t": 1516.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1517.2
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1518.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1527.2
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1528.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1555.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 1555.3
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1568.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1577.3
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1577.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1604.4
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1605.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 1606.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1606.5
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1606.6
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1619.6
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1632.6
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1645.6
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1658.6
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 1685.6
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1698.6
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1698.7
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1707.7
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1716.7
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 1716.8
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1729.8
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1729.9
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1730.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1739.0
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1752.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1765.0
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1774.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1801.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 1810.0
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 1837.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 1838.0
+  },
+  {
+   "expect": "RECOVERING",
+   "op": "time",
+   "t": 1838.1
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1839.1
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1840.1
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1840.2
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1841.2
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1850.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1859.2
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1860.2
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1869.2
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1869.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1878.3
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 1905.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 1906.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 1915.3
+  },
+  {
+   "expect": "RECOVERING",
+   "op": "time",
+   "t": 1916.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 1916.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1925.4
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 1938.4
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1965.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 1965.5
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 1966.5
+  },
+  {
+   "expect": "GOOD",
+   "op": "time",
+   "t": 1967.5
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 1994.5
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 40.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 2003.5
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 2030.5
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 2057.5
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 2070.5
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 2070.6
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2079.6
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2092.6
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 2093.6
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 2106.6
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2115.6
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 2116.6
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2129.6
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 2138.6
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 2165.6
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 2165.7
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 2174.7
+  },
+  {
+   "expect": "RECOVERING",
+   "op": "time",
+   "t": 2175.7
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 9.9,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2202.7
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2215.7
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2216.7
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 2216.8
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2216.9
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 2243.9
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 2244.9
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2271.9
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 2272.9
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 10.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2299.9
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2300.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 2301.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2328.0
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 5.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2329.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2329.1
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 2338.1
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 2351.1
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2351.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2378.2
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 9.9,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2405.2
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 2406.2
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 2433.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 2446.2
+  },
+  {
+   "expect": "RECOVERING",
+   "op": "time",
+   "t": 2455.2
+  },
+  {
+   "expect": "RECOVERING",
+   "op": "time",
+   "t": 2456.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2465.2
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 2465.3
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2466.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2479.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 2480.3
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 2507.3
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 2507.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 2520.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2547.4
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 10.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2547.5
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2560.5
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2561.5
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2570.5
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2597.5
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 5.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2624.5
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2651.5
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 2664.5
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2677.5
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2704.5
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 10.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2731.5
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 2744.5
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 2744.6
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2744.7
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 2771.7
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 2798.7
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 2807.7
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 2820.7
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 2821.7
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2848.7
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2875.7
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 2876.7
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 2889.7
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 2889.8
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 2902.8
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 2911.8
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2920.8
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2929.8
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 2929.9
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 2938.9
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 2951.9
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 2960.9
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 2969.9
+  },
+  {
+   "expect": "RECOVERING",
+   "op": "time",
+   "t": 2970.9
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 2997.9
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 3010.9
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3011.0
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 3024.0
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 3051.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 3078.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 3091.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 3100.0
+  },
+  {
+   "expect": "GOOD",
+   "op": "time",
+   "t": 3100.1
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 3101.1
+  },
+  {
+   "expect": "GOOD",
+   "op": "time",
+   "t": 3110.1
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 3119.1
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 3119.2
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 10.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3120.2
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 3129.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3138.2
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3147.2
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 3156.2
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 3169.2
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 3170.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3170.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3171.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3184.3
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 3185.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 3212.3
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 3239.3
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 3240.3
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 3267.3
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 3268.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 3295.3
+  },
+  {
+   "expect": "RECOVERING",
+   "op": "time",
+   "t": 3308.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3308.4
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3309.4
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3318.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3331.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 3340.4
+  },
+  {
+   "expect": "GOOD",
+   "op": "time",
+   "t": 3340.5
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 10.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3341.5
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 3350.5
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 3377.5
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 3404.5
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 9.9,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 3413.5
+  },
+  {
+   "expect": "RECOVERING",
+   "op": "time",
+   "t": 3414.5
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3441.5
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3441.6
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 3441.7
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 3450.7
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3450.8
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3459.8
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 3460.8
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3473.8
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 3482.8
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 3495.8
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3495.9
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 3496.0
+  },
+  {
+   "expect": "GOOD",
+   "op": "time",
+   "t": 3496.1
+  },
+  {
+   "expect": "GOOD",
+   "op": "time",
+   "t": 3497.1
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 3506.1
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3515.1
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3515.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 3542.2
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 3569.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 3578.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 3579.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 3588.2
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 3601.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3614.2
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3614.3
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 3627.3
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3627.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 3654.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 3654.5
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 3655.5
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 3656.5
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3669.5
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3678.5
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3678.6
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 3705.6
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 3732.6
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 3745.6
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 3746.6
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 3759.6
+  },
+  {
+   "expect": "RECOVERING",
+   "op": "time",
+   "t": 3759.7
+  },
+  {
+   "expect": "RECOVERING",
+   "op": "time",
+   "t": 3760.7
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 3787.7
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3787.8
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 3796.8
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 3805.8
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3805.9
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 3806.9
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 3807.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3834.0
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3834.1
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 3834.2
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 3834.3
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 9.9,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3834.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3835.4
+  },
+  {
+   "accepted": false,
+   "accuracy_m": 9.9,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3836.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3845.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 5.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 3854.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3881.4
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3894.4
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 3895.4
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 3895.5
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 2.0,
+   "expect": "GOOD",
+   "op": "fix",
+   "t": 3896.5
+  },
+  {
+   "expect": "GOOD",
+   "op": "time",
+   "t": 3896.6
+  },
+  {
+   "expect": "GOOD",
+   "op": "time",
+   "t": 3897.6
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3906.6
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 9.9,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3933.6
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 40.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3946.6
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 3946.7
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 3973.7
+  },
+  {
+   "expect": "LOST",
+   "op": "time",
+   "t": 3982.7
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 3982.8
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 10.0,
+   "expect": "RECOVERING",
+   "op": "fix",
+   "t": 3983.8
+  },
+  {
+   "accepted": true,
+   "accuracy_m": 12.0,
+   "expect": "DEGRADED",
+   "op": "fix",
+   "t": 3996.8
+  },
+  {
+   "expect": "DEGRADED",
+   "op": "time",
+   "t": 4009.8
+  }
+ ],
+ "generator": "scripts/parity/generate_golden_vectors.py",
+ "initial": "LOST",
+ "reference": "navcore.state.gnss_state"
+}

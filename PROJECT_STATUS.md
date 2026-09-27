@@ -3,7 +3,7 @@
 **Project:** AI-ML based Intelligent Dead Reckoning system for seamless navigation
 **Workspace:** `C:\Users\Shreeyash\OneDrive\Desktop\dead reckening`
 **Governing document:** [`AGENTS.md`](./AGENTS.md) — the core directive overrides anything here.
-**Last updated:** 2026-09-28 (Phase 9)
+**Last updated:** 2026-09-28 (Phase 10)
 
 > **Status honesty rule.** A phase is `COMPLETED` only when its exit criteria are met by
 > code in this repo that anyone can re-run. Nothing is marked done on intent. No metric
@@ -36,7 +36,7 @@
 | 7 | Sensor Fusion & NHC (AI-assisted EKF, NHC, GNSS state machine; real-data gain mixed) | **COMPLETED** |
 | 8 | Offline Map Matching (OSM road graph, HMM matcher; real gain only while drift < ~30 m) | **COMPLETED** |
 | 9 | GNSS Outage Detection, Recovery & Replay (code + tests; recovery manager OFF pending real-drive evidence) | **COMPLETED** |
-| 10 | *(was Map Matching — delivered in Phase 8)* | — |
+| 10 | Android Application — Base & Sensors (source complete; **never compiled**: no JDK/SDK here) | `BLOCKED` (build machine) |
 | 11 | Evaluation Harness & Benchmarking | `NOT STARTED` |
 | 12 | Model Export & Python/Android Numerical Parity | `NOT STARTED` |
 | 13 | Android Application | `NOT STARTED` |
@@ -1663,10 +1663,114 @@ Recovery manager ON vs OFF (train + val, p50 per event kind):
 
 ---
 
-## Phase 10 — (was: Map Matching)
+## Phase 10 — Android Application: Base & Sensors
 
-**Status:** delivered in **Phase 8** (Offline Map Matching). This slot is free for the
-next redefined phase.
+**Status:** `BLOCKED` on verification — **source complete, never compiled**. This machine has
+no JDK, Gradle, Kotlin compiler or Android SDK (§0.8), so not one line of the Kotlin below has
+been compiled or executed, and none of its unit tests has run. By this file's honesty rule the
+phase is not `COMPLETED` until `./gradlew :core:test :app:assembleDebug` passes on a build
+machine. Everything that CAN be checked here was: the Python side of the parity contract
+(golden vectors + their regression test) runs and passes.
+**Date:** 2026-09-28
+**Evidence:** `android-app/` (33 files, `README.md`); `scripts/parity/generate_golden_vectors.py`,
+`tests/regression/golden/*.json`, `tests/regression/test_golden_vectors.py` (passing)
+**Scope note:** redefined by the user as "Android Application — Base & Sensors" (the old
+Phase 10 slot was freed when map matching moved to Phase 8). The original Phase 13 "Android
+Application" remains for the full on-device pipeline.
+
+**Build (on a machine with JDK 17 + Android SDK 35):**
+
+```
+cd android-app
+gradle wrapper --gradle-version 8.11.1   # the wrapper JAR is a binary: not committed
+./gradlew :core:test                     # pure JVM: needs no Android SDK
+./gradlew :app:assembleDebug
+```
+
+### 10.1 Structure (Kotlin, Gradle Kotlin DSL, version catalog)
+
+| Module | Kind | Contents |
+| --- | --- | --- |
+| `:core` | Kotlin/JVM | shared schema `ChannelSample` / `ImuSample` / `GnssSample` / `TimestampGuard` (ports of `navcore.sensors.samples`: same limits and rules); `AndroidMapping` (`SensorEvent` / `Location` → schema, one session clock = `elapsedRealtimeNanos`); `ImuAssembler` (pairs accel + gyro, stale gyro → invalid and zeroed, never guessed); `GnssStateMachine` (port of `navcore.state.gnss_state`); `RateMeter`; `SimulatedOutage`; `positionConfidence`; `SessionLogger`; `TrackProjector` (display only); `Display`; `NavigationEngine` contract + `GnssOnlyEngine` placeholder |
+| `:sensors` | Android lib | `SensorSource`: accelerometer, gyroscope, magnetometer, gravity, registered on a **dedicated HandlerThread** → cold `Flow`; a bounded buffer whose drops and rejections are **counted** |
+| `:gnss` | Android lib | `LocationManagerGnssSource` (GPS provider, **default**: pure GNSS, like IO-VNBD); `FusedGnssSource` (optional; may blend Wi-Fi/cell; provider logged on every line) |
+| `:app` | Android app, Compose, SDK 35 (min 26) | `AcquisitionService`: foreground (type `location`); sensor, GNSS and outage-toggle collectors in **independent coroutines on `Dispatchers.Default`**, feeding ONE processing coroutine that alone owns engine, logger and meters (ordered, lock-free); the UI gets conflated `StateFlow` snapshots (≤ 10 Hz), decoupled from sensor rate. `NavigationScreen`, `DiagnosticsScreen`, `OnnxLatencyProbe`, `NavigationRepository` |
+
+Versions (AGP 8.7.3, Kotlin 2.1.0, Compose BOM 2024.12.01, coroutines 1.9.0, ONNX Runtime
+Android 1.20.0, Play services location 21.3.0) are the last known to the author and may need
+bumping on the build machine.
+
+### 10.2 Screens
+
+- **Navigation**: track canvas (a **placeholder** for a map renderer: the reported positions
+  in local metres, auto-scaled, north up; no tiles); HUD with speed (km/h), navigation state
+  (`GOOD` / `DEGRADED` / `DEAD_RECKONING` / `RECOVERING`; the reference's `LOST` is displayed
+  as `DEAD_RECKONING`), confidence %, horizontal σ, road name, engine; the **Simulate GNSS outage**
+  toggle, which withholds fixes from the engine exactly like the Phase 9 simulator's `full`
+  event, logs them flagged `withheld_by_sim`, and labels the state "(SIMULATED OUTAGE)".
+- **Diagnostics**: sensor rates measured on the sensors' own timestamps, raw XYZ per channel,
+  every counter (mapped / rejected / dropped / stale-gyro / withheld), EKF covariance diagonal
+  (**n/a**: no EKF on the device yet, said so), AI inference latency, logger line counts.
+
+**Confidence %** is a defined quantity, not a score: P(true position within 10 m) =
+1 − exp(−R²/2σ²) for a circular Gaussian with per-axis σ; σ from Android's accuracy (a 68 %
+radius) is accuracy / 1.5096.
+
+**AI latency** = batch-1, single-thread ONNX Runtime inference of the bundled Model A on an
+**all-zero** input: compute latency only. The model's SHA-256 is checked against its card
+first, as in Python. The on-device feature pipeline is not ported, so the model does not drive
+navigation, and the screen says so. The exported `.onnx` files and cards are copied into the
+APK assets by a Gradle task: the same bytes the Phase 6 parity gate validated.
+
+### 10.3 What the app does NOT do yet — stated on screen
+
+| Item | On the device |
+| --- | --- |
+| Dead reckoning (INS + EKF + AI speed + NHC) | **no**. `GnssOnlyEngine` runs the ported state machine over GNSS; in `DEAD_RECKONING` it shows **no position** (and says why) rather than a stale or invented one |
+| Model A driving navigation | no (latency probe only) |
+| Map matching / road name | no ("—", with the reason) |
+| Map tiles | no (track canvas) |
+| Satellites used | not collected (needs a `GnssStatus` callback) |
+
+### 10.4 Session logger (dataset expansion)
+
+One directory per drive under the app's external files dir: `manifest.json` (schema v1,
+session start in UTC ms **and** elapsed-realtime ns, device, SDK, app version, sensors
+available, GNSS source); `sensors.csv` (`t_s,channel,x,y,z,accuracy`, raw DEVICE frame);
+`gnss.csv` (fix epoch, receipt time, degrees, 68 % accuracy, speed, bearing, provider,
+`withheld_by_sim`); `events.csv` (state transitions, outage toggles, rejected fixes).
+Locale-independent full-precision numbers; buffered; synchronized; a write after close
+throws instead of losing data; the service closes the log on cancellation.
+
+### 10.5 Tests
+
+**Kotlin (`:core`, 4 files, 27 tests; written, NOT yet run):**
+- sensor-event mapping: channels, session clock, axes copied unchanged, rejections counted;
+- location mapping: degrees → radians; a missing accuracy is rejected, never invented;
+  speed without bearing; receipt vs epoch with jitter tolerance;
+- IMU assembly: fresh vs stale gyro;
+- schema rules; timestamp guard; rate meter; simulated outage windows; the confidence
+  formula, including the 68 % identity; the logger (a German locale still writes `9.81`,
+  CSV quoting, manifest, write-after-close fails); the placeholder engine giving no position
+  when lost; HUD formatting.
+
+**Golden-vector parity (AGENTS.md §4)**, replayed by the Kotlin `ParityTest`:
+`gnss_state_machine.json` (421 events, every transition, boundary values), `sample_validation.json`
+(10 accept/reject cases), `wgs84_radii.json` (10 latitudes, 1e-12 relative). Generated from
+the Python reference; `tests/regression/test_golden_vectors.py` **passes** and fails if the
+reference and the committed vectors ever diverge.
+
+### 10.6 Exit criteria
+
+- [x] Android project structure: Kotlin, Gradle KTS, version catalog, SDK 35, Compose, coroutines
+- [x] Sensor (accel / gyro / mag / gravity) and GNSS (LocationManager + Fused) wrappers mapped into the shared schema
+- [x] Acquisition in a foreground service on background coroutines, decoupled from the UI
+- [x] Navigation screen (track placeholder, HUD, outage toggle) and diagnostics screen
+- [x] Session logger (CSV + JSON)
+- [x] Kotlin unit tests written; golden vectors generated and checked on the Python side
+- [ ] **Compiles** (`:app:assembleDebug`) — needs the build machine
+- [ ] **Kotlin tests pass** (`:core:test`, incl. parity) — needs the build machine
+- [ ] Runs on a real handset: rates, logging, outage toggle verified — needs a phone
 
 ---
 
@@ -1775,3 +1879,4 @@ next redefined phase.
 | 2026-09-27 | Phase 7 COMPLETED (redefined "Sensor Fusion & NHC"): ONNX wrapper with integrity checks, Model B pre-predict correction, Model A speed update by GNSS state, NHC, GNSS state machine, FusedNavigator; 15 fusion tests incl. 8-seed dropout test. Fixed: AI speed applied at 10 Hz as independent (aided 7 -> 42 m on S3a). **Phase 4 correction:** withheld GNSS speed leaked into stillness detection (val 60 s 1,226 -> 1,989 m). Real data: AI speed cuts 60 s outage error 2,814 -> 490 m but worsens some 30 s outages; NHC alone hurts and diverged once; Model B hurts. |
 | 2026-09-27 | Phase 8 COMPLETED (redefined "Offline Map Matching"): OSM drivable network cached once (Overpass, 30.6 MB, 450,775 directed segments, ODbL) with provenance manifest; `navcore.map_matching` RoadNetwork (directed, one-way rules, grid index, bounded Dijkstra, npz cache), online HMM (covariance emission + heading, route-continuity transition, Viterbi, off-network suspension, map_match_confidence), DeadReckoningMapMatcher (read-only on the EKF); 15 tests. VAL: outage epochs 83.9 -> 80.7 m, cross-track 47.7 -> 39.2 m, correct road 20 % (0 % at outage ends); gain only while drift < ~30 m (15-30 m band: cross-track 11.4 -> 5.4 m). |
 | 2026-09-28 | Phase 9 COMPLETED for code + tests (redefined "GNSS Outage Detection, Recovery & Replay"): outage simulator (full/tunnel/intermittent/degraded, battery), deterministic causal replay engine (reproduces Phase 7 S3b exactly), streaming NavigationEngine, RecoveryManager (opt-in, OFF) + OutputSmoother (ON); 27 new tests. Real-drive benchmark: runs 1 and 2 showed the recovery manager failing (1,390 good fixes rejected; then 1,186 km divergence from a kept failed inflation) -- both fixed and kept on record; run 3 in progress at commit time. |
+| 2026-09-28 | Phase 10 source complete, BLOCKED on verification (redefined "Android Application — Base & Sensors"): android-app/ Gradle KTS monorepo (:core JVM, :sensors, :gnss, :app), shared schema + GNSS state machine ported, foreground acquisition service with independent coroutines, Compose navigation + diagnostics screens, outage toggle, CSV/JSON session logger, ONNX latency probe, 27 Kotlin tests; golden vectors from the Python reference (state machine, sample validation, WGS84 radii) with a passing Python regression test. Nothing compiled: no JDK/Android SDK on this machine. |
