@@ -298,7 +298,7 @@ the held-out numbers mean something (`AGENTS.md` §2.3).
 | Gyro `Yaw/Pitch/Roll` → body-axis mapping | **unknown**; must be derived from data in Phase 4, never assumed |
 | Accelerometer gravity-inclusive? | indicated by one sample row; to be confirmed in Phase 2 |
 | Dataset `GRAVITY` magnitude vs local normal gravity | discrepancy noted — see `navigation_math.md` §5 |
-| Wheel-odometry channel | IO-VNBD is IMU + GNSS as inspected; no wheel-speed input assumed |
+| Wheel-odometry channel | *Revised in Phase 2:* IO-VNBD **does** contain a vehicle log per session (`V-*.csv`: VBOX GNSS + CAN wheel speeds, yaw rate, steering). Whether it may be a model **input** or only reference truth is an open decision — a phone-only deployment has no CAN bus. Until decided, it is reference/evaluation data only. |
 
 Every row above is a thing we do not yet know. None of them will be filled in with a
 plausible-sounding guess.

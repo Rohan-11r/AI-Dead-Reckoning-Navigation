@@ -1,0 +1,617 @@
+{
+  "schema_version": "iovnbd-v1",
+  "rule": "test = held-out drivers entirely; val = whole route groups of remaining drivers; train = rest. docs/ml_pipeline.md section 3.",
+  "seed": 26168,
+  "test_fraction_target": 0.2,
+  "test_fraction_bounds": [
+    0.1,
+    0.35
+  ],
+  "val_fraction_target_of_remaining": 0.15,
+  "test_drivers": [
+    "A"
+  ],
+  "driver_duration_h": {
+    "A": 5.246,
+    "B": 1.714,
+    "D": 1.859,
+    "E": 16.266
+  },
+  "splits": {
+    "train": [
+      "M",
+      "Vfa01",
+      "Vfa02",
+      "Vta10",
+      "Vta11",
+      "Vta14",
+      "Vta15",
+      "Vta16",
+      "Vta17",
+      "Vta19",
+      "Vta2",
+      "Vta20",
+      "Vta22",
+      "Vta23",
+      "Vta26",
+      "Vta27",
+      "Vta28",
+      "Vta29",
+      "Vta30",
+      "Vta4",
+      "Vta5",
+      "Vta6",
+      "Vta8",
+      "Vta9",
+      "Vtb1",
+      "Vtb11",
+      "Vtb2",
+      "Vtb3",
+      "Vtb4",
+      "Vtb5",
+      "Vtb6",
+      "Vtb7",
+      "Vw12",
+      "Vw13",
+      "Vw14a",
+      "Vw14b",
+      "Vw14c",
+      "Vw15",
+      "Vw16a",
+      "Vw16b",
+      "Vw17",
+      "Vw3",
+      "Vw4",
+      "Vw5",
+      "Vw7",
+      "Vw8",
+      "Vw9",
+      "Y1"
+    ],
+    "val": [
+      "Vta12",
+      "Vta13",
+      "Vta1a",
+      "Vta1b",
+      "Vta21",
+      "Vta24",
+      "Vta25",
+      "Vta3",
+      "Vta7",
+      "Vtb10",
+      "Vtb12",
+      "Vtb8",
+      "Vtb9",
+      "Vw1",
+      "Vw10",
+      "Vw11",
+      "Vw2",
+      "Vw6"
+    ],
+    "test": [
+      "S1",
+      "S2",
+      "S3a",
+      "S3b",
+      "S3c",
+      "S4"
+    ]
+  },
+  "sessions": {
+    "M": {
+      "split": "train",
+      "driver": "B",
+      "category": "M",
+      "route_group": "M",
+      "duration_s": 6171.748
+    },
+    "S1": {
+      "split": "test",
+      "driver": "A",
+      "category": "S",
+      "route_group": "S1",
+      "duration_s": 5174.499
+    },
+    "S2": {
+      "split": "test",
+      "driver": "A",
+      "category": "S",
+      "route_group": "S2",
+      "duration_s": 9201.099
+    },
+    "S3a": {
+      "split": "test",
+      "driver": "A",
+      "category": "S",
+      "route_group": "S3",
+      "duration_s": 2462.0
+    },
+    "S3b": {
+      "split": "test",
+      "driver": "A",
+      "category": "S",
+      "route_group": "S3",
+      "duration_s": -2026.412
+    },
+    "S3c": {
+      "split": "test",
+      "driver": "A",
+      "category": "S",
+      "route_group": "S3",
+      "duration_s": 3718.199
+    },
+    "S4": {
+      "split": "test",
+      "driver": "A",
+      "category": "S",
+      "route_group": "S4",
+      "duration_s": 354.78
+    },
+    "Vfa01": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vf",
+      "route_group": "Vfa01",
+      "duration_s": 1148.5
+    },
+    "Vfa02": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vf",
+      "route_group": "Vfa02",
+      "duration_s": 6752.201
+    },
+    "Vta10": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta10",
+      "duration_s": 150.1
+    },
+    "Vta11": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta11",
+      "duration_s": 50.9
+    },
+    "Vta12": {
+      "split": "val",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta12",
+      "duration_s": 60.9
+    },
+    "Vta13": {
+      "split": "val",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta13",
+      "duration_s": 40.301
+    },
+    "Vta14": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta14",
+      "duration_s": 288.4
+    },
+    "Vta15": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta15",
+      "duration_s": 83.2
+    },
+    "Vta16": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta16",
+      "duration_s": 1133.4
+    },
+    "Vta17": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta17",
+      "duration_s": 452.986
+    },
+    "Vta19": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta19",
+      "duration_s": 29.101
+    },
+    "Vta1a": {
+      "split": "val",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta1",
+      "duration_s": 2567.499
+    },
+    "Vta1b": {
+      "split": "val",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta1",
+      "duration_s": 95.3
+    },
+    "Vta2": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta2",
+      "duration_s": 1098.998
+    },
+    "Vta20": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta20",
+      "duration_s": 322.2
+    },
+    "Vta21": {
+      "split": "val",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta21",
+      "duration_s": 207.8
+    },
+    "Vta22": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta22",
+      "duration_s": 156.301
+    },
+    "Vta23": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta23",
+      "duration_s": 110.9
+    },
+    "Vta24": {
+      "split": "val",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta24",
+      "duration_s": 117.001
+    },
+    "Vta25": {
+      "split": "val",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta25",
+      "duration_s": 64.498
+    },
+    "Vta26": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta26",
+      "duration_s": 193.4
+    },
+    "Vta27": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta27",
+      "duration_s": 253.9
+    },
+    "Vta28": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta28",
+      "duration_s": 420.9
+    },
+    "Vta29": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta29",
+      "duration_s": 2369.778
+    },
+    "Vta3": {
+      "split": "val",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta3",
+      "duration_s": 64.4
+    },
+    "Vta30": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta30",
+      "duration_s": 1713.5
+    },
+    "Vta4": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta4",
+      "duration_s": 178.799
+    },
+    "Vta5": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta5",
+      "duration_s": 30.6
+    },
+    "Vta6": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta6",
+      "duration_s": 137.5
+    },
+    "Vta7": {
+      "split": "val",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta7",
+      "duration_s": 83.9
+    },
+    "Vta8": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta8",
+      "duration_s": 367.5
+    },
+    "Vta9": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vta",
+      "route_group": "Vta9",
+      "duration_s": 15.498
+    },
+    "Vtb1": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vtb",
+      "route_group": "Vtb1",
+      "duration_s": 3245.799
+    },
+    "Vtb10": {
+      "split": "val",
+      "driver": "E",
+      "category": "Vtb",
+      "route_group": "Vtb10",
+      "duration_s": 19.5
+    },
+    "Vtb11": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vtb",
+      "route_group": "Vtb11",
+      "duration_s": 36.0
+    },
+    "Vtb12": {
+      "split": "val",
+      "driver": "E",
+      "category": "Vtb",
+      "route_group": "Vtb12",
+      "duration_s": 44.601
+    },
+    "Vtb2": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vtb",
+      "route_group": "Vtb2",
+      "duration_s": 571.1
+    },
+    "Vtb3": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vtb",
+      "route_group": "Vtb3",
+      "duration_s": 823.9
+    },
+    "Vtb4": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vtb",
+      "route_group": "Vtb4",
+      "duration_s": 55.5
+    },
+    "Vtb5": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vtb",
+      "route_group": "Vtb5",
+      "duration_s": 6438.701
+    },
+    "Vtb6": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vtb",
+      "route_group": "Vtb6",
+      "duration_s": 49.7
+    },
+    "Vtb7": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vtb",
+      "route_group": "Vtb7",
+      "duration_s": 46.001
+    },
+    "Vtb8": {
+      "split": "val",
+      "driver": "E",
+      "category": "Vtb",
+      "route_group": "Vtb8",
+      "duration_s": 66.7
+    },
+    "Vtb9": {
+      "split": "val",
+      "driver": "E",
+      "category": "Vtb",
+      "route_group": "Vtb9",
+      "duration_s": 45.099
+    },
+    "Vw1": {
+      "split": "val",
+      "driver": "E",
+      "category": "Vw",
+      "route_group": "Vw1",
+      "duration_s": 2047.5
+    },
+    "Vw10": {
+      "split": "val",
+      "driver": "E",
+      "category": "Vw",
+      "route_group": "Vw10",
+      "duration_s": 65.1
+    },
+    "Vw11": {
+      "split": "val",
+      "driver": "E",
+      "category": "Vw",
+      "route_group": "Vw11",
+      "duration_s": 490.8
+    },
+    "Vw12": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vw",
+      "route_group": "Vw12",
+      "duration_s": 91.7
+    },
+    "Vw13": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vw",
+      "route_group": "Vw13",
+      "duration_s": 28.3
+    },
+    "Vw14a": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vw",
+      "route_group": "Vw14",
+      "duration_s": 313.7
+    },
+    "Vw14b": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vw",
+      "route_group": "Vw14",
+      "duration_s": 1958.701
+    },
+    "Vw14c": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vw",
+      "route_group": "Vw14",
+      "duration_s": 1582.5
+    },
+    "Vw15": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vw",
+      "route_group": "Vw15",
+      "duration_s": 137.9
+    },
+    "Vw16a": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vw",
+      "route_group": "Vw16",
+      "duration_s": 587.799
+    },
+    "Vw16b": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vw",
+      "route_group": "Vw16",
+      "duration_s": 112.501
+    },
+    "Vw17": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vw",
+      "route_group": "Vw17",
+      "duration_s": 32.801
+    },
+    "Vw2": {
+      "split": "val",
+      "driver": "E",
+      "category": "Vw",
+      "route_group": "Vw2",
+      "duration_s": 5271.199
+    },
+    "Vw3": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vw",
+      "route_group": "Vw3",
+      "duration_s": 386.001
+    },
+    "Vw4": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vw",
+      "route_group": "Vw4",
+      "duration_s": 12652.5
+    },
+    "Vw5": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vw",
+      "route_group": "Vw5",
+      "duration_s": 101.101
+    },
+    "Vw6": {
+      "split": "val",
+      "driver": "E",
+      "category": "Vw",
+      "route_group": "Vw6",
+      "duration_s": 128.0
+    },
+    "Vw7": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vw",
+      "route_group": "Vw7",
+      "duration_s": 160.099
+    },
+    "Vw8": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vw",
+      "route_group": "Vw8",
+      "duration_s": 152.8
+    },
+    "Vw9": {
+      "split": "train",
+      "driver": "E",
+      "category": "Vw",
+      "route_group": "Vw9",
+      "duration_s": 55.101
+    },
+    "Y1": {
+      "split": "train",
+      "driver": "D",
+      "category": "Y",
+      "route_group": "Y1",
+      "duration_s": 6690.761
+    }
+  },
+  "split_duration_h": {
+    "train": 16.65,
+    "val": 3.189,
+    "test": 5.246
+  },
+  "split_fraction": {
+    "train": 0.6638,
+    "val": 0.1271,
+    "test": 0.2091
+  },
+  "test_fraction_actual": 0.2091
+}

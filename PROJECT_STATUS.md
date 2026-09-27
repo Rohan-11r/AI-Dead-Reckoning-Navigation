@@ -3,7 +3,7 @@
 **Project:** AI-ML based Intelligent Dead Reckoning system for seamless navigation
 **Workspace:** `C:\Users\Shreeyash\OneDrive\Desktop\dead reckening`
 **Governing document:** [`AGENTS.md`](./AGENTS.md) — the core directive overrides anything here.
-**Last updated:** 2026-09-27
+**Last updated:** 2026-09-27 (Phase 2)
 
 > **Status honesty rule.** A phase is `COMPLETED` only when its exit criteria are met by
 > code in this repo that anyone can re-run. Nothing is marked done on intent. No metric
@@ -28,7 +28,7 @@
 | --- | --- | --- |
 | 0 | Environment Bootstrap & Reconnaissance | **COMPLETED** |
 | 1 | Architecture & Repository Creation | **COMPLETED** |
-| 2 | Dataset Ingestion, Schema Normalisation & Integrity Audit | `NOT STARTED` |
+| 2 | Dataset Ingestion, Schema Normalisation & Integrity Audit | **COMPLETED** |
 | 3 | Geodesy & Reference-Frame Foundations | `NOT STARTED` |
 | 4 | Sensor Characterisation & Calibration | `NOT STARTED` |
 | 5 | Attitude Estimation (AHRS) | `NOT STARTED` |
@@ -389,10 +389,11 @@ change the implementation and are recorded there in full with reproducible arith
 
 - **§5.2 — the dataset's `GRAVITY` channel is normalised to standard gravity `9.80665`,
   not local normal gravity.** At the dataset's location Somigliana + free-air gives
-  `9.812377 m/s²`; the channel reports `9.806600`. The `0.005777 m/s²` difference is
+  `9.812381 m/s²` *(originally written as `9.812377` — an arithmetic slip corrected in
+  Phase 2)*; the channel reports `9.806600`. The `0.005781 m/s²` difference is
   `≈ 10.4 m` of vertical error over a 60 s outage, so Phase 6 must use the gravity model
-  and must not treat that channel as truth. *(Computed from one sample row; the Phase 2
-  audit re-checks it across all 288 recordings.)*
+  and must not treat that channel as truth. *(Computed from one sample row; confirmed
+  across all 72 unique sessions in Phase 2.)*
 - **§6 — Coriolis and Earth-rate terms are not negligible.** At 30 m/s, Coriolis reaches
   `4.375e-3 m/s²` ≈ **7.9 m over 60 s**, and omitting Earth rate from attitude propagation
   drifts heading by `0.199°/minute` at this latitude. Both terms are retained.
@@ -406,8 +407,8 @@ are provenance rather than artefacts. `.gitattributes` normalises line endings t
 matters because golden-vector fixtures are shared between Python and Android and a CRLF
 difference changes file hashes.
 
-**Not committed.** The working tree is staged but no commit has been made, because
-committing was not requested.
+**Committed at the start of Phase 2** as `14bcbb5` ("Phase 1: repository scaffold, docs,
+tooling, and validation reports"), on the user's instruction.
 
 ### 1.8 Exit criteria
 
@@ -435,34 +436,208 @@ committing was not requested.
 
 ## Phase 2 — Dataset Ingestion, Schema Normalisation & Integrity Audit
 
-**Status:** `NOT STARTED`
+**Status:** `COMPLETED`
+**Date:** 2026-09-27
+**Evidence:** `reports/phase2_validation.txt` — **26/26 CRITICAL checks PASS**
+**Report:** `reports/phase2/dataset_report.html` / `.json`, `reports/phase2/schema_validation.json`
 
-**Objective:** Turn 288 irregular CSVs into a trustworthy, documented, columnar dataset
-with a full integrity report — and know precisely what is wrong with the data before any
-model sees it.
+**Re-run the whole phase with:**
 
-**Planned scope**
-- Pinned virtual environment; `requirements.txt` with exact versions; record what resolved.
-- `git init` with `.gitignore` covering data, artefacts, venv, model checkpoints.
-- Loader handling every hazard listed in §0.4: cp1252 encoding, column-name
-  normalisation, satellite-string split, explicit datetime format, km/h to m/s.
-- Checksum `Categorised` vs `Uncategorised` to settle the duplication question.
-- Integrity audit per recording: row count, duration, actual `dt` histogram, timestamp
-  monotonicity, gaps, duplicate rows, NaN/blank counts per column, GPS accuracy
-  distribution, satellite-count distribution, stationary-segment detection.
-- Kinematic plausibility screen: gravity magnitude vs 9.80665, accel/gyro range vs
-  sensor limits, GPS speed vs differentiated GPS position.
-- Conversion to Parquet (or equivalent) with an explicit, versioned schema and SI units.
-- Route/driver-level train / validation / test split manifest — **never a random row
-  split** (`AGENTS.md` §2.3).
-- Dataset card: what is in it, what is broken, what was excluded and why.
+```
+.venv/Scripts/python.exe scripts/preprocess/normalize_raw_layout.py   # idempotent
+.venv/Scripts/python.exe scripts/preprocess/validate_schema.py        # raw-level, pandas-free
+.venv/Scripts/python.exe scripts/preprocess/ingest_iovnbd.py          # ~30 s, 8 workers
+.venv/Scripts/python.exe scripts/phase2_validate.py                   # the gate
+```
 
-**Exit criteria**
-- [ ] Every one of the 288 files either loads cleanly or is listed as excluded with a reason
-- [ ] Integrity report committed, with real counts, no estimates
-- [ ] Duplication between the two dataset organisations resolved by checksum
-- [ ] Split manifest committed and shown to be leak-free
-- [ ] Loader unit tests pass, including encoding and datetime edge cases
+### 2.1 What was built
+
+| File | Role |
+| --- | --- |
+| `scripts/preprocess/normalize_raw_layout.py` | Renames `data/raw/data raw  IO-VNBD/Synchronised…/Synchronised…/` to `data/raw/IO-VNBD/`. Same-volume rename; (path, size, mtime) inventory asserted identical before/after; idempotent |
+| `training/preprocessing/iovnbd.py` | Loader: two schemas, header repair and mapping, satellite/Excel repair, explicit datetime, Europe/London→UTC, SI conversion, byte and content hashing |
+| `training/preprocessing/iovnbd_audit.py` | Per-session timing, NaN, GNSS, gravity, kinematics, and phone↔vehicle cross-checks |
+| `scripts/preprocess/validate_schema.py` | Independent raw check: decode, header map, per-line field count, ASCII body, row counts |
+| `scripts/preprocess/ingest_iovnbd.py` | Dedupe → SI → audit → Parquet → split → report |
+| `scripts/preprocess/dataset_report_html.py` | Renders the JSON report as a self-contained HTML page |
+| `scripts/phase2_validate.py` | Gate: re-derives the claims from the artefacts |
+| `tests/unit/test_iovnbd_loader.py` | 22 tests on inline, explicitly synthetic fixtures |
+
+Outputs (gitignored, regenerable): `data/processed/iovnbd/v1/{phone,vehicle}/<session>.parquet`
+(72 + 72 files, 110 MB, zstd; units, source path and source SHA-256 in each file's
+metadata) and `manifest.json`. Tracked: `data/splits/iovnbd_split_v1.json`.
+
+### 2.2 The dataset is not what Phase 0 assumed
+
+Phase 0 took all 288 CSVs to be one 24-column smartphone schema. **They are two schemas:**
+
+| Prefix | Columns | Content |
+| --- | --- | --- |
+| `S-*` | 24 | Smartphone: GNSS, accelerometer, gravity, gyro, magnetometer, orientation |
+| `V-*` | 29 | Vehicle: VBOX GNSS (UTC time-of-day, 10 Hz) **plus CAN bus** — four wheel speeds, yaw rate, steering angle, indicated speed, long/lat acceleration, gear, rpm, pedals, brake |
+
+The dataset therefore contains **wheel odometry and a CAN yaw-rate reference**, which
+`docs/architecture.md` had explicitly ruled out. That changes what Phases 4, 7 and 11 can
+do. Whether CAN channels may be model *inputs* is an open decision (§2.10).
+
+### 2.3 Deduplication — settled by checksum
+
+| | Result |
+| --- | --- |
+| CSV files | 288 → **72 unique sessions**, each an S + V pair |
+| `V-*` pairs | **72/72 byte-identical** (SHA-256) |
+| `S-*` pairs | **0/72 byte-identical, 72/72 content-identical** |
+| Largest numeric difference inside any S pair | `7.1e-15` |
+
+The S copies differ only in (a) float text — `1.539` vs `1.5390000000000001`, `-6` vs
+`-6.0` — and (b) header labels. A byte checksum alone would have wrongly reported 144
+distinct smartphone recordings. The loader therefore computes a **content digest** over
+the parsed values (rounded to 1e-9, header labels excluded) as well as SHA-256. The
+Categorised copy is canonical: it carries the driver/category directory metadata.
+
+Unique data: **1,070,745 phone rows, 25.08 h, 1,341 km** (VBOX speed integrated with real
+`dt`), 4 drivers, 7 categories, 66 route groups.
+
+### 2.4 Parsing hazards — the 8 from Phase 0, plus the ones found here
+
+| # | Hazard | Handling | Count |
+| --- | --- | --- | --- |
+| 1 | cp1252 encoding | Read as cp1252 (total over every byte present). **The header is mixed:** `°`/`μ` are UTF-8 byte pairs, `²` a single cp1252 byte, so no single codec decodes it correctly. Each token is repaired individually (`Â°` → `°`) | 288 files |
+| 2 | Irregular headers | Keys normalised (NFKC, ASCII transliteration, whitespace, parens), then matched against an **explicit** list of accepted variants — never fuzzy | 3 variants |
+| 2b | *new:* `DATE (…SS_SSS` without `)` | Uncategorised `S-Vfa01`/`S-Vfa02` only; accepted as a named variant | 2 files |
+| 3 | `"18 / 19"` satellites | Split into `gps_sats_used` / `gps_sats_visible` (`Int16`); `used ≤ visible` holds on every row | 0 malformed |
+| 3b | *new:* **Excel date damage** | The CSVs went through Excel, which turned `12 / 14` into `Dec-14` and `10 / 12` into `10-Dec` (UK d/m). Deterministic and lossless, so the integers are recovered exactly and rows flagged `gps_sats_excel_recovered` | **2,118 cells, 12 sessions** |
+| 4 | `HH:MM:SS:mmm` datetime | Explicit `%Y-%m-%d %H:%M:%S:%f`; a decimal-point form is counted as a failure, not accepted | 0 failures |
+| 4b | *new:* timezone | Phone `DATE` is UK civil time. Localised to Europe/London → UTC; DST-ambiguous times become NaT and are counted | 0 lost |
+| 5 | km/h | → m/s at the loader (phone GPS, VBOX, CAN); CAN `g` × 9.80665; psi → Pa | — |
+| 6 | Gyro Yaw/Pitch/Roll | See §2.6 — the labels are positional aliases, and "Yaw" on column 1 is **wrong** | — |
+| 7 | Accel gravity-inclusive? | **Yes** — stationary \|a\| = 9.863 m/s² over 103,449 rows | settled |
+| 8 | Categorised vs Uncategorised | §2.3 | settled |
+| 9 | *new:* literal `nan` text | `S-Y1`: 94 bearing + 4 speed cells; coerced to NaN and counted | 98 cells |
+| 10 | *new:* mislabelled V units | `Height (km)` is metres (MSL; minus phone ellipsoidal alt = −51.1 m ≈ −geoid); `Vertical velocity (km/hr)` behaves as m/s (dh/dt slope 0.986); pedal "0 or 1" spans 0–99 (%). Kept as `_raw` columns, not silently converted | — |
+| 11 | *new:* wheel speed "rad/sec" | Ratio to VBOX speed in km/h is **1.0043** (1.0 to CAN indicated). Consistent with km/h, but rad/s would need a 0.277 m rolling radius — physically possible. **Unresolved**; kept `_raw` | Phase 4 |
+
+`validate_schema.py` independently confirms: 288/288 files decode, map, and have **zero
+ragged rows**, pure-ASCII bodies and CRLF endings; 4,283,560 data rows; Parquet row counts
+equal raw line counts for all 144 canonical files.
+
+### 2.5 Gravity — the 9.80665 vs local-gravity question, settled dataset-wide
+
+| Quantity | m/s² |
+| --- | --- |
+| Standard gravity g₀ (defined) | 9.806650 |
+| Local normal gravity (Somigliana + free-air), range over sessions | 9.812049 – 9.813116 |
+| `GRAVITY` channel norm, pooled over 1.07 M rows | **9.806596** |
+| `GRAVITY` norm, per-session means | 9.806592 – 9.806622 |
+| Largest within-session std of the norm | 0.000043 |
+| Sessions closer to g₀ than to local gravity | **72 / 72** |
+| Stationary accelerometer norm (42 sessions) | 9.8627 (session range 9.837 – 10.100) |
+
+**Conclusion for the filter:** the `GRAVITY` channel is Android's fused vector normalised to
+g₀, not a measurement. Use its direction for levelling, never its magnitude; the INS uses
+Somigliana (`navigation_math.md` §5.1), about 0.0058 m/s² ≈ 10.4 m over 60 s above g₀
+here. The stationary accelerometer reads ~0.05 m/s² above local gravity; separating bias
+from scale error is Phase 4.
+
+**Correction to Phase 1:** `navigation_math.md` §5.2 had `sin²φ = 0.627722` (a hand-arithmetic
+slip), giving 9.812377. The correct value is **0.627766 → 9.812381 m/s²**. The doc is fixed
+and the value is now pinned by a unit test. No conclusion changes.
+
+### 2.6 Gyroscope axis mapping — partly settled, with evidence
+
+- **The labels are positional aliases.** The Uncategorised copies label the gyro columns
+  `X/Y/Z` and orientation `Azimuth`; the Categorised copies relabel the *same bytes*
+  `Yaw/Pitch/Roll` / `Yaw`.
+- **Vehicle yaw is on column 2.** Against the CAN yaw rate (an independent sensor),
+  time-aligned and 1 s smoothed, **21 of 22** strongly-correlated sessions (|r| ≥ 0.5) put
+  it on `gyro_y` with sign **+**, median r 0.73, **gain 0.997** (so units and scale agree).
+- **Accelerometer/gravity Z is vertical in 72/72 sessions.** So the gyro columns are *not*
+  in the accelerometer's axis order, and the Categorised label "Yaw" on column 1 is wrong.
+- **Not resolved:** the two horizontal gyro axes. The gravity-rotation test
+  (`ω⊥ = −(g × ġ)/|g|²`) gave |r| < 0.3: the GRAVITY channel is too heavily smoothed and
+  car pitch/roll rates too small. → Phase 4. Not guessed here.
+
+### 2.7 The "Synchronised" S/V files are NOT row-synchronised
+
+| Finding | Evidence |
+| --- | --- |
+| Phone `DATE` (as UTC) − VBOX UTC **on the same row index** is > 1 s in **49/72** sessions, from −168 s to **+314 s** | `clock_offset_s` per session |
+| The gyro↔CAN-yaw best lag on row-paired data ≈ **−(that offset)**: S4 +313.75 → −313.9 s, Y1 +114.9 → −115.7 s, S2 +8.45 → −8.7 s | FFT xcorr, ±400 s |
+| So the phone clock is right and the **row pairing is wrong** | — |
+| The row offset **drifts within** M, S2, S3b, S4, Vta17, Vtb1, Y1 | 5 are concatenations of 2–4 phone recordings (`TIME SINCE START` resets); Vtb1 has **5,370 exact duplicate rows** walking the pairing off by up to 628 s |
+| 9 sessions have unequal S/V row counts | Vfa01, Vfa02, Vta1b, Vtb10, Vw1, Vw15, Vw2, Vw4, Vw9 |
+
+**Rule adopted:** join S and V on **UTC time** (nearest, ≤ 60 ms), **never on row index**.
+The vehicle Parquet carries an absolute `t_utc` for this, and each file's metadata says so.
+
+| Per-session verification (gyro vs CAN yaw) | Sessions |
+| --- | --- |
+| `time_join_verified` (r ≥ 0.5, residual clock correction −0.87…+1.52 s) | **25** |
+| `time_join_contradicted` | **0** |
+| `unverified_weak_signal` (r < 0.5) | 43 |
+| `unverified_vehicle_not_moving` — **stationary-only recordings** `Vw1` (34 min), `Vw15` | 2 |
+| `unverified_time_join_no_overlap` — `Vw7`, `Vw8`, whose phone clocks are ~165 s off | 2 |
+
+Honest limits: even verified sessions agree only to about ±1.5 s, which includes CAN and
+filter latencies. Before any V-file channel becomes a 10 Hz training target, Phase 7 must
+refine alignment per session. **Phone GNSS lags VBOX by a median 4.1 s**, which Phase 8's
+GNSS measurement model must account for.
+
+### 2.8 Timing & missing values
+
+| | Phone | Vehicle |
+| --- | --- | --- |
+| Intervals in (95, 105] ms | 1,062,455 of 1,070,673 (99.23 %) | 1,070,957 of 1,070,961 |
+| Duplicate timestamps | 5,460 (5,456 in Vtb1) | 2 |
+| Backwards steps (recording restarts) | 8 | 0 |
+| Gaps > 1 s | 3 | 2 |
+| Continuous segments (break on dt < 0 or > 1 s) | 83 | — |
+| Exact duplicate rows | 5,374 | — |
+| NaN | `gps_bearing_deg` 94, `gps_speed_mps` 4 (all S-Y1); every other column 0 | 0 |
+
+Nothing was imputed or dropped: duplicates and NaNs remain in the Parquet, and counts are
+in the report for downstream stages to handle explicitly.
+
+### 2.9 Route/driver split — `data/splits/iovnbd_split_v1.json`
+
+Per `docs/ml_pipeline.md` §3, assigned from real durations. Test = the held-out driver(s)
+whose share is closest to 20 % (bounds 10–35 %); val = whole route groups of the remaining
+drivers, seed 26168, never emptying a driver's train set.
+
+| Split | Sessions | Hours | Fraction |
+| --- | --- | --- | --- |
+| train | 48 | 16.65 | 0.664 |
+| val | 18 | 3.19 | 0.127 |
+| test | 6 (**driver A**, held out entirely) | 5.25 | 0.209 |
+
+Driver hours: A 5.25, B 1.71, D 1.86, E 16.27. Leak checks (gate-enforced): every session
+in exactly one split, no route group (e.g. S3a/b/c, Vw14a/b/c) spans splits, and the test
+driver appears nowhere else. *Caveat:* B and D have one session each, so they can only
+ever be in train; val is therefore all driver E.
+
+### 2.10 Exit criteria
+
+- [x] Every one of the 288 files loads cleanly (0 excluded)
+- [x] Integrity report with real counts, no estimates (`reports/phase2/`)
+- [x] Duplication resolved by checksum (SHA-256 + content digest)
+- [x] Split manifest committed and shown leak-free
+- [x] Loader unit tests pass (22), including encoding and datetime edge cases
+- [x] Raw data read-only: 144/144 source SHA-256s re-verified against Parquet metadata
+
+### 2.11 Open items and decisions carried forward
+
+| Item | Affects | Severity |
+| --- | --- | --- |
+| **Decision needed:** may CAN channels (wheel speed, yaw rate) be model *inputs*? A phone-only Android deployment has no CAN bus; using them as inputs would train a model that cannot run on-device. Default until decided: reference/evaluation truth only | Phases 4, 7, 11 | **High** |
+| 45 of 72 sessions have unverified S/V alignment | Phase 7 targets from V | Medium |
+| Horizontal gyro axes unresolved | Phases 4–6 | Medium |
+| Wheel-speed unit (km/h vs rad/s label) | Phase 4 odometry | Low — calibrated against VBOX anyway |
+| Phone GNSS ~4.1 s latency | Phase 8 | Medium |
+| Stationary rows are audit-only; not exported as reusable segments | Phases 4, 8 | Low |
+| No single dataset-path config module yet (path is a constant per script + `.env.example`) | hygiene | Low |
+| WGS84/gravity constants duplicated in `iovnbd_audit.py` (test-asserted equal to the doc) until Phase 3 generates them | Phase 3 | Low |
+| HTML report checked structurally only; the Chrome extension was not connected, so it was not visually reviewed | reporting | Low |
+| Android built externally / in CI in later phases — Android Studio not installed locally (per user, 2026-09-27) | Phases 12–14 | Tracked |
 
 ---
 
@@ -767,3 +942,4 @@ defensible uncertainty.
 | --- | --- |
 | 2026-09-27 | Phase 0 opened and COMPLETED. Environment, toolchain, network, and dataset surveyed. `AGENTS.md`, `PROJECT_STATUS.md`, `TODO.md` created. IO-VNBD confirmed present and real (288 CSV files, 816 MB, 10 Hz, Coventry UK). JDK/Android SDK found absent and logged as a high-severity blocker for Phases 12–14. Validation script `scripts/phase0_validate.py` written and run: 16/16 CRITICAL checks PASS, output in `reports/phase0_validation.txt`. |
 | 2026-09-27 | Phase 1 COMPLETED: monorepo structure created from a re-runnable manifest (82 dirs, 51 packages); git repo initialised with `.gitignore`/`.gitattributes`; Python 3.14.4 chosen on wheel evidence; venv built and 22 pinned dependencies installed at exact versions; `navigation-core` mapped to the `navcore` import namespace; `docs/architecture.md`, `navigation_math.md`, `ml_pipeline.md`, `map_matching.md` written; `scripts/phase1_validate.py` run with 17/17 CRITICAL checks PASS. Roadmap renumbered (see revision note); two AI phases merged to keep the range at 0-14. |
+| 2026-09-27 | Phase 2 COMPLETED: raw layout normalised to `data/raw/IO-VNBD/`; two schemas found (S phone 24-col, V vehicle/CAN 29-col); 288 files → 72 unique sessions (V pairs byte-identical, S pairs content-identical, max diff 7.1e-15); 2,118 Excel-damaged satellite cells recovered; GRAVITY channel shown normalised to g0 in 72/72 sessions; gyro vertical axis = column 2 (gain 0.997); S/V row pairing shown misaligned by the phone clock error (up to 314 s), UTC-time join adopted (25 verified, 0 contradicted); driver-held-out split v1; `navigation_math.md` §5.2 arithmetic corrected (9.812377 → 9.812381); `scripts/phase2_validate.py` 26/26 CRITICAL PASS. |

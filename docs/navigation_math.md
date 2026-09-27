@@ -180,11 +180,16 @@ R_b^n = (w² − vᵀv) I + 2 v vᵀ + 2w [v]×        where q = [w, v], v = [x,
 At the first IO-VNBD fix (`φ = 52.402565°`, `h = 144.59 m`):
 
 ```
-sin²φ            = 0.627722
-γ(φ)             = 9.7803253359 × 1.001212666 / 0.997896652   = 9.812823 m/s²
+sin²φ            = 0.627766
+γ(φ)             = 9.7803253359 × 1.001212752 / 0.997896535   = 9.812827 m/s²
 free-air         = −3.086e-6 × 144.59                         = −0.000446 m/s²
-γ(φ,h)           ≈ 9.812377 m/s²                       ← local normal gravity
+γ(φ,h)           ≈ 9.812381 m/s²                       ← local normal gravity
 ```
+
+> **Correction (Phase 2, 2026-09-27).** The Phase 1 version of this block had
+> `sin²φ = 0.627722` — a hand-arithmetic slip — giving `9.812377`. The value above is
+> recomputed and is pinned by `tests/unit/test_iovnbd_loader.py::test_normal_gravity_reproduces_doc_value`.
+> The difference (4.2e-6 m/s²) changes none of the conclusions below.
 
 But the dataset's own `GRAVITY` channel, on that same row
 (`0.0089, −0.0009, 9.8066`), has magnitude:
@@ -197,14 +202,14 @@ The Android `TYPE_GRAVITY` virtual sensor is reporting a vector normalised to st
 gravity `9.80665`, **not** local normal gravity. The difference is:
 
 ```
-9.812377 − 9.806600 = 0.005777 m/s²
+9.812381 − 9.806600 = 0.005781 m/s²
 ```
 
 That is small, and it is *not* negligible in dead reckoning. As an unmodelled vertical
 acceleration over a 60 s outage:
 
 ```
-½ × 0.005777 × 60²  ≈  10.4 m
+½ × 0.005781 × 60²  ≈  10.4 m
 ```
 
 **Consequence for the implementation.** Phase 6 must use the §5.1 model for `g^n` and
@@ -214,8 +219,12 @@ magnitude reference. This also means the accelerometer's gravity-inclusive/exclu
 question (Phase 0 §0.4 hazard 7) has to be settled from the data before any integration.
 
 *Scope of this measurement:* the dataset figure above is from **one row of one file**.
-The Phase 2 audit re-computes `‖GRAVITY‖` across all 288 recordings and confirms or
-overturns it. The theoretical value is reproducible from §5.1 by anyone.
+**Phase 2 result (all 72 unique sessions, `reports/phase2/dataset_report.json`):**
+confirmed. The pooled `‖GRAVITY‖` is `9.806596 m/s²`, the per-session means span
+`9.806592–9.806622`, and every session is closer to `g₀` than to its own local normal
+gravity (`9.81205–9.81312` over the dataset's latitudes and heights). The stationary
+accelerometer norm is `9.863 m/s²`, so the accelerometer channel is gravity-inclusive
+(hazard 7 settled).
 
 ### 5.3 Specific force at rest, for calibration
 
@@ -502,10 +511,16 @@ Declarations in a document drift. These are the tests that make them binding
 Honest list of what is **not yet decided**, to be settled by measurement in the named
 phase — not by picking the conventional answer now:
 
-1. **Body-axis mapping.** IO-VNBD labels gyro axes `Yaw/Pitch/Roll`, not `X/Y/Z`. The
-   mapping into `b` is unknown. → Phase 4, empirically.
-2. **Accelerometer gravity inclusion.** `ACCELEROMETER` and `GRAVITY` are separate
-   channels; whether the former includes gravity is indicated but unconfirmed. → Phase 2.
+1. **Body-axis mapping.** *Partly settled in Phase 2.* The `Yaw/Pitch/Roll` labels are
+   positional aliases of `X/Y/Z` (the Uncategorised copies of the same files say X/Y/Z).
+   Against the vehicle's CAN yaw rate, the rotation about the vertical appears on the
+   **second** gyro column (`gyro_y`, sign +, gain 0.997, 21 of 22 strongly-correlated
+   sessions), while accelerometer/gravity **Z** is vertical in all 72 sessions. The gyro
+   columns are therefore not in the accelerometer's axis order, and the label "Yaw" on
+   column 1 is wrong. The two horizontal gyro axes are unresolved (the smoothed GRAVITY
+   channel is too quiet to identify them). → Phase 4.
+2. **Accelerometer gravity inclusion.** *Settled in Phase 2:* gravity-inclusive
+   (stationary norm 9.863 m/s² over 103,449 rows). See §5.2.
 3. **ECEF → geodetic method.** Bowring vs Ferrari, chosen on measured on-device cost
    against the accuracy requirement. → Phase 3.
 4. **Integration scheme.** Trapezoidal vs higher-order, and whether coning/sculling

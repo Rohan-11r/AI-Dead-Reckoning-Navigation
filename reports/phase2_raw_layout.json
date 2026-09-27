@@ -1,0 +1,14 @@
+{
+  "generated": "2026-09-27T17:06:23",
+  "script": "scripts/preprocess/normalize_raw_layout.py",
+  "legacy_layout": "data/raw/data raw  IO-VNBD/Synchronised V abd S datasets/Synchronised V abd S datasets",
+  "normalised_root": "data/raw/IO-VNBD",
+  "operation": "directory rename (same volume); file bytes untouched",
+  "moved_this_run": false,
+  "files": 360,
+  "files_by_extension": {
+    "csv": 288,
+    "jpg": 72
+  },
+  "total_bytes": 864108895
+}

@@ -12,7 +12,7 @@ Detailed per-phase status lives in [`PROJECT_STATUS.md`](./PROJECT_STATUS.md).
 ```
 Phase 0   Environment                         [COMPLETED]
 Phase 1   Architecture & repo                  [COMPLETED]
-Phase 2   Data                                    |
+Phase 2   Data                                [COMPLETED]
 Phase 3   Geodesy  ------------------------------- + -- foundations
 Phase 4   Calibration                              |
               |
@@ -39,15 +39,13 @@ in parallel. Everything from Phase 12 on is gated by installing a JDK and the An
 
 ## Immediate Next Actions (top of the stack)
 
-1. **Phase 2, task 1:** write the IO-VNBD loader that survives every parsing hazard in
-   `PROJECT_STATUS.md` §0.4 — cp1252 encoding, irregular column names, the `"18 / 19"`
-   satellite field, the colon-before-milliseconds datetime, km/h → m/s.
-2. **Phase 2, task 2:** checksum `Categorised` vs `Uncategorised` and settle whether the
-   effective dataset is 288 recordings or 144.
-3. **Phase 2, task 3:** integrity audit — real `dt` histogram, gaps, duplicates, NaN
-   counts, GPS quality profile, `‖GRAVITY‖` across all 288 files (see `navigation_math.md`
-   §5.2, which is currently based on a single row).
-4. **Out of band, start now:** install JDK 17 + Android Studio / command-line tools.
+1. **Decision needed (user):** may V-file CAN channels (wheel speed, CAN yaw rate) be model
+   *inputs*, or only reference/evaluation truth? See `PROJECT_STATUS.md` §2.10.
+2. **Phase 3:** single constants source (WGS84, g0, normal-gravity coefficients) generated
+   for Python and Kotlin — replaces the audit-only copy in `training/preprocessing/iovnbd_audit.py`.
+3. **Phase 3:** single dataset-path config module (carried over from Phase 2).
+4. **Phase 4:** horizontal gyro axes; Allan variance on stationary sessions `Vw1`, `Vw15`.
+5. **Android:** built externally / in CI in later phases (Android Studio not installed locally).
    This blocks Phases 12–14 and has a long lead time.
 5. **Out of band:** confirm a physical Android handset is available for Phases 13–14.
    An emulator cannot generate real IMU data.
@@ -112,26 +110,41 @@ Not done (deliberately):
 ## Phase 2 — Dataset Ingestion, Schema Normalisation & Integrity Audit
 
 **Goal: know exactly what is wrong with the data before any model sees it.**
+**Status: COMPLETED 2026-09-27** — `reports/phase2_validation.txt`, 26/26 CRITICAL PASS.
 
-- [ ] Pinned venv + `requirements.txt`; record the resolved versions verbatim
-- [ ] Decide Python 3.14.4 vs 3.13.5 by attempting installation, not by assumption
-- [ ] `git init` + `.gitignore` (data, artefacts, checkpoints, venv)
-- [ ] Single config module holding the one dataset path
-- [ ] Loader: cp1252 encoding, normalised column names, explicit datetime format
-- [ ] Split `GPS SATELLITES IN RANGE` (`"18 / 19"`) into used/visible integers
-- [ ] Convert km/h to m/s at the loader boundary; SI everywhere inside
-- [ ] Checksum `Categorised` vs `Uncategorised` — settle the duplication question
-- [ ] Per-recording integrity audit: rows, duration, real `dt` histogram, monotonicity,
-      gaps, duplicates, per-column NaN/blank counts
-- [ ] GPS quality profile: accuracy distribution, satellite counts, outage segments
-- [ ] Kinematic plausibility screen: gravity magnitude vs 9.80665, sensor ranges,
-      GPS speed vs differentiated GPS position
-- [ ] Stationary-segment detection (feeds Phase 4 calibration and Phase 8 ZUPT)
-- [ ] Convert to Parquet with an explicit versioned schema
-- [ ] **Route/driver-level** train/val/test split manifest — never a random row split
-- [ ] Leak check asserting no route or driver spans two splits
-- [ ] Dataset card: contents, defects, exclusions with reasons
-- [ ] Loader unit tests (encoding, datetime, satellite parsing, unit conversion)
+- [x] Pinned venv + `requirements.txt` *(done in Phase 1)*
+- [x] Python version decided on evidence *(done in Phase 1)*
+- [x] `git init` + `.gitignore` *(done in Phase 1; initial commit made at Phase 2 start)*
+- [x] Raw layout normalised to `data/raw/IO-VNBD/` (rename only, inventory verified)
+- [ ] Single config module holding the one dataset path — **not done**: path is a
+      constant in each Phase 2 script + `.env.example`. Carry to Phase 3.
+- [x] Loader: cp1252 + per-token mojibake repair, normalised column names, explicit datetime
+- [x] Split `GPS SATELLITES IN RANGE` into used/visible; 2,118 Excel-damaged cells repaired
+- [x] Convert km/h to m/s at the loader boundary; SI everywhere inside
+- [x] Checksum `Categorised` vs `Uncategorised` — settled: 72 unique sessions
+- [x] Per-recording integrity audit: rows, duration, real `dt` histogram, monotonicity,
+      gaps, duplicates, per-column NaN counts
+- [x] GPS quality profile: accuracy, satellite counts, fix update interval
+- [~] Kinematic plausibility screen: gravity vs g0 and local g, sensor ranges, GPS speed vs
+      VBOX speed. **GPS speed vs differentiated GPS position not done.**
+- [~] Stationary rows detected (CAN + wheel + VBOX speed all zero) for the audit;
+      **not yet exported as reusable segments** for Phase 4 / Phase 8
+- [x] Parquet with an explicit versioned schema (`iovnbd-v1`, units in metadata)
+- [x] **Route/driver-level** split manifest `data/splits/iovnbd_split_v1.json`
+- [x] Leak check: no session, route group, or test driver spans two splits
+- [x] Dataset card: `reports/phase2/dataset_report.html` (+ `.json`)
+- [x] Loader unit tests (22)
+
+**New items found by Phase 2 (carried forward):**
+- [ ] Phase 4: resolve the two horizontal gyro axes (vertical = column 2 `gyro_y`, proven)
+- [ ] Phase 4: Allan variance from stationary-only sessions `Vw1` (34 min), `Vw15`
+- [ ] Phase 4: wheel-speed unit (km/h vs rad/s label) and odometry scale vs VBOX speed
+- [ ] Phase 7: per-session S/V time-alignment refinement for the 47 unverified sessions
+      before any V-file channel is used as a 10 Hz training target
+- [ ] Phase 8: model phone-GNSS latency (median 4.1 s behind VBOX) in the measurement model
+- [ ] **Decision needed:** whether V-file CAN channels (wheel speed, yaw rate) may be
+      model *inputs*, or only reference/evaluation truth — a phone-only deployment has
+      no CAN bus
 
 ---
 

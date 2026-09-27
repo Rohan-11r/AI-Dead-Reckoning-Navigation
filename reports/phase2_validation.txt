@@ -1,0 +1,40 @@
+====================================================================================================
+SIH26168 -- PHASE 2 DATASET INGESTION & INTEGRITY VALIDATION
+generated: 2026-09-27T17:47:33
+script:    scripts/phase2_validate.py
+====================================================================================================
+
+  CRITICAL  PASS      raw root normalised to data/raw/IO-VNBD                            exists=True, other dirs=[]
+  CRITICAL  PASS      raw file inventory 288 CSV + 72 JPG                                288 CSV, 72 JPG
+  CRITICAL  PASS      every raw file passes the schema validator                         288/288 ok, 4,283,560 data rows
+  CRITICAL  PASS      288 files accounted for: 144 canonical + 144 duplicate, 0 excluded {"canonical": 144, "duplicate": 144}
+  CRITICAL  PASS      V pairs byte-identical (SHA-256)                                   72/72
+  CRITICAL  PASS      S pairs content-identical (differ only in float text + labels)     72/72, max |diff| 7.11e-15, byte-identical S pairs: 0
+  CRITICAL  PASS      no content conflicts between copies                                []
+  CRITICAL  PASS      unique sessions == 72, all with phone + vehicle log                72 sessions
+  CRITICAL  PASS      DATE parsed with explicit format: 0 failures                       unparsed=0, lost at DST=0
+  CRITICAL  PASS      satellites: 0 malformed, used <= visible everywhere                excel-repaired 2118, malformed 0, used>visible 0
+  CRITICAL  PASS      both S header variants seen and mapped                             {"Yaw/Pitch/Roll": 72, "XYZ/Azimuth": 72, "vehicle": 144}
+  CRITICAL  PASS      GRAVITY channel normalised to g0 in every session                  pooled |g| 9.806596; closer to g0 in 72/72
+  CRITICAL  PASS      accelerometer is gravity-inclusive (stationary |a| ~ g)            9.8627 m/s^2 over 103,449 rows
+  CRITICAL  PASS      UTC-time join never contradicted by gyro/yaw-rate evidence         status {"time_join_verified": 25, "unverified_weak_signal": 43, "unverified_vehicle_not_moving": 2, "unverified_time_join_no_overlap": 2}
+  INFO      OBSERVED  gyro vertical axis vs CAN yaw rate                                 votes {'y+': 21, 'z-': 1} over 22 strong sessions; gain(y) 0.9968
+  INFO      OBSERVED  row-pairing offset > 1 s                                           49 sessions
+  INFO      OBSERVED  unit evidence                                                      height-alt -51.1 m; dh/dt/vvel 0.986; wheel/vbox_kmh 1.0043; GNSS lag 4.1 s
+  CRITICAL  PASS      72 phone + 72 vehicle parquet files                                72 phone, 72 vehicle
+  CRITICAL  PASS      phone schema exact; vehicle has t_utc                              []
+  CRITICAL  PASS      every column carries a unit in parquet metadata                    []
+  CRITICAL  PASS      parquet row count == raw data-row count (independent line count)   []
+  CRITICAL  PASS      raw sources unchanged since ingest (SHA-256 in parquet metadata)   144/144 match
+  CRITICAL  PASS      SI sanity: GPS speed < 70 m/s, |gravity| ~ 9.807                   []
+  CRITICAL  PASS      every session in exactly one split                                 72 assignments, 72 unique, 72 sessions
+  CRITICAL  PASS      no route group spans two splits                                    []
+  CRITICAL  PASS      test drivers are held out entirely                                 test drivers ['A'], leaking []
+  CRITICAL  PASS      test fraction within bounds                                        fractions {'train': 0.6638, 'val': 0.1271, 'test': 0.2091}, hours {'train': 16.65, 'val': 3.189, 'test': 5.246}
+  CRITICAL  PASS      loader unit tests (encoding, headers, sats, datetime, dedupe)      22 passed in 0.64s
+  CRITICAL  PASS      dataset_report.html rendered                                       33,632 bytes
+
+----------------------------------------------------------------------------------------------------
+CRITICAL checks: 26/26 passed
+RESULT: PASS
+----------------------------------------------------------------------------------------------------
