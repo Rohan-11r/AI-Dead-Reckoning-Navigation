@@ -1520,9 +1520,10 @@ Read plainly:
 **Status:** `COMPLETED` for code and tests: outage simulator, replay engine, streaming
 engine, recovery manager, output smoother. **The recovery manager is OFF by default**
 (`FusionConfig.recovery = None`). Two real-drive benchmark runs showed earlier designs of
-it failing badly (§9.4). The third run, of the corrected design, was still in progress at
-commit time; it is not waited for (owner's decision). Until it reports, the manager is
-unvalidated on real data.
+it failing badly (§9.4). The third run, of the corrected design, completed after the
+Phase 9 commit (§9.4a): no divergence, but **no clear benefit either**, so it stays OFF.
+The same run shows the output smoother **triples the typical error** of the output it
+smooths: continuity costs accuracy on this data.
 **Date:** 2026-09-28
 **Evidence:** `tests/simulation/` (14), `tests/navigation/test_recovery_manager.py` (13),
 `tests/navigation/test_recovery.py` (2, Phase 4, unchanged); **full suite 271 passed**, `ruff` clean;
@@ -1607,7 +1608,39 @@ velocity/heading σ, fail-open, position-only inflation, time-bounded glide.
   **the Phase 4/7 whole-drive mount was a mild advantage**, not decisive.
 
 **Run 3** (corrected: inflation only for a position mismatch, capped ×100, refused and
-undone otherwise; start-up excluded; linear glide smoother): **in progress at commit time.**
+undone otherwise; start-up excluded; linear glide smoother): completed after the commit.
+
+### 9.4a Run 3 results (`reports/phase9/outage_benchmark.json`, 144 events, 0 divergences)
+
+Recovery manager ON vs OFF (train + val, p50 per event kind):
+
+| Event | Filter error at event end | Output error 30 s after | Time back within 20 m |
+| --- | --- | --- | --- |
+| full 10 s | 44.5 → 53.9 m | **16.4 → 9.2 m** | 8.4 → 8.1 s |
+| full 30 s | 256.6 → 239.1 m | 31.3 → **111.9 m** | 30.5 → 41.0 s |
+| full 60 s | 449.1 → 639.1 m | 283.5 → 296.1 m | 46.8 → 48.5 s |
+| full 120 s | 827.2 → 817.3 m | 355.4 → 342.6 m | 51.1 → 54.6 s |
+| full 300 s | 2,070 → 2,168 m | 626.5 → 546.4 m | 58.3 → 61.4 s |
+| tunnel 45 s | 311.2 → 363.0 m | **195.3 → 121.7 m** | 49.3 → 41.7 s |
+| intermittent 120 s | 926.2 → 984.8 m | 110.9 → **576.2 m** | 38.6 → 55.0 s |
+| degraded 60 s | 11.0 → 13.9 m | 16.7 → 26.5 m | 0.1 → 0.1 s |
+
+- **No divergence**: the largest filter jump is 8.2 km with the manager vs 8.5 km without (after 300 s
+  outages: the correction itself). Inflations: 41 applied, 92 refused, 47 not a position
+  mismatch; 22 inconsistent pairs; 12 fail-open timeouts.
+- **Mixed, not better**: it helps after short dropouts and tunnels, hurts after 30 s and
+  intermittent events, and mostly re-converges slower. Event-end errors differ too, because
+  each recovery changes the state the next event starts from. **Decision: stays OFF.**
+- **Output smoother cost**: in the manager-OFF arm, the median over drives of the per-drive
+  median error is **63.0 m for the smoothed output vs 21.9 m for the filter**. With a fix only
+  every 9 s, a recent correction is almost always still gliding in (10 s bound), so the
+  output lags the filter's best estimate. The continuity guarantee is real, but so is the cost.
+  The app should display a smoothed position only where continuity matters more than
+  accuracy; the filter position is always available (`EngineOutput.filter_*`). **Open
+  decision for the project owner.**
+- Lookahead (VAL, filter error at event end, causal vs whole-drive mount): 10 s 37 vs 42 m,
+  30 s 308 vs 287 m, 60 s 294 vs 221 m, tunnel 400 vs 250 m, 300 s 7,660 vs 6,299 m (n 2–5):
+  the whole-drive mount of Phases 4/7 was a mild advantage.
 
 ### 9.5 What is and is not established
 
@@ -1615,8 +1648,8 @@ undone otherwise; start-up excluded; linear glide smoother): **in progress at co
 | --- | --- |
 | Outage simulator and replay are correct and deterministic | **verified** (tests; exact Phase 7 reproduction) |
 | Output never teleports across LOST → RECOVERING → GOOD | **verified** by construction and tests (synthetic); run 2 real-drive: a *previous* smoother version |
-| Final linear-glide smoother on real drives | pending run 3 (glide bound: after a 300 s outage expect fast glides, ~km/10 s) |
-| Recovery manager improves real-drive recovery | **not established**: two designs failed; the third is unmeasured. OFF by default |
+| Final linear-glide smoother on real drives | **measured (run 3)**: continuous (max 90 m per 0.1 s glide after 300 s outages), but triples the typical error (63 vs 22 m) |
+| Recovery manager improves real-drive recovery | **not established**: two designs failed; the third is neutral-to-mixed. OFF by default |
 | Unit tests passing ⇒ correct on real data | **false in this phase**: all tests passed while runs 1 and 2 failed. Synthetic heading was near-perfect; real heading is not |
 
 ### 9.6 Exit criteria
@@ -1625,7 +1658,8 @@ undone otherwise; start-up excluded; linear glide smoother): **in progress at co
 - [x] Recovery logic in `navigation-core/recovery/` with consistency checks and gradual fusion; output continuity
 - [x] Replay engine in `simulation/replay/`, deterministic, streaming, causal
 - [x] Unit tests for continuity across LOST → RECOVERING → GOOD; full suite passes
-- [ ] Real-drive evidence that the recovery manager helps (run 3 pending; manager OFF until then)
+- [x] Real-drive evaluation of the recovery manager (run 3): mixed, no clear benefit -> OFF
+- [ ] Decide what the app displays: smoothed output (continuous) or filter position (more accurate)
 
 ---
 
