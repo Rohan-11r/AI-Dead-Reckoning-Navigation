@@ -40,11 +40,14 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from training.preprocessing import iovnbd as io  # noqa: E402
 from training.preprocessing import iovnbd_audit as audit  # noqa: E402
+from training.preprocessing.config import load_dataset_config  # noqa: E402
 
-RAW_ROOT = REPO_ROOT / "data" / "raw" / "IO-VNBD"
-OUT_ROOT = REPO_ROOT / "data" / "processed" / "iovnbd" / "v1"
-SPLIT_PATH = REPO_ROOT / "data" / "splits" / "iovnbd_split_v1.json"
-REPORT_DIR = REPO_ROOT / "reports" / "phase2"
+CFG = load_dataset_config()
+RAW_ROOT = CFG.raw_root
+OUT_ROOT = CFG.processed_root
+# Phase 2 manifest; superseded by the drive-aware v2 from training/preprocessing/splits.py
+SPLIT_PATH = CFG.splits_dir / "iovnbd_split_v1.json"
+REPORT_DIR = CFG.reports_dir / "phase2"
 SCHEMA_VERSION = "iovnbd-v1"
 SEED = 26168
 TEST_FRACTION_TARGET = 0.20
@@ -84,7 +87,7 @@ def process_session(session_key: str, copies: dict[str, list[dict]]) -> dict:
             entry["sha256"] = io.sha256_file(path)
             try:
                 raw, rep = io.load_raw(path, kind)
-            except Exception as exc:  # noqa: BLE001 -- recorded, file excluded, never hidden
+            except Exception as exc:
                 entry["status"] = "excluded"
                 entry["reason"] = f"{type(exc).__name__}: {exc}"
                 res["errors"].append(entry["reason"])

@@ -1,6 +1,6 @@
 ====================================================================================================
 SIH26168 -- PHASE 2 DATASET INGESTION & INTEGRITY VALIDATION
-generated: 2026-09-27T17:47:33
+generated: 2026-09-27T18:20:27
 script:    scripts/phase2_validate.py
 ====================================================================================================
 
@@ -29,10 +29,10 @@ script:    scripts/phase2_validate.py
   CRITICAL  PASS      SI sanity: GPS speed < 70 m/s, |gravity| ~ 9.807                   []
   CRITICAL  PASS      every session in exactly one split                                 72 assignments, 72 unique, 72 sessions
   CRITICAL  PASS      no route group spans two splits                                    []
-  CRITICAL  PASS      test drivers are held out entirely                                 test drivers ['A'], leaking []
-  CRITICAL  PASS      test fraction within bounds                                        fractions {'train': 0.6638, 'val': 0.1271, 'test': 0.2091}, hours {'train': 16.65, 'val': 3.189, 'test': 5.246}
-  CRITICAL  PASS      loader unit tests (encoding, headers, sats, datetime, dedupe)      22 passed in 0.64s
-  CRITICAL  PASS      dataset_report.html rendered                                       33,632 bytes
+  CRITICAL  PASS      test drivers are held out entirely                                 test drivers ['B', 'D'], leaking []
+  CRITICAL  PASS      test fraction within bounds                                        fractions {'train': 0.6972, 'val': 0.1371, 'test': 0.1656}, hours {'train': 20.608, 'val': 4.052, 'test': 4.896}
+  CRITICAL  PASS      loader unit tests (encoding, headers, sats, datetime, dedupe)      25 passed in 0.51s
+  CRITICAL  PASS      dataset_report.html rendered                                       33,636 bytes
 
 ----------------------------------------------------------------------------------------------------
 CRITICAL checks: 26/26 passed

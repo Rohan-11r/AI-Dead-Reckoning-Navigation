@@ -1,0 +1,35 @@
+====================================================================================================
+SIH26168 -- PHASE 3 PREPROCESSING, FRAMES, SPLITS & NORMALISATION VALIDATION
+generated: 2026-09-27T18:24:09
+script:    scripts/phase3_validate.py
+====================================================================================================
+
+  CRITICAL  PASS      ruff pinned in requirements-dev.txt and installed at that version      pinned 0.16.9, installed 0.16.9
+  CRITICAL  PASS      ruff check . is clean                                                  All checks passed!
+  CRITICAL  PASS      full test suite passes                                                 128 passed in 1.06s
+  CRITICAL  PASS      configs/dataset.yaml loads; raw root exists                            raw_root=data/raw/IO-VNBD
+  CRITICAL  PASS      no hardcoded dataset paths in scripts/, training/, navigation-core/    []
+  CRITICAL  PASS      navigation tests catch 5/5 injected convention bugs                    {"jpl_product": true, "passive_rotation": true, "enu_transposed": true, "no_small_angle_branch": true, "height_ignored": true}
+  CRITICAL  PASS      wheel-speed calibration: rear-axle factor, residual, driven axle       k=1.00019 raw/(km/h); resid median -0.0000 p95|.| 0.233 m/s over 330,853 samples; FWD evidence 0.99
+  INFO      OBSERVED  wheel-speed unit decision                                              favoured km/h; identifiable=False; implied r under rad/s 0.27772 m
+  CRITICAL  PASS      72 synced session files                                                72 files
+  CRITICAL  PASS      synced columns are exactly META + INPUT + GT                           []
+  CRITICAL  PASS      input/ground-truth roles in file metadata obey the CAN rule            []
+  CRITICAL  PASS      row accounting: out = in - no-time - exact duplicates (and = parquet rows) []
+  CRITICAL  PASS      real dt inside segments in (0, 1] s; GNSS epoch = t - latency          []
+  CRITICAL  PASS      ground truth matched for >= 95 % of phone rows                         0.9896 (1,054,342/1,065,371)
+  CRITICAL  PASS      time join verified: gyro_y vs CAN yaw rate (recomputed, verified sessions) median r 0.742 over 23 sessions
+  CRITICAL  PASS      GNSS latency handling improves phone-vs-truth speed agreement          40/41 sessions; median |err| 0.819 -> 0.529 m/s
+  CRITICAL  PASS      split v2 passes the independent leak audit (incl. temporal adjacency)  0 violations
+  CRITICAL  PASS      every synced session assigned exactly once                             72 assigned, 72 synced
+  INFO      OBSERVED  split v2                                                               test drivers ['B', 'D']; hours {'train': 20.478, 'val': 4.183, 'test': 4.896}; fractions {'train': 0.6928, 'val': 0.1415, 'test': 0.1656}; drives {'train': 10, 'val': 2, 'test': 2}
+  CRITICAL  PASS      normalisation fitted on exactly the train sessions                     56 train sessions; manifest sha256 matches: True
+  CRITICAL  PASS      normalisation reproduces from scratch                                  max |d mean| 0.0e+00, max |d std| 0.0e+00
+  CRITICAL  PASS      normalisation refuses a test-split session                             SplitLeakError raised
+  INFO      OBSERVED  phone GNSS latency                                                     pooled median 4.1 s, IQR [3.1, 4.7], range [0.1, 8.3], sources {'measured': 41, 'pooled_median': 31}
+  INFO      OBSERVED  split v1 (Phase 2) under the drive rule                                49 violations -> superseded by v2
+
+----------------------------------------------------------------------------------------------------
+CRITICAL checks: 20/20 passed
+RESULT: PASS
+----------------------------------------------------------------------------------------------------

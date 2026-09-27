@@ -1,14 +1,14 @@
 {
  "meta": {
   "title": "IO-VNBD dataset integrity report (Phase 2)",
-  "generated": "2026-09-27T17:38:53",
+  "generated": "2026-09-27T18:20:07",
   "script": "scripts/preprocess/ingest_iovnbd.py",
-  "commit": "14bcbb5",
+  "commit": "e22997b",
   "python": "3.14.4",
   "raw_root": "data/raw/IO-VNBD",
   "processed_root": "data/processed/iovnbd/v1",
   "schema_version": "iovnbd-v1",
-  "runtime_s": 30.6,
+  "runtime_s": 18.2,
   "thresholds": {
    "gap_s": 0.15,
    "break_s": 1.0,
@@ -67,7 +67,7 @@
    ],
    "route_groups": 66,
    "phone_rows_total": 1070745,
-   "phone_hours_total": 25.085,
+   "phone_hours_total": 29.557,
    "vbox_distance_km_total": 1341.26,
    "continuous_segments_total": 83
   },
@@ -192,8 +192,8 @@
   "gravity": {
    "standard_g0_mps2": 9.80665,
    "local_normal_gravity_mps2_range": [
-    9.812049390440281,
-    9.813116115809821
+    9.812049390440285,
+    9.813116115809825
    ],
    "channel_norm_pooled_mean_mps2": 9.806596498642653,
    "channel_norm_session_mean_range_mps2": [
@@ -204,7 +204,7 @@
    "sessions_closer_to_g0_than_local": 72,
    "sessions_total": 72,
    "pooled_minus_g0_mps2": -5.3501357346164014e-05,
-   "pooled_minus_local_mean_mps2": -0.005958469850813941,
+   "pooled_minus_local_mean_mps2": -0.005958469850817494,
    "stationary_rows": 103449,
    "stationary_sessions": 42,
    "stationary_acc_norm_weighted_mean_mps2": 9.862689442101733,
@@ -404,48 +404,57 @@
  },
  "split": {
   "test_drivers": [
-   "A"
+   "B",
+   "D"
   ],
   "driver_duration_h": {
-   "A": 5.246,
-   "B": 1.714,
-   "D": 1.859,
-   "E": 16.266
+   "A": 8.579,
+   "B": 2.944,
+   "D": 1.952,
+   "E": 16.082
   },
   "split_duration_h": {
-   "train": 16.65,
-   "val": 3.189,
-   "test": 5.246
+   "train": 20.608,
+   "val": 4.052,
+   "test": 4.896
   },
   "split_fraction": {
-   "train": 0.6638,
-   "val": 0.1271,
-   "test": 0.2091
+   "train": 0.6972,
+   "val": 0.1371,
+   "test": 0.1656
   },
   "splits": {
    "train": [
-    "M",
+    "S2",
+    "S3a",
+    "S3b",
+    "S3c",
+    "S4",
     "Vfa01",
     "Vfa02",
     "Vta10",
     "Vta11",
+    "Vta12",
+    "Vta13",
     "Vta14",
     "Vta15",
     "Vta16",
     "Vta17",
     "Vta19",
-    "Vta2",
+    "Vta1a",
+    "Vta1b",
     "Vta20",
-    "Vta22",
-    "Vta23",
+    "Vta21",
+    "Vta24",
+    "Vta25",
     "Vta26",
     "Vta27",
-    "Vta28",
     "Vta29",
+    "Vta3",
     "Vta30",
     "Vta4",
-    "Vta5",
     "Vta6",
+    "Vta7",
     "Vta8",
     "Vta9",
     "Vtb1",
@@ -455,7 +464,9 @@
     "Vtb4",
     "Vtb5",
     "Vtb6",
-    "Vtb7",
+    "Vtb9",
+    "Vw10",
+    "Vw11",
     "Vw12",
     "Vw13",
     "Vw14a",
@@ -467,39 +478,29 @@
     "Vw17",
     "Vw3",
     "Vw4",
-    "Vw5",
+    "Vw6",
     "Vw7",
     "Vw8",
-    "Vw9",
-    "Y1"
+    "Vw9"
    ],
    "val": [
-    "Vta12",
-    "Vta13",
-    "Vta1a",
-    "Vta1b",
-    "Vta21",
-    "Vta24",
-    "Vta25",
-    "Vta3",
-    "Vta7",
+    "S1",
+    "Vta2",
+    "Vta22",
+    "Vta23",
+    "Vta28",
+    "Vta5",
     "Vtb10",
     "Vtb12",
+    "Vtb7",
     "Vtb8",
-    "Vtb9",
     "Vw1",
-    "Vw10",
-    "Vw11",
     "Vw2",
-    "Vw6"
+    "Vw5"
    ],
    "test": [
-    "S1",
-    "S2",
-    "S3a",
-    "S3b",
-    "S3c",
-    "S4"
+    "M",
+    "Y1"
    ]
   }
  },
@@ -515,7 +516,7 @@
      "kind": "S",
      "size_bytes": 19798721,
      "sha256": "26a1ee080da4db98e175e15d6fec631e6f8c285c13817d9d74ecc90ed280d103",
-     "content_digest": "3520dbab4f240468a80fb14be7fac66aa6c018e2dd8edd8047c9d27ca14ee9df",
+     "content_digest": "a422da7e924d7fe3e615037834815c248bb4b7c0ad805544d8094098c0c5aedb",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 105974,
      "coerced_non_numeric": {},
@@ -527,7 +528,7 @@
      "kind": "S",
      "size_bytes": 19798716,
      "sha256": "344ca318664ad2059a3a0e6cc828de48d0d4639f73e9033b1c3855f5c2c4b202",
-     "content_digest": "3520dbab4f240468a80fb14be7fac66aa6c018e2dd8edd8047c9d27ca14ee9df",
+     "content_digest": "a422da7e924d7fe3e615037834815c248bb4b7c0ad805544d8094098c0c5aedb",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 105974,
      "coerced_non_numeric": {},
@@ -593,7 +594,8 @@
    "route_group": "M",
    "phone": {
     "n_rows": 105974,
-    "duration_s": 6171.7480000000005,
+    "duration_s": 10597.1,
+    "span_first_to_last_s": 6171.7480000000005,
     "timing": {
      "n_intervals": 105973,
      "dt_median_s": 0.09999999999990905,
@@ -664,7 +666,7 @@
      "sats_used_p50": 23.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 50,
-     "speed_mps_max": 7.5055555555555555,
+     "speed_mps_max": 27.02,
      "lat_mean_deg": 52.424430228235224,
      "alt_mean_m": 158.40013644856288
     },
@@ -673,9 +675,9 @@
      "norm_std_mps2": 3.607019554739573e-05,
      "norm_p01_mps2": 9.806500540457844,
      "norm_p99_mps2": 9.806658604438107,
-     "local_normal_gravity_mps2": 9.812357710671698,
+     "local_normal_gravity_mps2": 9.812357710671701,
      "mean_minus_g0": -5.743179260164766e-05,
-     "mean_minus_local": -0.005765142464300155,
+     "mean_minus_local": -0.0057651424643037075,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -893,7 +895,7 @@
      "height_raw_minus_phone_alt_median": -51.22999999999999,
      "dhdt_mps_over_vvel_raw_slope": 0.9748006261848318,
      "phone_gnss_speed_lag_s_vs_vbox": 4.3,
-     "phone_gnss_speed_corr_at_lag": 0.952841891208953
+     "phone_gnss_speed_corr_at_lag": 0.9528418912089546
     }
    }
   },
@@ -906,7 +908,7 @@
      "kind": "S",
      "size_bytes": 9631499,
      "sha256": "e79a2eea18143b825438f9a11c7d724a97c9e18329776defd4d9291d03d4aaca",
-     "content_digest": "6085456774be595144600cbf72658bdde272289c0ae45fac0f21b9549fb2e305",
+     "content_digest": "72943c94dfa61338411d4e74ffc9f0faa1c675252644b4ff64416b1455348f13",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 51746,
      "coerced_non_numeric": {},
@@ -918,7 +920,7 @@
      "kind": "S",
      "size_bytes": 10011984,
      "sha256": "8c4d2678fd79cce7c819437a7d85d7d5cb9e47a63dac7d171ead3f9d052deff1",
-     "content_digest": "6085456774be595144600cbf72658bdde272289c0ae45fac0f21b9549fb2e305",
+     "content_digest": "72943c94dfa61338411d4e74ffc9f0faa1c675252644b4ff64416b1455348f13",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 51746,
      "coerced_non_numeric": {},
@@ -984,7 +986,8 @@
    "route_group": "S1",
    "phone": {
     "n_rows": 51746,
-    "duration_s": 5174.499000000001,
+    "duration_s": 5174.499,
+    "span_first_to_last_s": 5174.499000000001,
     "timing": {
      "n_intervals": 51745,
      "dt_median_s": 0.09999999999990905,
@@ -1055,7 +1058,7 @@
      "sats_used_p50": 27.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 40,
-     "speed_mps_max": 5.227777777777778,
+     "speed_mps_max": 18.82,
      "lat_mean_deg": 52.40953621273142,
      "alt_mean_m": 173.89195763923783
     },
@@ -1064,9 +1067,9 @@
      "norm_std_mps2": 3.8407418902443915e-05,
      "norm_p01_mps2": 9.8065006755723,
      "norm_p99_mps2": 9.806663333315772,
-     "local_normal_gravity_mps2": 9.81229685662259,
+     "local_normal_gravity_mps2": 9.812296856622593,
      "mean_minus_g0": -5.835796631714629e-05,
-     "mean_minus_local": -0.005705214588907381,
+     "mean_minus_local": -0.005705214588910934,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -1283,7 +1286,7 @@
      "height_raw_minus_phone_alt_median": -50.420000000000016,
      "dhdt_mps_over_vvel_raw_slope": 0.982462980765973,
      "phone_gnss_speed_lag_s_vs_vbox": 4.7,
-     "phone_gnss_speed_corr_at_lag": 0.9286690732071202
+     "phone_gnss_speed_corr_at_lag": 0.9286690732071197
     }
    }
   },
@@ -1296,7 +1299,7 @@
      "kind": "S",
      "size_bytes": 17469302,
      "sha256": "8f48d68ef4ab225c8381af6fb8ec0f36fe6f6048977eeebecc74cfec50d13cb8",
-     "content_digest": "44a6700374ea0fec1b981ad88383b6a21f41944c16f4dc3fbcedf8c9620fed37",
+     "content_digest": "332d0937335164a724a2ed64de69f1bb57416caf413c0eccb5b5e03042c65fab",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 93876,
      "coerced_non_numeric": {},
@@ -1308,7 +1311,7 @@
      "kind": "S",
      "size_bytes": 17469297,
      "sha256": "33787323eade6857d1f8b10f4764bd60040109db697eaa91a119050d1e78feb9",
-     "content_digest": "44a6700374ea0fec1b981ad88383b6a21f41944c16f4dc3fbcedf8c9620fed37",
+     "content_digest": "332d0937335164a724a2ed64de69f1bb57416caf413c0eccb5b5e03042c65fab",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 93876,
      "coerced_non_numeric": {},
@@ -1374,7 +1377,8 @@
    "route_group": "S2",
    "phone": {
     "n_rows": 93876,
-    "duration_s": 9201.099,
+    "duration_s": 9387.400000000001,
+    "span_first_to_last_s": 9201.099,
     "timing": {
      "n_intervals": 93875,
      "dt_median_s": 0.10000000000002274,
@@ -1445,7 +1449,7 @@
      "sats_used_p50": 25.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 7.9444444444444455,
+     "speed_mps_max": 28.6,
      "lat_mean_deg": 52.449810847447694,
      "alt_mean_m": 156.0677467084239
     },
@@ -1454,9 +1458,9 @@
      "norm_std_mps2": 3.8213429690856553e-05,
      "norm_p01_mps2": 9.806500768877754,
      "norm_p99_mps2": 9.806669906369848,
-     "local_normal_gravity_mps2": 9.812387136290662,
+     "local_normal_gravity_mps2": 9.812387136290663,
      "mean_minus_g0": -5.718416160860329e-05,
-     "mean_minus_local": -0.005794320452270796,
+     "mean_minus_local": -0.005794320452272572,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -1673,7 +1677,7 @@
      "height_raw_minus_phone_alt_median": -52.00999999999999,
      "dhdt_mps_over_vvel_raw_slope": 0.9955645773399232,
      "phone_gnss_speed_lag_s_vs_vbox": 4.2,
-     "phone_gnss_speed_corr_at_lag": 0.9605502544342801
+     "phone_gnss_speed_corr_at_lag": 0.9605502544342791
     }
    }
   },
@@ -1686,7 +1690,7 @@
      "kind": "S",
      "size_bytes": 4580130,
      "sha256": "b9e45dc8d856271f0a69030b7dd98f32c6b6b88b627138d67e8d3a1b7c5329fe",
-     "content_digest": "0a2dafa222325187a45b811d88f3364eddb4ead5139863a1ec8f7168852503df",
+     "content_digest": "9281d3e941b2a5019a29cf35f9ce7f6ca21fb8bc1d0b60cc0fa93e7c256cabe5",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 24621,
      "coerced_non_numeric": {},
@@ -1698,7 +1702,7 @@
      "kind": "S",
      "size_bytes": 4730156,
      "sha256": "21c733a257fb0cd5f44a5e73081ae9eabaf4385478f8da7d2e950f26cf645b4f",
-     "content_digest": "0a2dafa222325187a45b811d88f3364eddb4ead5139863a1ec8f7168852503df",
+     "content_digest": "9281d3e941b2a5019a29cf35f9ce7f6ca21fb8bc1d0b60cc0fa93e7c256cabe5",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 24621,
      "coerced_non_numeric": {},
@@ -1765,6 +1769,7 @@
    "phone": {
     "n_rows": 24621,
     "duration_s": 2462.0,
+    "span_first_to_last_s": 2462.0,
     "timing": {
      "n_intervals": 24620,
      "dt_median_s": 0.09999999999999432,
@@ -1835,7 +1840,7 @@
      "sats_used_p50": 17.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 30,
-     "speed_mps_max": 7.4527777777777775,
+     "speed_mps_max": 26.83,
      "lat_mean_deg": 52.38180450022338,
      "alt_mean_m": 154.50615409609682
     },
@@ -1844,9 +1849,9 @@
      "norm_std_mps2": 2.9625630263940886e-05,
      "norm_p01_mps2": 9.806502188854086,
      "norm_p99_mps2": 9.806649574344949,
-     "local_normal_gravity_mps2": 9.812332385148128,
+     "local_normal_gravity_mps2": 9.812332385148132,
      "mean_minus_g0": -5.242036419339513e-05,
-     "mean_minus_local": -0.005734805512322083,
+     "mean_minus_local": -0.005734805512325636,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -2061,7 +2066,7 @@
      "height_raw_minus_phone_alt_median": -47.10000000000001,
      "dhdt_mps_over_vvel_raw_slope": 0.9706111835408863,
      "phone_gnss_speed_lag_s_vs_vbox": 4.8,
-     "phone_gnss_speed_corr_at_lag": 0.9667889325356624
+     "phone_gnss_speed_corr_at_lag": 0.9667889325356631
     }
    }
   },
@@ -2074,7 +2079,7 @@
      "kind": "S",
      "size_bytes": 1253565,
      "sha256": "19447009a96bd80bb896f3a728283ae2990d94b4cf1ed37f69866ed78ca36901",
-     "content_digest": "65fc03114d903ca51550ec009127b0583c00397a2299607e57daa53441047f6d",
+     "content_digest": "f76b217e43dd5342732400ea6515d9078ef2d178df96e8fcb598cbbbaa08edf9",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 6813,
      "coerced_non_numeric": {},
@@ -2086,7 +2091,7 @@
      "kind": "S",
      "size_bytes": 1297427,
      "sha256": "b4d103f19dc93cc422393360b0b1baa26797bc24cc59230db927e6cd1c044d9e",
-     "content_digest": "65fc03114d903ca51550ec009127b0583c00397a2299607e57daa53441047f6d",
+     "content_digest": "f76b217e43dd5342732400ea6515d9078ef2d178df96e8fcb598cbbbaa08edf9",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 6813,
      "coerced_non_numeric": {},
@@ -2152,7 +2157,8 @@
    "route_group": "S3",
    "phone": {
     "n_rows": 6813,
-    "duration_s": -2026.4120000000003,
+    "duration_s": 681.0999999999998,
+    "span_first_to_last_s": -2026.4120000000003,
     "timing": {
      "n_intervals": 6812,
      "dt_median_s": 0.09999999999999432,
@@ -2223,7 +2229,7 @@
      "sats_used_p50": 18.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 3.4833333333333334,
+     "speed_mps_max": 12.54,
      "lat_mean_deg": 52.37536101130193,
      "alt_mean_m": 160.56610597387345
     },
@@ -2232,9 +2238,9 @@
      "norm_std_mps2": 3.09469775980117e-05,
      "norm_p01_mps2": 9.806502287197,
      "norm_p99_mps2": 9.806660787383237,
-     "local_normal_gravity_mps2": 9.812308038049869,
+     "local_normal_gravity_mps2": 9.812308038049872,
      "mean_minus_g0": -5.242633157109822e-05,
-     "mean_minus_local": -0.0057104643814405165,
+     "mean_minus_local": -0.005710464381444069,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -2449,7 +2455,7 @@
      "height_raw_minus_phone_alt_median": -48.75,
      "dhdt_mps_over_vvel_raw_slope": 0.9683067007554033,
      "phone_gnss_speed_lag_s_vs_vbox": 4.3,
-     "phone_gnss_speed_corr_at_lag": 0.8359598052118687
+     "phone_gnss_speed_corr_at_lag": 0.8359598052118689
     }
    }
   },
@@ -2462,7 +2468,7 @@
      "kind": "S",
      "size_bytes": 6881631,
      "sha256": "b87fa6978d7d50087ca63bfee5230692013485aaccef5474dbc847a9c1498739",
-     "content_digest": "5ef8a1a298ecaedf077a7cf9aee18388f82d19039db4d56905c6d4733cae719d",
+     "content_digest": "df1619e733abd7ecb79be7bb821e799a002e4238a37bfd2be7e1299eff6fe583",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 37183,
      "coerced_non_numeric": {},
@@ -2474,7 +2480,7 @@
      "kind": "S",
      "size_bytes": 7158727,
      "sha256": "d4f5a3522e31009cc7ea1e851f7666b89829f4950700ca4cbd55f8d5b62692f5",
-     "content_digest": "5ef8a1a298ecaedf077a7cf9aee18388f82d19039db4d56905c6d4733cae719d",
+     "content_digest": "df1619e733abd7ecb79be7bb821e799a002e4238a37bfd2be7e1299eff6fe583",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 37183,
      "coerced_non_numeric": {},
@@ -2541,6 +2547,7 @@
    "phone": {
     "n_rows": 37183,
     "duration_s": 3718.199,
+    "span_first_to_last_s": 3718.199,
     "timing": {
      "n_intervals": 37182,
      "dt_median_s": 0.09999999999990905,
@@ -2611,7 +2618,7 @@
      "sats_used_p50": 20.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 138,
-     "speed_mps_max": 8.972222222222221,
+     "speed_mps_max": 32.3,
      "lat_mean_deg": 52.4110934422989,
      "alt_mean_m": 152.6574897130409
     },
@@ -2620,9 +2627,9 @@
      "norm_std_mps2": 2.8761293331127567e-05,
      "norm_p01_mps2": 9.806501182246397,
      "norm_p99_mps2": 9.806644713866206,
-     "local_normal_gravity_mps2": 9.812363750315598,
+     "local_normal_gravity_mps2": 9.812363750315601,
      "mean_minus_g0": -5.302661495676375e-05,
-     "mean_minus_local": -0.00576677693055494,
+     "mean_minus_local": -0.005766776930558493,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -2839,7 +2846,7 @@
      "height_raw_minus_phone_alt_median": -47.629999999999995,
      "dhdt_mps_over_vvel_raw_slope": 0.972869193239112,
      "phone_gnss_speed_lag_s_vs_vbox": 4.7,
-     "phone_gnss_speed_corr_at_lag": 0.9800177588889765
+     "phone_gnss_speed_corr_at_lag": 0.9800177588889781
     }
    }
   },
@@ -2852,7 +2859,7 @@
      "kind": "S",
      "size_bytes": 17574514,
      "sha256": "a2bb1e1eb28d111f84963240c54b790f32366f6c5b09dff1713770b52d3f5616",
-     "content_digest": "8b10d3dc511106cdceb8e6040cf54b315822e707e33f2c2138dceb9746375d53",
+     "content_digest": "ea4d6ebd68019b6a58724f32dac3ac4496456353b81c4da760cb3182cba3ef04",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 94600,
      "coerced_non_numeric": {},
@@ -2864,7 +2871,7 @@
      "kind": "S",
      "size_bytes": 17574509,
      "sha256": "13ec9fc341829e888d69bfbb5d9c7d818c0349ead0297446175aac770bf67421",
-     "content_digest": "8b10d3dc511106cdceb8e6040cf54b315822e707e33f2c2138dceb9746375d53",
+     "content_digest": "ea4d6ebd68019b6a58724f32dac3ac4496456353b81c4da760cb3182cba3ef04",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 94600,
      "coerced_non_numeric": {},
@@ -2930,7 +2937,8 @@
    "route_group": "S4",
    "phone": {
     "n_rows": 94600,
-    "duration_s": 354.78000000000003,
+    "duration_s": 9459.699,
+    "span_first_to_last_s": 354.78000000000003,
     "timing": {
      "n_intervals": 94599,
      "dt_median_s": 0.09999999999990905,
@@ -3001,7 +3009,7 @@
      "sats_used_p50": 20.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 8.152777777777779,
+     "speed_mps_max": 29.35,
      "lat_mean_deg": 52.40292948869978,
      "alt_mean_m": 154.96695221987315
     },
@@ -3010,9 +3018,9 @@
      "norm_std_mps2": 3.6777012683173356e-05,
      "norm_p01_mps2": 9.806501249676156,
      "norm_p99_mps2": 9.806667719985214,
-     "local_normal_gravity_mps2": 9.812349471518885,
+     "local_normal_gravity_mps2": 9.81234947151889,
      "mean_minus_g0": -5.544661883760682e-05,
-     "mean_minus_local": -0.0057549181377236636,
+     "mean_minus_local": -0.005754918137728993,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -3229,7 +3237,7 @@
      "height_raw_minus_phone_alt_median": -51.16,
      "dhdt_mps_over_vvel_raw_slope": 0.9555659590490908,
      "phone_gnss_speed_lag_s_vs_vbox": 4.4,
-     "phone_gnss_speed_corr_at_lag": 0.9734930327764859
+     "phone_gnss_speed_corr_at_lag": 0.9734930327764856
     }
    }
   },
@@ -3242,7 +3250,7 @@
      "kind": "S",
      "size_bytes": 2134667,
      "sha256": "7f46f770cd49c85185446420bc10db9e7a9ffe4aa190e3b1cc1111220eab04b2",
-     "content_digest": "42527fd5731cc01e26c59e808df69667140ecfed6cd6f318c39038e5dc4f70ee",
+     "content_digest": "a0fd590945943224886d8d239da4f29c2fc8ede16bc554c057781832eb7cd58a",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 11486,
      "coerced_non_numeric": {},
@@ -3254,7 +3262,7 @@
      "kind": "S",
      "size_bytes": 2134661,
      "sha256": "59612a4ab4b732f4772effbb7e00105a27b9848db7c6404bd85a7ecaa9bd367f",
-     "content_digest": "42527fd5731cc01e26c59e808df69667140ecfed6cd6f318c39038e5dc4f70ee",
+     "content_digest": "a0fd590945943224886d8d239da4f29c2fc8ede16bc554c057781832eb7cd58a",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 11486,
      "coerced_non_numeric": {},
@@ -3321,6 +3329,7 @@
    "phone": {
     "n_rows": 11486,
     "duration_s": 1148.5,
+    "span_first_to_last_s": 1148.5,
     "timing": {
      "n_intervals": 11485,
      "dt_median_s": 0.10000000000002274,
@@ -3391,7 +3400,7 @@
      "sats_used_p50": 23.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 7.455555555555556,
+     "speed_mps_max": 26.84,
      "lat_mean_deg": 52.64617001114401,
      "alt_mean_m": 149.82139648267457
     },
@@ -3400,9 +3409,9 @@
      "norm_std_mps2": 4.024405373472381e-05,
      "norm_p01_mps2": 9.806504242083415,
      "norm_p99_mps2": 9.806675314065414,
-     "local_normal_gravity_mps2": 9.812578204615196,
+     "local_normal_gravity_mps2": 9.8125782046152,
      "mean_minus_g0": -5.544558712777814e-05,
-     "mean_minus_local": -0.0059836502023244975,
+     "mean_minus_local": -0.00598365020232805,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -3617,7 +3626,7 @@
      "height_raw_minus_phone_alt_median": -48.69999999999999,
      "dhdt_mps_over_vvel_raw_slope": 0.9849170168140038,
      "phone_gnss_speed_lag_s_vs_vbox": 3.3,
-     "phone_gnss_speed_corr_at_lag": 0.9777998096410989
+     "phone_gnss_speed_corr_at_lag": 0.9777998096410994
     }
    }
   },
@@ -3630,7 +3639,7 @@
      "kind": "S",
      "size_bytes": 12603657,
      "sha256": "ec666af90866254a55578f4e9371860b64602cad0694b02defcc56eec5d85a44",
-     "content_digest": "d69b3c236919852bbd8acddac0b991c62b20136d2f3fcd5ab7dad3348c644d78",
+     "content_digest": "a126620dee503a60e14f4acb69afbe977cdb0723aa0e0b77ad81f8071a8ebe66",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 67523,
      "coerced_non_numeric": {},
@@ -3642,7 +3651,7 @@
      "kind": "S",
      "size_bytes": 12603651,
      "sha256": "d3c86779c5a037d2fe0d90769e8c799aa46b4a33ce0034f3d18cb43b82bd65d4",
-     "content_digest": "d69b3c236919852bbd8acddac0b991c62b20136d2f3fcd5ab7dad3348c644d78",
+     "content_digest": "a126620dee503a60e14f4acb69afbe977cdb0723aa0e0b77ad81f8071a8ebe66",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 67523,
      "coerced_non_numeric": {},
@@ -3708,7 +3717,8 @@
    "route_group": "Vfa02",
    "phone": {
     "n_rows": 67523,
-    "duration_s": 6752.201,
+    "duration_s": 6752.200999999999,
+    "span_first_to_last_s": 6752.201,
     "timing": {
      "n_intervals": 67522,
      "dt_median_s": 0.09999999999990905,
@@ -3779,7 +3789,7 @@
      "sats_used_p50": 23.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 8.838888888888889,
+     "speed_mps_max": 31.82,
      "lat_mean_deg": 53.31810393180102,
      "alt_mean_m": 165.2167594745494
     },
@@ -3788,9 +3798,9 @@
      "norm_std_mps2": 4.0930850103679226e-05,
      "norm_p01_mps2": 9.806503948849457,
      "norm_p99_mps2": 9.806671411687045,
-     "local_normal_gravity_mps2": 9.813116115809821,
+     "local_normal_gravity_mps2": 9.813116115809825,
      "mean_minus_g0": -5.665581178071477e-05,
-     "mean_minus_local": -0.00652277162160253,
+     "mean_minus_local": -0.006522771621606083,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -4007,7 +4017,7 @@
      "height_raw_minus_phone_alt_median": -53.81,
      "dhdt_mps_over_vvel_raw_slope": 0.9124338703902986,
      "phone_gnss_speed_lag_s_vs_vbox": 3.7,
-     "phone_gnss_speed_corr_at_lag": 0.9892908837238229
+     "phone_gnss_speed_corr_at_lag": 0.9892908837238236
     }
    }
   },
@@ -4020,7 +4030,7 @@
      "kind": "S",
      "size_bytes": 279232,
      "sha256": "212ba000dbad28b3375cb0e6a3b205a0415be2f3248ecff35e0c3db0089cf0a7",
-     "content_digest": "b329c90c18e686f471ee8f501ef58426fdc2ccb006a64a70d12a8cd7855a4fa9",
+     "content_digest": "569680f028d0f7cc286b3e5801424789f6071c757a7c340a5084ccc8856618b5",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 1502,
      "coerced_non_numeric": {},
@@ -4032,7 +4042,7 @@
      "kind": "S",
      "size_bytes": 296597,
      "sha256": "b02ea9000fc508d0acbc84137fd77c03a772f3cd58c730588299e488475a5468",
-     "content_digest": "b329c90c18e686f471ee8f501ef58426fdc2ccb006a64a70d12a8cd7855a4fa9",
+     "content_digest": "569680f028d0f7cc286b3e5801424789f6071c757a7c340a5084ccc8856618b5",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 1502,
      "coerced_non_numeric": {},
@@ -4099,6 +4109,7 @@
    "phone": {
     "n_rows": 1502,
     "duration_s": 150.10000000000014,
+    "span_first_to_last_s": 150.10000000000014,
     "timing": {
      "n_intervals": 1501,
      "dt_median_s": 0.10000000000002274,
@@ -4169,7 +4180,7 @@
      "sats_used_p50": 22.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 8.76388888888889,
+     "speed_mps_max": 31.55,
      "lat_mean_deg": 52.884871398135815,
      "alt_mean_m": 125.1457656458056
     },
@@ -4178,9 +4189,9 @@
      "norm_std_mps2": 4.040929667075988e-05,
      "norm_p01_mps2": 9.806509080111026,
      "norm_p99_mps2": 9.806678967321199,
-     "local_normal_gravity_mps2": 9.812862763162265,
+     "local_normal_gravity_mps2": 9.81286276316227,
      "mean_minus_g0": -5.1803787293636105e-05,
-     "mean_minus_local": -0.006264566949559125,
+     "mean_minus_local": -0.006264566949564454,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -4323,9 +4334,9 @@
     "row_paired_gyro_y_vs_yaw_corr": 0.44378187039416284,
     "alignment": {
      "method": "gyro_y vs CAN yaw rate, 1 s smoothed, moving rows, FFT xcorr",
-     "lag_s": -0.1,
-     "corr": 0.44596199233660744,
-     "phone_clock_correction_s": -0.3930000000022119,
+     "lag_s": -0.2,
+     "corr": 0.44599408452382877,
+     "phone_clock_correction_s": -0.2930000000022119,
      "status": "unverified_weak_signal"
     },
     "time_aligned": {
@@ -4395,7 +4406,7 @@
      "height_raw_minus_phone_alt_median": -46.66,
      "dhdt_mps_over_vvel_raw_slope": 1.000780591638101,
      "phone_gnss_speed_lag_s_vs_vbox": 5.2,
-     "phone_gnss_speed_corr_at_lag": 0.962013666067999
+     "phone_gnss_speed_corr_at_lag": 0.9620136660679989
     }
    }
   },
@@ -4408,7 +4419,7 @@
      "kind": "S",
      "size_bytes": 95272,
      "sha256": "af147288035d510dc6b315959b7b36dc63d5b327d57c8a9578bc573c18734128",
-     "content_digest": "e477480d80b490f3ac116c952722fd11ff861b41db502ab088574597f9bde23d",
+     "content_digest": "f5f069d2dee4c0c9d4ae9504071f6a345c93a97fa624c0733722005df2cb03c8",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 510,
      "coerced_non_numeric": {},
@@ -4420,7 +4431,7 @@
      "kind": "S",
      "size_bytes": 99409,
      "sha256": "a8838cdec1e38d3ff382fa33a320698978c717d7932d4e36d1a3afb0277ad95a",
-     "content_digest": "e477480d80b490f3ac116c952722fd11ff861b41db502ab088574597f9bde23d",
+     "content_digest": "f5f069d2dee4c0c9d4ae9504071f6a345c93a97fa624c0733722005df2cb03c8",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 510,
      "coerced_non_numeric": {},
@@ -4487,6 +4498,7 @@
    "phone": {
     "n_rows": 510,
     "duration_s": 50.90000000000009,
+    "span_first_to_last_s": 50.90000000000009,
     "timing": {
      "n_intervals": 509,
      "dt_median_s": 0.09999999999990905,
@@ -4557,7 +4569,7 @@
      "sats_used_p50": 21.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 7.427777777777778,
+     "speed_mps_max": 26.74,
      "lat_mean_deg": 52.89295588235294,
      "alt_mean_m": 133.6741176470588
     },
@@ -4566,9 +4578,9 @@
      "norm_std_mps2": 4.1435893819926146e-05,
      "norm_p01_mps2": 9.806507671597464,
      "norm_p99_mps2": 9.80667377224306,
-     "local_normal_gravity_mps2": 9.812843494845142,
+     "local_normal_gravity_mps2": 9.812843494845145,
      "mean_minus_g0": -5.198715487431116e-05,
-     "mean_minus_local": -0.006245482000016622,
+     "mean_minus_local": -0.006245482000020175,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -4783,7 +4795,7 @@
      "height_raw_minus_phone_alt_median": -48.81999999999999,
      "dhdt_mps_over_vvel_raw_slope": 0.9975391074547159,
      "phone_gnss_speed_lag_s_vs_vbox": 8.0,
-     "phone_gnss_speed_corr_at_lag": 0.9041122196046617
+     "phone_gnss_speed_corr_at_lag": 0.9041122196046625
     }
    }
   },
@@ -4796,7 +4808,7 @@
      "kind": "S",
      "size_bytes": 114418,
      "sha256": "9dc5cfe05e00e91feb1f6bf45e19e2c152567776bc6507bfaf037ffa63cd8662",
-     "content_digest": "53d776970bf34bbf7e971596f8784298afcd5dc35664b407bc511f23b737eb1c",
+     "content_digest": "c69da23c8d1c8fe3d7d3e4ef98311180381fa9308bf9dedbdeff85a363f220c6",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 610,
      "coerced_non_numeric": {},
@@ -4808,7 +4820,7 @@
      "kind": "S",
      "size_bytes": 119914,
      "sha256": "8fc611d1e26ae49599eba948b284679403a2dc2455e1eeb8ad5b0d33b9522427",
-     "content_digest": "53d776970bf34bbf7e971596f8784298afcd5dc35664b407bc511f23b737eb1c",
+     "content_digest": "c69da23c8d1c8fe3d7d3e4ef98311180381fa9308bf9dedbdeff85a363f220c6",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 610,
      "coerced_non_numeric": {},
@@ -4875,6 +4887,7 @@
    "phone": {
     "n_rows": 610,
     "duration_s": 60.90000000000009,
+    "span_first_to_last_s": 60.90000000000009,
     "timing": {
      "n_intervals": 609,
      "dt_median_s": 0.09999999999990905,
@@ -4945,7 +4958,7 @@
      "sats_used_p50": 21.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 6.438888888888889,
+     "speed_mps_max": 23.18,
      "lat_mean_deg": 52.89926416393443,
      "alt_mean_m": 146.2506557377049
     },
@@ -4954,9 +4967,9 @@
      "norm_std_mps2": 4.0202415346897066e-05,
      "norm_p01_mps2": 9.806507643972951,
      "norm_p99_mps2": 9.80667022165016,
-     "local_normal_gravity_mps2": 9.812810184480929,
+     "local_normal_gravity_mps2": 9.812810184480934,
      "mean_minus_g0": -5.292575217197282e-05,
-     "mean_minus_local": -0.00621311023310156,
+     "mean_minus_local": -0.006213110233106889,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -5099,9 +5112,9 @@
     "row_paired_gyro_y_vs_yaw_corr": 0.25005899982197993,
     "alignment": {
      "method": "gyro_y vs CAN yaw rate, 1 s smoothed, moving rows, FFT xcorr",
-     "lag_s": -0.8,
-     "corr": 0.33843338490898306,
-     "phone_clock_correction_s": 0.5070000000021537,
+     "lag_s": -22.9,
+     "corr": 0.3797369161852903,
+     "phone_clock_correction_s": 22.607000000002152,
      "status": "unverified_weak_signal"
     },
     "time_aligned": {
@@ -5171,7 +5184,7 @@
      "height_raw_minus_phone_alt_median": -43.61999999999999,
      "dhdt_mps_over_vvel_raw_slope": 0.9967870148582019,
      "phone_gnss_speed_lag_s_vs_vbox": 8.0,
-     "phone_gnss_speed_corr_at_lag": 0.9282617987805806
+     "phone_gnss_speed_corr_at_lag": 0.9282617987805809
     }
    }
   },
@@ -5184,7 +5197,7 @@
      "kind": "S",
      "size_bytes": 76217,
      "sha256": "b4a8f30e4fa8c1399c9c4d58a8220305d233e99789f2997e47be9dbb2dfa1eb0",
-     "content_digest": "04ae3b8fc786b4bb9b7d6d1d2bab16d3fbdfade2c93daa59ecfcffab1be2f587",
+     "content_digest": "a72070363b4dfe560e4f57b5bc996b535d690b8b312c6d3aaf397932fe2b9c63",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 404,
      "coerced_non_numeric": {},
@@ -5196,7 +5209,7 @@
      "kind": "S",
      "size_bytes": 79167,
      "sha256": "e8b7b3fafaf9aed8587b3881808c60e0d96a44a8e864dba68792e6349898bb9e",
-     "content_digest": "04ae3b8fc786b4bb9b7d6d1d2bab16d3fbdfade2c93daa59ecfcffab1be2f587",
+     "content_digest": "a72070363b4dfe560e4f57b5bc996b535d690b8b312c6d3aaf397932fe2b9c63",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 404,
      "coerced_non_numeric": {},
@@ -5263,6 +5276,7 @@
    "phone": {
     "n_rows": 404,
     "duration_s": 40.30099999999993,
+    "span_first_to_last_s": 40.30099999999993,
     "timing": {
      "n_intervals": 403,
      "dt_median_s": 0.09999999999990905,
@@ -5333,7 +5347,7 @@
      "sats_used_p50": 23.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 7.530555555555556,
+     "speed_mps_max": 27.11,
      "lat_mean_deg": 52.910398346534656,
      "alt_mean_m": 163.4743069306931
     },
@@ -5342,9 +5356,9 @@
      "norm_std_mps2": 4.055978883082057e-05,
      "norm_p01_mps2": 9.806510478340396,
      "norm_p99_mps2": 9.806678784670167,
-     "local_normal_gravity_mps2": 9.812766740495798,
+     "local_normal_gravity_mps2": 9.812766740495801,
      "mean_minus_g0": -5.082094955000116e-05,
-     "mean_minus_local": -0.006167561445348468,
+     "mean_minus_local": -0.006167561445352021,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -5487,9 +5501,9 @@
     "row_paired_gyro_y_vs_yaw_corr": 0.40544725344307614,
     "alignment": {
      "method": "gyro_y vs CAN yaw rate, 1 s smoothed, moving rows, FFT xcorr",
-     "lag_s": 0.0,
-     "corr": 0.40544725344307614,
-     "phone_clock_correction_s": -0.3929999999963911,
+     "lag_s": -0.1,
+     "corr": 0.4062153740861931,
+     "phone_clock_correction_s": -0.29299999999639115,
      "status": "unverified_weak_signal"
     },
     "time_aligned": {
@@ -5572,7 +5586,7 @@
      "kind": "S",
      "size_bytes": 540523,
      "sha256": "49535f49178bb6c542a62fe57747adc19164fbf3a4a7b0afee19d5cc2bee6894",
-     "content_digest": "73882eb9792bd7b14110330cf80f730f1507fa2f4b12ef2d8ce7a8669e73d505",
+     "content_digest": "2eefb67c48d77e4b35d94d92a7ac2c6c3253cd6e519eb761011a427e019490e3",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 2885,
      "coerced_non_numeric": {},
@@ -5584,7 +5598,7 @@
      "kind": "S",
      "size_bytes": 578774,
      "sha256": "c5433508ada00b74f18af8926580a37df39ff18ce3d7686dc15d1684c558343b",
-     "content_digest": "73882eb9792bd7b14110330cf80f730f1507fa2f4b12ef2d8ce7a8669e73d505",
+     "content_digest": "2eefb67c48d77e4b35d94d92a7ac2c6c3253cd6e519eb761011a427e019490e3",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 2885,
      "coerced_non_numeric": {},
@@ -5651,6 +5665,7 @@
    "phone": {
     "n_rows": 2885,
     "duration_s": 288.39999999999986,
+    "span_first_to_last_s": 288.39999999999986,
     "timing": {
      "n_intervals": 2884,
      "dt_median_s": 0.09999999999990905,
@@ -5721,7 +5736,7 @@
      "sats_used_p50": 22.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 6.872222222222222,
+     "speed_mps_max": 24.74,
      "lat_mean_deg": 52.94056377019064,
      "alt_mean_m": 186.7756013864818
     },
@@ -5730,9 +5745,9 @@
      "norm_std_mps2": 4.037467940424646e-05,
      "norm_p01_mps2": 9.806507502286427,
      "norm_p99_mps2": 9.806677655760895,
-     "local_normal_gravity_mps2": 9.812721129474784,
+     "local_normal_gravity_mps2": 9.812721129474788,
      "mean_minus_g0": -5.315627832658265e-05,
-     "mean_minus_local": -0.006124285753111636,
+     "mean_minus_local": -0.006124285753115188,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -5960,7 +5975,7 @@
      "kind": "S",
      "size_bytes": 156907,
      "sha256": "9404fbd7420b32f5ca6f369e8a1377bbf854b5b6e3ee38a137c67bf73db5d7f7",
-     "content_digest": "4996ac88026148e1c27576e913ffe162ef06b43bdd3cebf370ebf682040f786a",
+     "content_digest": "6e7b41d1811e256d42b0b97b3a4dc38116021283a3f61ddf8fe54cc7eff4e5f2",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 833,
      "coerced_non_numeric": {},
@@ -5972,7 +5987,7 @@
      "kind": "S",
      "size_bytes": 166282,
      "sha256": "d5e3d159bc26c867810747da6a28fe2ac1b89e010284aa3b008a5b68e578658e",
-     "content_digest": "4996ac88026148e1c27576e913ffe162ef06b43bdd3cebf370ebf682040f786a",
+     "content_digest": "6e7b41d1811e256d42b0b97b3a4dc38116021283a3f61ddf8fe54cc7eff4e5f2",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 833,
      "coerced_non_numeric": {},
@@ -6039,6 +6054,7 @@
    "phone": {
     "n_rows": 833,
     "duration_s": 83.20000000000005,
+    "span_first_to_last_s": 83.20000000000005,
     "timing": {
      "n_intervals": 832,
      "dt_median_s": 0.09999999999990905,
@@ -6109,7 +6125,7 @@
      "sats_used_p50": 23.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 5.9750000000000005,
+     "speed_mps_max": 21.51,
      "lat_mean_deg": 52.97164763265306,
      "alt_mean_m": 229.27255702280917
     },
@@ -6118,9 +6134,9 @@
      "norm_std_mps2": 3.950790726311405e-05,
      "norm_p01_mps2": 9.806509820175572,
      "norm_p99_mps2": 9.806680225662504,
-     "local_normal_gravity_mps2": 9.81261707317748,
+     "local_normal_gravity_mps2": 9.812617073177485,
      "mean_minus_g0": -5.050926579208692e-05,
-     "mean_minus_local": -0.006017582443272218,
+     "mean_minus_local": -0.006017582443277547,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -6263,9 +6279,9 @@
     "row_paired_gyro_y_vs_yaw_corr": 0.08211728971140184,
     "alignment": {
      "method": "gyro_y vs CAN yaw rate, 1 s smoothed, moving rows, FFT xcorr",
-     "lag_s": -5.2,
-     "corr": 0.20782757681017144,
-     "phone_clock_correction_s": 2.2069999999977883,
+     "lag_s": 27.6,
+     "corr": 0.19695933943739294,
+     "phone_clock_correction_s": -30.593000000002213,
      "status": "unverified_weak_signal"
     },
     "time_aligned": {
@@ -6335,7 +6351,7 @@
      "height_raw_minus_phone_alt_median": -47.46000000000001,
      "dhdt_mps_over_vvel_raw_slope": 1.0175662168242317,
      "phone_gnss_speed_lag_s_vs_vbox": 3.3,
-     "phone_gnss_speed_corr_at_lag": 0.8966058569947218
+     "phone_gnss_speed_corr_at_lag": 0.8966058569947228
     }
    }
   },
@@ -6348,7 +6364,7 @@
      "kind": "S",
      "size_bytes": 2111083,
      "sha256": "efef0aa0fae9e4cc0a40a85335a013fccb96797175819d46d97dfb13a854ce02",
-     "content_digest": "f0c9b20f8e7e4c4d51a9e9c0d5114fdab21233b57e75c792681d08a0873293d1",
+     "content_digest": "446082e80893762e8a73714ce1ae5c01c51f137ec21eb2411c01a99241b7e7a2",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 11335,
      "coerced_non_numeric": {},
@@ -6360,7 +6376,7 @@
      "kind": "S",
      "size_bytes": 2231230,
      "sha256": "78d47491d031a6b198cfab5fe960842e00f8fd3d3c62df74fb861febc66dabf8",
-     "content_digest": "f0c9b20f8e7e4c4d51a9e9c0d5114fdab21233b57e75c792681d08a0873293d1",
+     "content_digest": "446082e80893762e8a73714ce1ae5c01c51f137ec21eb2411c01a99241b7e7a2",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 11335,
      "coerced_non_numeric": {},
@@ -6427,6 +6443,7 @@
    "phone": {
     "n_rows": 11335,
     "duration_s": 1133.4,
+    "span_first_to_last_s": 1133.4,
     "timing": {
      "n_intervals": 11334,
      "dt_median_s": 0.09999999999990905,
@@ -6497,7 +6514,7 @@
      "sats_used_p50": 19.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 7.191666666666667,
+     "speed_mps_max": 25.89,
      "lat_mean_deg": 53.0292902454345,
      "alt_mean_m": 217.72316718129687
     },
@@ -6506,9 +6523,9 @@
      "norm_std_mps2": 3.8482683610801886e-05,
      "norm_p01_mps2": 9.806507471837259,
      "norm_p99_mps2": 9.806676676479142,
-     "local_normal_gravity_mps2": 9.812702927702626,
+     "local_normal_gravity_mps2": 9.81270292770263,
      "mean_minus_g0": -5.247489785276116e-05,
-     "mean_minus_local": -0.006105402600478982,
+     "mean_minus_local": -0.006105402600482535,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -6725,7 +6742,7 @@
      "height_raw_minus_phone_alt_median": -50.160000000000025,
      "dhdt_mps_over_vvel_raw_slope": 0.9970685067838563,
      "phone_gnss_speed_lag_s_vs_vbox": 5.0,
-     "phone_gnss_speed_corr_at_lag": 0.9701479778409376
+     "phone_gnss_speed_corr_at_lag": 0.9701479778409374
     }
    }
   },
@@ -6738,7 +6755,7 @@
      "kind": "S",
      "size_bytes": 839635,
      "sha256": "d918e507f6cf2b0c38004a61e90211e0c43c0a69fe268b468bb0471d80b439ab",
-     "content_digest": "7bd3d8ba40ce232543cde9d4cff4b1f6b15fe56af2d9d899a0ecb3f1283fd9f3",
+     "content_digest": "4a5ae4a315b9347e0a422a38fe5bda65a5774a2ad10b46eb05cbaf7f1dd2fe13",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 4519,
      "coerced_non_numeric": {},
@@ -6750,7 +6767,7 @@
      "kind": "S",
      "size_bytes": 897277,
      "sha256": "5a3aad2a0324398c646d6cf7fec25d6f3a172c327d13949d34bddd5d66766cba",
-     "content_digest": "7bd3d8ba40ce232543cde9d4cff4b1f6b15fe56af2d9d899a0ecb3f1283fd9f3",
+     "content_digest": "4a5ae4a315b9347e0a422a38fe5bda65a5774a2ad10b46eb05cbaf7f1dd2fe13",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 4519,
      "coerced_non_numeric": {},
@@ -6816,7 +6833,8 @@
    "route_group": "Vta17",
    "phone": {
     "n_rows": 4519,
-    "duration_s": 452.9859999999999,
+    "duration_s": 451.70199999999977,
+    "span_first_to_last_s": 452.9859999999999,
     "timing": {
      "n_intervals": 4518,
      "dt_median_s": 0.09999999999990905,
@@ -6887,7 +6905,7 @@
      "sats_used_p50": 18.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 4.169444444444444,
+     "speed_mps_max": 15.01,
      "lat_mean_deg": 53.05013957335694,
      "alt_mean_m": 229.6821088736446
     },
@@ -6896,9 +6914,9 @@
      "norm_std_mps2": 3.919609661824772e-05,
      "norm_p01_mps2": 9.806505195572988,
      "norm_p99_mps2": 9.806678684682185,
-     "local_normal_gravity_mps2": 9.812684177441852,
+     "local_normal_gravity_mps2": 9.812684177441856,
      "mean_minus_g0": -5.335709634302077e-05,
-     "mean_minus_local": -0.006087534538195882,
+     "mean_minus_local": -0.006087534538199435,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -7113,7 +7131,7 @@
      "height_raw_minus_phone_alt_median": -49.64999999999999,
      "dhdt_mps_over_vvel_raw_slope": 0.9979379691386181,
      "phone_gnss_speed_lag_s_vs_vbox": 4.6,
-     "phone_gnss_speed_corr_at_lag": 0.8898454284529904
+     "phone_gnss_speed_corr_at_lag": 0.8898454284529905
     }
    }
   },
@@ -7126,7 +7144,7 @@
      "kind": "S",
      "size_bytes": 54578,
      "sha256": "695cf51819c0f0f8b7894df11af667ab2e819bfff991330ceb8d4a3492a22428",
-     "content_digest": "2495cecefb5f0fd41e9b393cfffff1c150807760ee997f6c17d9caf33f1ea910",
+     "content_digest": "5ff578209e12254eef938e66a07cd2d36575a48bb10fcdd0bfd71ca1d8ff2168",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 292,
      "coerced_non_numeric": {},
@@ -7138,7 +7156,7 @@
      "kind": "S",
      "size_bytes": 55537,
      "sha256": "3423bcd27075ff76520189ea3f358e0e66bb7a7d1779d7fd769e5ba88135eb64",
-     "content_digest": "2495cecefb5f0fd41e9b393cfffff1c150807760ee997f6c17d9caf33f1ea910",
+     "content_digest": "5ff578209e12254eef938e66a07cd2d36575a48bb10fcdd0bfd71ca1d8ff2168",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 292,
      "coerced_non_numeric": {},
@@ -7205,6 +7223,7 @@
    "phone": {
     "n_rows": 292,
     "duration_s": 29.101000000000113,
+    "span_first_to_last_s": 29.101000000000113,
     "timing": {
      "n_intervals": 291,
      "dt_median_s": 0.09999999999990905,
@@ -7275,7 +7294,7 @@
      "sats_used_p50": 18.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 4.1194444444444445,
+     "speed_mps_max": 14.83,
      "lat_mean_deg": 53.04279928082192,
      "alt_mean_m": 314.79541095890414
     },
@@ -7284,9 +7303,9 @@
      "norm_std_mps2": 3.8210981367916084e-05,
      "norm_p01_mps2": 9.806500841849758,
      "norm_p99_mps2": 9.806686770969081,
-     "local_normal_gravity_mps2": 9.812415126490583,
+     "local_normal_gravity_mps2": 9.812415126490587,
      "mean_minus_g0": -4.886744339493987e-05,
-     "mean_minus_local": -0.005813993933978523,
+     "mean_minus_local": -0.005813993933982076,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -7514,7 +7533,7 @@
      "kind": "S",
      "size_bytes": 4766740,
      "sha256": "19b9d26888e58c71e28ca6de34dd423e9a779a29b1cf0976d3b2f4f7dac56601",
-     "content_digest": "d885a3300f42b23e6c0c93b4c0729c93d289a387355b8859e7eba5e1759bbd5f",
+     "content_digest": "1abdbae1cb514aeeb62fe3e69eb59a45f364b7a7c37656529b9f192c5b6323f2",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 25676,
      "coerced_non_numeric": {},
@@ -7526,7 +7545,7 @@
      "kind": "S",
      "size_bytes": 4766735,
      "sha256": "a9a6dc797fc3ca55254ad1d14eb040684d0e60eb1a1116d5d4c15c87f73a7914",
-     "content_digest": "d885a3300f42b23e6c0c93b4c0729c93d289a387355b8859e7eba5e1759bbd5f",
+     "content_digest": "1abdbae1cb514aeeb62fe3e69eb59a45f364b7a7c37656529b9f192c5b6323f2",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 25676,
      "coerced_non_numeric": {},
@@ -7593,6 +7612,7 @@
    "phone": {
     "n_rows": 25676,
     "duration_s": 2567.499,
+    "span_first_to_last_s": 2567.499,
     "timing": {
      "n_intervals": 25675,
      "dt_median_s": 0.09999999999999432,
@@ -7663,7 +7683,7 @@
      "sats_used_p50": 23.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 7.994444444444445,
+     "speed_mps_max": 28.78,
      "lat_mean_deg": 52.67669352936595,
      "alt_mean_m": 147.16391532949058
     },
@@ -7672,9 +7692,9 @@
      "norm_std_mps2": 4.0289335608363576e-05,
      "norm_p01_mps2": 9.806507821212401,
      "norm_p99_mps2": 9.806678765769785,
-     "local_normal_gravity_mps2": 9.812613082001304,
+     "local_normal_gravity_mps2": 9.81261308200131,
      "mean_minus_g0": -5.367118271948357e-05,
-     "mean_minus_local": -0.006016753184024282,
+     "mean_minus_local": -0.006016753184029611,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -7889,7 +7909,7 @@
      "height_raw_minus_phone_alt_median": -49.83,
      "dhdt_mps_over_vvel_raw_slope": 0.990141045712856,
      "phone_gnss_speed_lag_s_vs_vbox": 0.8,
-     "phone_gnss_speed_corr_at_lag": 0.9968710956549308
+     "phone_gnss_speed_corr_at_lag": 0.9968710956549317
     }
    }
   },
@@ -7902,7 +7922,7 @@
      "kind": "S",
      "size_bytes": 178260,
      "sha256": "aca49109fc93729d942d13e2008699ac4471fcffae38396127fffaecbe42d5d7",
-     "content_digest": "6ab3cb123e733e95b15f15fa205a24124eb5aef83fee99e980de2aee1b26e34c",
+     "content_digest": "24de88bdbecbc398b2deafdc0c2bcb4d94be1a3b3e058f5e599176bf30e50e01",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 954,
      "coerced_non_numeric": {},
@@ -7914,7 +7934,7 @@
      "kind": "S",
      "size_bytes": 188978,
      "sha256": "1e62e9f210b84448e082f9dd9113485251e5b5c828e5367c2f7a903f6a41b91b",
-     "content_digest": "6ab3cb123e733e95b15f15fa205a24124eb5aef83fee99e980de2aee1b26e34c",
+     "content_digest": "24de88bdbecbc398b2deafdc0c2bcb4d94be1a3b3e058f5e599176bf30e50e01",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 954,
      "coerced_non_numeric": {},
@@ -7981,6 +8001,7 @@
    "phone": {
     "n_rows": 954,
     "duration_s": 95.30000000000018,
+    "span_first_to_last_s": 95.30000000000018,
     "timing": {
      "n_intervals": 953,
      "dt_median_s": 0.09999999999990905,
@@ -8051,7 +8072,7 @@
      "sats_used_p50": 21.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 5.936111111111112,
+     "speed_mps_max": 21.37,
      "lat_mean_deg": 52.755330370020964,
      "alt_mean_m": 137.66740041928722
     },
@@ -8060,9 +8081,9 @@
      "norm_std_mps2": 4.0767977622620774e-05,
      "norm_p01_mps2": 9.806505624293498,
      "norm_p99_mps2": 9.806676193756964,
-     "local_normal_gravity_mps2": 9.812711078407212,
+     "local_normal_gravity_mps2": 9.812711078407217,
      "mean_minus_g0": -5.739246223690486e-05,
-     "mean_minus_local": -0.006118470869449055,
+     "mean_minus_local": -0.006118470869454384,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -8277,7 +8298,7 @@
      "height_raw_minus_phone_alt_median": -55.71500000000001,
      "dhdt_mps_over_vvel_raw_slope": 0.9915776209157635,
      "phone_gnss_speed_lag_s_vs_vbox": 0.7,
-     "phone_gnss_speed_corr_at_lag": 0.994345331316276
+     "phone_gnss_speed_corr_at_lag": 0.9943453313162763
     }
    }
   },
@@ -8290,7 +8311,7 @@
      "kind": "S",
      "size_bytes": 2038713,
      "sha256": "97ef388d6e5cc3ce17ae3d56d69c77052e5d51a6234176eb95a5e4de6cec7fe5",
-     "content_digest": "896a004724c9c9a5bb5b0009c4070d55022653b6926b444b6b181b183476306b",
+     "content_digest": "d101d3edded3d912c59e51a63c9cfb02821c6b5ff7c5c39386b82404bd2396ab",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 10991,
      "coerced_non_numeric": {},
@@ -8302,7 +8323,7 @@
      "kind": "S",
      "size_bytes": 2149518,
      "sha256": "0cac6f803344236e0e837921cffe5eedae8fae5bbf27ccba7f7e0dfad28a9c5d",
-     "content_digest": "896a004724c9c9a5bb5b0009c4070d55022653b6926b444b6b181b183476306b",
+     "content_digest": "d101d3edded3d912c59e51a63c9cfb02821c6b5ff7c5c39386b82404bd2396ab",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 10991,
      "coerced_non_numeric": {},
@@ -8369,6 +8390,7 @@
    "phone": {
     "n_rows": 10991,
     "duration_s": 1098.998,
+    "span_first_to_last_s": 1098.998,
     "timing": {
      "n_intervals": 10990,
      "dt_median_s": 0.09999999999990905,
@@ -8439,7 +8461,7 @@
      "sats_used_p50": 21.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 6.272222222222222,
+     "speed_mps_max": 22.58,
      "lat_mean_deg": 52.794915566008555,
      "alt_mean_m": 114.16849695205167
     },
@@ -8448,9 +8470,9 @@
      "norm_std_mps2": 3.987338536476326e-05,
      "norm_p01_mps2": 9.806505362003326,
      "norm_p99_mps2": 9.806677986097025,
-     "local_normal_gravity_mps2": 9.812818154678972,
+     "local_normal_gravity_mps2": 9.812818154678977,
      "mean_minus_g0": -5.412894654632794e-05,
-     "mean_minus_local": -0.0062222836255187985,
+     "mean_minus_local": -0.006222283625524128,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -8665,7 +8687,7 @@
      "height_raw_minus_phone_alt_median": -53.37,
      "dhdt_mps_over_vvel_raw_slope": 0.9651702507905217,
      "phone_gnss_speed_lag_s_vs_vbox": 0.8,
-     "phone_gnss_speed_corr_at_lag": 0.9963373925890705
+     "phone_gnss_speed_corr_at_lag": 0.9963373925890692
     }
    }
   },
@@ -8678,7 +8700,7 @@
      "kind": "S",
      "size_bytes": 582891,
      "sha256": "82c7e730c3aefbc0bbdc6fc9b9d3d6c20071e392bbdf34b78736f54e99632260",
-     "content_digest": "c62944444ba54d56291d9987ec69aa093fa851a9443e6570e60c9cedd7139312",
+     "content_digest": "0ecd443d2806b41dcae5091b2a7d7e2a1a678f221d771c96594c30b2cf1efc9d",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 3223,
      "coerced_non_numeric": {},
@@ -8690,7 +8712,7 @@
      "kind": "S",
      "size_bytes": 608133,
      "sha256": "46cc5b739067755206657ed5000ae793a9f922a47ca9fedfbd34a081cf85c389",
-     "content_digest": "c62944444ba54d56291d9987ec69aa093fa851a9443e6570e60c9cedd7139312",
+     "content_digest": "0ecd443d2806b41dcae5091b2a7d7e2a1a678f221d771c96594c30b2cf1efc9d",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 3223,
      "coerced_non_numeric": {},
@@ -8756,7 +8778,8 @@
    "route_group": "Vta20",
    "phone": {
     "n_rows": 3223,
-    "duration_s": 322.2,
+    "duration_s": 322.20000000000005,
+    "span_first_to_last_s": 322.2,
     "timing": {
      "n_intervals": 3222,
      "dt_median_s": 0.09999999999999432,
@@ -8827,7 +8850,7 @@
      "sats_used_p50": 19.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 6.105555555555556,
+     "speed_mps_max": 21.98,
      "lat_mean_deg": 53.04209749239839,
      "alt_mean_m": 322.21789947254103
     },
@@ -8836,9 +8859,9 @@
      "norm_std_mps2": 2.3120148231783306e-05,
      "norm_p01_mps2": 9.806503379115307,
      "norm_p99_mps2": 9.806649567777976,
-     "local_normal_gravity_mps2": 9.812391609609117,
+     "local_normal_gravity_mps2": 9.81239160960912,
      "mean_minus_g0": -5.1854448241073214e-05,
-     "mean_minus_local": -0.005793464057358477,
+     "mean_minus_local": -0.00579346405736203,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -9053,7 +9076,7 @@
      "height_raw_minus_phone_alt_median": -40.685,
      "dhdt_mps_over_vvel_raw_slope": 0.9335415589779381,
      "phone_gnss_speed_lag_s_vs_vbox": 5.2,
-     "phone_gnss_speed_corr_at_lag": 0.9687961651955641
+     "phone_gnss_speed_corr_at_lag": 0.9687961651955639
     }
    }
   },
@@ -9066,7 +9089,7 @@
      "kind": "S",
      "size_bytes": 388495,
      "sha256": "f22951b5bc4fed96a34f9affcb7c1c7118a4461ba8f3c22d910398a5f44d248c",
-     "content_digest": "7997292dc8f85aca942a05e05af3ab3564d2ad7b39d261452fbd4a7f5f11d0ed",
+     "content_digest": "a9dac1c405f1770605e69130ce283315354ac1541bc794d0764ecc71485bf670",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 2079,
      "coerced_non_numeric": {},
@@ -9078,7 +9101,7 @@
      "kind": "S",
      "size_bytes": 414878,
      "sha256": "9e0dfb0d30a1ba5867c37af089800fca6df6c377ada82baaa0cc32fd99fe6ab3",
-     "content_digest": "7997292dc8f85aca942a05e05af3ab3564d2ad7b39d261452fbd4a7f5f11d0ed",
+     "content_digest": "a9dac1c405f1770605e69130ce283315354ac1541bc794d0764ecc71485bf670",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 2079,
      "coerced_non_numeric": {},
@@ -9145,6 +9168,7 @@
    "phone": {
     "n_rows": 2079,
     "duration_s": 207.8,
+    "span_first_to_last_s": 207.8,
     "timing": {
      "n_intervals": 2078,
      "dt_median_s": 0.10000000000002274,
@@ -9215,7 +9239,7 @@
      "sats_used_p50": 20.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 10,
-     "speed_mps_max": 6.105555555555556,
+     "speed_mps_max": 21.98,
      "lat_mean_deg": 53.044785069745075,
      "alt_mean_m": 297.6133140933141
     },
@@ -9224,9 +9248,9 @@
      "norm_std_mps2": 4.090884883223938e-05,
      "norm_p01_mps2": 9.806506213703225,
      "norm_p99_mps2": 9.806679085235736,
-     "local_normal_gravity_mps2": 9.812469879543157,
+     "local_normal_gravity_mps2": 9.81246987954316,
      "mean_minus_g0": -5.328810301818976e-05,
-     "mean_minus_local": -0.005873167646175403,
+     "mean_minus_local": -0.005873167646178956,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -9454,7 +9478,7 @@
      "kind": "S",
      "size_bytes": 290331,
      "sha256": "9291970633a370e9f89e966b1790193f80ccce7b4c32a162ac2eed0a1a2b4a82",
-     "content_digest": "6b90d512b0137efb3acf4a04a03df0ca49c76a2c57cb69e11b9e426bef00ada0",
+     "content_digest": "d9128a098923bf52fa905d93759c3a3e8e8f611042ed5491259e4ad4e9f94ff6",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 1564,
      "coerced_non_numeric": {},
@@ -9466,7 +9490,7 @@
      "kind": "S",
      "size_bytes": 308800,
      "sha256": "3336275769997c639ed0de538f88a3daa45f4f9f551e67a0f9470d53e479b4e1",
-     "content_digest": "6b90d512b0137efb3acf4a04a03df0ca49c76a2c57cb69e11b9e426bef00ada0",
+     "content_digest": "d9128a098923bf52fa905d93759c3a3e8e8f611042ed5491259e4ad4e9f94ff6",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 1564,
      "coerced_non_numeric": {},
@@ -9533,6 +9557,7 @@
    "phone": {
     "n_rows": 1564,
     "duration_s": 156.30099999999993,
+    "span_first_to_last_s": 156.30099999999993,
     "timing": {
      "n_intervals": 1563,
      "dt_median_s": 0.10000000000002274,
@@ -9603,7 +9628,7 @@
      "sats_used_p50": 19.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 4.202777777777778,
+     "speed_mps_max": 15.13,
      "lat_mean_deg": 53.05354773017903,
      "alt_mean_m": 197.0997186700767
     },
@@ -9612,9 +9637,9 @@
      "norm_std_mps2": 4.013396561559408e-05,
      "norm_p01_mps2": 9.806509934676047,
      "norm_p99_mps2": 9.806676995017222,
-     "local_normal_gravity_mps2": 9.812787694072174,
+     "local_normal_gravity_mps2": 9.81278769407218,
      "mean_minus_g0": -5.3198195010040195e-05,
-     "mean_minus_local": -0.006190892267184722,
+     "mean_minus_local": -0.006190892267190051,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -9829,7 +9854,7 @@
      "height_raw_minus_phone_alt_median": -49.894999999999996,
      "dhdt_mps_over_vvel_raw_slope": 0.9671025331261576,
      "phone_gnss_speed_lag_s_vs_vbox": 3.5,
-     "phone_gnss_speed_corr_at_lag": 0.8417852910438485
+     "phone_gnss_speed_corr_at_lag": 0.8417852910438487
     }
    }
   },
@@ -9842,7 +9867,7 @@
      "kind": "S",
      "size_bytes": 206507,
      "sha256": "c5f9f4161bd33ec880d4cabab48189a02db647f86315860dd21bb48f5764cd75",
-     "content_digest": "222b995a3204580b2b0d8f4b8ec47b7a8944f8611fcce808981bc79f60bab155",
+     "content_digest": "85efc13d0d50e125b51ad315126495b63b538e3dd60872ab2f2faba92b42a87b",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 1110,
      "coerced_non_numeric": {},
@@ -9854,7 +9879,7 @@
      "kind": "S",
      "size_bytes": 222406,
      "sha256": "c6cb54ffdea03f3514c78d3cd424d06fd0136b7a21258375946298477247c477",
-     "content_digest": "222b995a3204580b2b0d8f4b8ec47b7a8944f8611fcce808981bc79f60bab155",
+     "content_digest": "85efc13d0d50e125b51ad315126495b63b538e3dd60872ab2f2faba92b42a87b",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 1110,
      "coerced_non_numeric": {},
@@ -9921,6 +9946,7 @@
    "phone": {
     "n_rows": 1110,
     "duration_s": 110.89999999999998,
+    "span_first_to_last_s": 110.89999999999998,
     "timing": {
      "n_intervals": 1109,
      "dt_median_s": 0.10000000000002274,
@@ -9991,7 +10017,7 @@
      "sats_used_p50": 19.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 3.7583333333333333,
+     "speed_mps_max": 13.53,
      "lat_mean_deg": 53.05228658918919,
      "alt_mean_m": 221.17108108108107
     },
@@ -10000,9 +10026,9 @@
      "norm_std_mps2": 4.174688512662365e-05,
      "norm_p01_mps2": 9.806505545794586,
      "norm_p99_mps2": 9.80667955430379,
-     "local_normal_gravity_mps2": 9.812712311823981,
+     "local_normal_gravity_mps2": 9.812712311823985,
      "mean_minus_g0": -5.4232146762700495e-05,
-     "mean_minus_local": -0.006116543970744459,
+     "mean_minus_local": -0.006116543970748012,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -10145,9 +10171,9 @@
     "row_paired_gyro_y_vs_yaw_corr": 0.19160298289946515,
     "alignment": {
      "method": "gyro_y vs CAN yaw rate, 1 s smoothed, moving rows, FFT xcorr",
-     "lag_s": -1.7,
-     "corr": 0.4027201496150576,
-     "phone_clock_correction_s": 0.7780000000013387,
+     "lag_s": -1.8,
+     "corr": 0.4042577897835476,
+     "phone_clock_correction_s": 0.8780000000013388,
      "status": "unverified_weak_signal"
     },
     "time_aligned": {
@@ -10217,7 +10243,7 @@
      "height_raw_minus_phone_alt_median": -25.310000000000002,
      "dhdt_mps_over_vvel_raw_slope": 0.9876863084562333,
      "phone_gnss_speed_lag_s_vs_vbox": 1.7,
-     "phone_gnss_speed_corr_at_lag": 0.8930161554969225
+     "phone_gnss_speed_corr_at_lag": 0.8930161554969214
     }
    }
   },
@@ -10230,7 +10256,7 @@
      "kind": "S",
      "size_bytes": 217212,
      "sha256": "ae6059b51b52fd216c38f4f9f26893207fec80e5a9c75991a51c709b1766f8ce",
-     "content_digest": "ba3fbae998be23e973827fba9afd27b27e7b0057159cb71b029c9ce7b4655b62",
+     "content_digest": "755e3d99912ae80739e9deaa3a3c459dbab828d9e3537c9d59fcb71177c57f19",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 1171,
      "coerced_non_numeric": {},
@@ -10242,7 +10268,7 @@
      "kind": "S",
      "size_bytes": 236619,
      "sha256": "ede16760a8d19107fcedb0a084685242e48542ac296746f1596f2c7dd32c7fdc",
-     "content_digest": "ba3fbae998be23e973827fba9afd27b27e7b0057159cb71b029c9ce7b4655b62",
+     "content_digest": "755e3d99912ae80739e9deaa3a3c459dbab828d9e3537c9d59fcb71177c57f19",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 1171,
      "coerced_non_numeric": {},
@@ -10309,6 +10335,7 @@
    "phone": {
     "n_rows": 1171,
     "duration_s": 117.00099999999998,
+    "span_first_to_last_s": 117.00099999999998,
     "timing": {
      "n_intervals": 1170,
      "dt_median_s": 0.10000000000002274,
@@ -10379,7 +10406,7 @@
      "sats_used_p50": 19.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 4.227777777777778,
+     "speed_mps_max": 15.22,
      "lat_mean_deg": 53.051451114432105,
      "alt_mean_m": 248.74450042698544
     },
@@ -10388,9 +10415,9 @@
      "norm_std_mps2": 3.399233635775315e-05,
      "norm_p01_mps2": 9.806504238310406,
      "norm_p99_mps2": 9.806668662139964,
-     "local_normal_gravity_mps2": 9.81262649283066,
+     "local_normal_gravity_mps2": 9.812626492830665,
      "mean_minus_g0": -5.2838635875573914e-05,
-     "mean_minus_local": -0.006029331466535837,
+     "mean_minus_local": -0.006029331466541166,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -10605,7 +10632,7 @@
      "height_raw_minus_phone_alt_median": -43.58000000000001,
      "dhdt_mps_over_vvel_raw_slope": 0.9158531127853621,
      "phone_gnss_speed_lag_s_vs_vbox": 3.3,
-     "phone_gnss_speed_corr_at_lag": 0.9404063009191598
+     "phone_gnss_speed_corr_at_lag": 0.9404063009191587
     }
    }
   },
@@ -10618,7 +10645,7 @@
      "kind": "S",
      "size_bytes": 118562,
      "sha256": "9ff0c54126af8ccb8bd2707f2cb01505b87d823b74898a55999c312ae3ac69a1",
-     "content_digest": "689d5fe7ab2ca3bf20b753b14d3e84520159f132db060f0bac8ef948e71db67a",
+     "content_digest": "765e422ed2e202cb34fe2a2f63ed60210ff60c77d96fa1499e9f520f6e012936",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 646,
      "coerced_non_numeric": {},
@@ -10630,7 +10657,7 @@
      "kind": "S",
      "size_bytes": 127720,
      "sha256": "597cb59c618f437610825167de7c9ea610cb7271183210241797fca1814d2a1a",
-     "content_digest": "689d5fe7ab2ca3bf20b753b14d3e84520159f132db060f0bac8ef948e71db67a",
+     "content_digest": "765e422ed2e202cb34fe2a2f63ed60210ff60c77d96fa1499e9f520f6e012936",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 646,
      "coerced_non_numeric": {},
@@ -10697,6 +10724,7 @@
    "phone": {
     "n_rows": 646,
     "duration_s": 64.49800000000005,
+    "span_first_to_last_s": 64.49800000000005,
     "timing": {
      "n_intervals": 645,
      "dt_median_s": 0.10000000000002274,
@@ -10767,7 +10795,7 @@
      "sats_used_p50": 21.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 3.2055555555555553,
+     "speed_mps_max": 11.54,
      "lat_mean_deg": 53.05116644272445,
      "alt_mean_m": 263.9552321981424
     },
@@ -10776,9 +10804,9 @@
      "norm_std_mps2": 3.1831633252189185e-05,
      "norm_p01_mps2": 9.806506478048114,
      "norm_p99_mps2": 9.806669915725706,
-     "local_normal_gravity_mps2": 9.812579304656465,
+     "local_normal_gravity_mps2": 9.812579304656468,
      "mean_minus_g0": -5.20670745380869e-05,
-     "mean_minus_local": -0.005981371731003549,
+     "mean_minus_local": -0.005981371731007101,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -10921,9 +10949,9 @@
     "row_paired_gyro_y_vs_yaw_corr": 0.8693643739253001,
     "alignment": {
      "method": "gyro_y vs CAN yaw rate, 1 s smoothed, moving rows, FFT xcorr",
-     "lag_s": 0.0,
-     "corr": 0.8694067237412878,
-     "phone_clock_correction_s": 1.2779999999984284,
+     "lag_s": 0.3,
+     "corr": 0.8858726345257563,
+     "phone_clock_correction_s": 0.9779999999984283,
      "status": "time_join_verified"
     },
     "time_aligned": {
@@ -10993,7 +11021,7 @@
      "height_raw_minus_phone_alt_median": -51.31999999999999,
      "dhdt_mps_over_vvel_raw_slope": 1.1175239279809468,
      "phone_gnss_speed_lag_s_vs_vbox": 6.1,
-     "phone_gnss_speed_corr_at_lag": 0.9122121197863615
+     "phone_gnss_speed_corr_at_lag": 0.9122121197863612
     }
    }
   },
@@ -11006,7 +11034,7 @@
      "kind": "S",
      "size_bytes": 358553,
      "sha256": "d2d0de4a8ff2793825af978523c888e3579c788c98db13542b19f429288bf4d9",
-     "content_digest": "83a9ada9b17313620706d3b2c67114a4062871b9ffe9f3464257a418c0a4c000",
+     "content_digest": "1b0725993b7c7f4e190968cfad0228dd0e3f4a580d70447e0782009569aef03e",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 1935,
      "coerced_non_numeric": {},
@@ -11018,7 +11046,7 @@
      "kind": "S",
      "size_bytes": 387222,
      "sha256": "505461570ecf7c3666d353f6b4a339ad9ba2438124f612d2d33db3067cb54fde",
-     "content_digest": "83a9ada9b17313620706d3b2c67114a4062871b9ffe9f3464257a418c0a4c000",
+     "content_digest": "1b0725993b7c7f4e190968cfad0228dd0e3f4a580d70447e0782009569aef03e",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 1935,
      "coerced_non_numeric": {},
@@ -11085,6 +11113,7 @@
    "phone": {
     "n_rows": 1935,
     "duration_s": 193.39999999999998,
+    "span_first_to_last_s": 193.39999999999998,
     "timing": {
      "n_intervals": 1934,
      "dt_median_s": 0.09999999999990905,
@@ -11155,7 +11184,7 @@
      "sats_used_p50": 20.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 4.155555555555556,
+     "speed_mps_max": 14.96,
      "lat_mean_deg": 53.05614724754522,
      "alt_mean_m": 284.4682583979328
     },
@@ -11164,9 +11193,9 @@
      "norm_std_mps2": 3.567821405003788e-05,
      "norm_p01_mps2": 9.806500177882015,
      "norm_p99_mps2": 9.806674141756723,
-     "local_normal_gravity_mps2": 9.81252033800846,
+     "local_normal_gravity_mps2": 9.812520338008465,
      "mean_minus_g0": -5.4702250725569e-05,
-     "mean_minus_local": -0.005925040259185721,
+     "mean_minus_local": -0.00592504025919105,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -11381,7 +11410,7 @@
      "height_raw_minus_phone_alt_median": -30.579999999999984,
      "dhdt_mps_over_vvel_raw_slope": 0.9832437664948025,
      "phone_gnss_speed_lag_s_vs_vbox": 2.1,
-     "phone_gnss_speed_corr_at_lag": 0.9628181374448678
+     "phone_gnss_speed_corr_at_lag": 0.9628181374448689
     }
    }
   },
@@ -11394,7 +11423,7 @@
      "kind": "S",
      "size_bytes": 471023,
      "sha256": "9607f8bbfcb7e92021b113e0971be3f8fec50267d9a4abae875d1062ab10d6d6",
-     "content_digest": "32a07246ae304b2b7a395cd5b284d4ae9b97c50047fce83cf822793da610d526",
+     "content_digest": "8b80b9565dfd74006a58021d4d4bac191b555717d9e61a0254ba82fc4ec3b53e",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 2540,
      "coerced_non_numeric": {},
@@ -11406,7 +11435,7 @@
      "kind": "S",
      "size_bytes": 502320,
      "sha256": "0a5b9c6b67355a8d9f2898d18d0417774d5ce664ce37840945020a6c4e7b1d4c",
-     "content_digest": "32a07246ae304b2b7a395cd5b284d4ae9b97c50047fce83cf822793da610d526",
+     "content_digest": "8b80b9565dfd74006a58021d4d4bac191b555717d9e61a0254ba82fc4ec3b53e",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 2540,
      "coerced_non_numeric": {},
@@ -11473,6 +11502,7 @@
    "phone": {
     "n_rows": 2540,
     "duration_s": 253.9000000000001,
+    "span_first_to_last_s": 253.9000000000001,
     "timing": {
      "n_intervals": 2539,
      "dt_median_s": 0.09999999999990905,
@@ -11543,7 +11573,7 @@
      "sats_used_p50": 21.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 4.688888888888889,
+     "speed_mps_max": 16.88,
      "lat_mean_deg": 53.06954493858267,
      "alt_mean_m": 355.76688976377955
     },
@@ -11552,9 +11582,9 @@
      "norm_std_mps2": 3.8201777165437564e-05,
      "norm_p01_mps2": 9.806506626419011,
      "norm_p99_mps2": 9.80668095338071,
-     "local_normal_gravity_mps2": 9.81231197410184,
+     "local_normal_gravity_mps2": 9.812311974101842,
      "mean_minus_g0": -5.3030036339052344e-05,
-     "mean_minus_local": -0.0057150041381799355,
+     "mean_minus_local": -0.005715004138181712,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -11697,9 +11727,9 @@
     "row_paired_gyro_y_vs_yaw_corr": 0.03382726183825069,
     "alignment": {
      "method": "gyro_y vs CAN yaw rate, 1 s smoothed, moving rows, FFT xcorr",
-     "lag_s": 26.0,
-     "corr": 0.21951925970585087,
-     "phone_clock_correction_s": 1.1779999999998836,
+     "lag_s": 120.3,
+     "corr": 0.21876261482629897,
+     "phone_clock_correction_s": -93.12200000000011,
      "status": "unverified_weak_signal"
     },
     "time_aligned": {
@@ -11769,7 +11799,7 @@
      "height_raw_minus_phone_alt_median": -45.48000000000002,
      "dhdt_mps_over_vvel_raw_slope": 1.0047003292643575,
      "phone_gnss_speed_lag_s_vs_vbox": 4.7,
-     "phone_gnss_speed_corr_at_lag": 0.963261566457879
+     "phone_gnss_speed_corr_at_lag": 0.9632615664578781
     }
    }
   },
@@ -11782,7 +11812,7 @@
      "kind": "S",
      "size_bytes": 781902,
      "sha256": "30bece8d988e898902ad4e77d090ea33c80486222293104f78d42bd8611e03fa",
-     "content_digest": "cd1bf3f22202f49a19742c62697742572d6c8ed49c612f8201f9c19c83c40796",
+     "content_digest": "893cff7027643bcdaad8bcb061e63984c0175094fa7c5bf9604ae947a8797461",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 4210,
      "coerced_non_numeric": {},
@@ -11794,7 +11824,7 @@
      "kind": "S",
      "size_bytes": 842776,
      "sha256": "7758d46199aa467768f897427bd5306e98daaee7c83a99ebbd99ea6398d81794",
-     "content_digest": "cd1bf3f22202f49a19742c62697742572d6c8ed49c612f8201f9c19c83c40796",
+     "content_digest": "893cff7027643bcdaad8bcb061e63984c0175094fa7c5bf9604ae947a8797461",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 4210,
      "coerced_non_numeric": {},
@@ -11861,6 +11891,7 @@
    "phone": {
     "n_rows": 4210,
     "duration_s": 420.9000000000001,
+    "span_first_to_last_s": 420.9000000000001,
     "timing": {
      "n_intervals": 4209,
      "dt_median_s": 0.09999999999990905,
@@ -11931,7 +11962,7 @@
      "sats_used_p50": 16.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 800,
-     "speed_mps_max": 5.0055555555555555,
+     "speed_mps_max": 18.02,
      "lat_mean_deg": 53.09050423990499,
      "alt_mean_m": 299.54351781472684
     },
@@ -11940,9 +11971,9 @@
      "norm_std_mps2": 3.962400392944492e-05,
      "norm_p01_mps2": 9.806503850221036,
      "norm_p99_mps2": 9.806676806120409,
-     "local_normal_gravity_mps2": 9.812503722911778,
+     "local_normal_gravity_mps2": 9.812503722911783,
      "mean_minus_g0": -5.370964437823034e-05,
-     "mean_minus_local": -0.0059074325561567775,
+     "mean_minus_local": -0.005907432556162107,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -12085,9 +12116,9 @@
     "row_paired_gyro_y_vs_yaw_corr": 0.4777908495090101,
     "alignment": {
      "method": "gyro_y vs CAN yaw rate, 1 s smoothed, moving rows, FFT xcorr",
-     "lag_s": 0.0,
-     "corr": 0.4801161031293292,
-     "phone_clock_correction_s": 1.3779999999969732,
+     "lag_s": 0.4,
+     "corr": 0.48055277257868584,
+     "phone_clock_correction_s": 0.9779999999969732,
      "status": "unverified_weak_signal"
     },
     "time_aligned": {
@@ -12157,7 +12188,7 @@
      "height_raw_minus_phone_alt_median": -55.514999999999986,
      "dhdt_mps_over_vvel_raw_slope": 0.9814700523211068,
      "phone_gnss_speed_lag_s_vs_vbox": 4.1,
-     "phone_gnss_speed_corr_at_lag": 0.9079473317861835
+     "phone_gnss_speed_corr_at_lag": 0.9079473317861829
     }
    }
   },
@@ -12170,7 +12201,7 @@
      "kind": "S",
      "size_bytes": 4387027,
      "sha256": "dc24cf9cd6b8cce2553f283d5c042396d7a4df29b7094321a09585e65d996476",
-     "content_digest": "7d417ed8ae694ed8fe89055480b7fcfb6ff0d93b45d6aa4cea2ed0d84be3a3ef",
+     "content_digest": "2e1901f689a15808ca2b008149a8f1ec06c899e31fb0b8dbe6f1e3d293617704",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 23705,
      "coerced_non_numeric": {},
@@ -12182,7 +12213,7 @@
      "kind": "S",
      "size_bytes": 4387022,
      "sha256": "ad6f4046b8cb36e1fc2acf29bc790b795d70c0f585eb4bf8b51898aa0fb93bbd",
-     "content_digest": "7d417ed8ae694ed8fe89055480b7fcfb6ff0d93b45d6aa4cea2ed0d84be3a3ef",
+     "content_digest": "2e1901f689a15808ca2b008149a8f1ec06c899e31fb0b8dbe6f1e3d293617704",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 23705,
      "coerced_non_numeric": {},
@@ -12249,6 +12280,7 @@
    "phone": {
     "n_rows": 23705,
     "duration_s": 2369.7780000000002,
+    "span_first_to_last_s": 2369.7780000000002,
     "timing": {
      "n_intervals": 23704,
      "dt_median_s": 0.09999999999999432,
@@ -12319,7 +12351,7 @@
      "sats_used_p50": 21.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 7.872222222222223,
+     "speed_mps_max": 28.34,
      "lat_mean_deg": 53.1250972071293,
      "alt_mean_m": 325.0878924277579
     },
@@ -12328,9 +12360,9 @@
      "norm_std_mps2": 3.9917238049751526e-05,
      "norm_p01_mps2": 9.806504248222197,
      "norm_p99_mps2": 9.806675654899575,
-     "local_normal_gravity_mps2": 9.812454995178404,
+     "local_normal_gravity_mps2": 9.812454995178408,
      "mean_minus_g0": -5.481804159046533e-05,
-     "mean_minus_local": -0.005859813219995402,
+     "mean_minus_local": -0.005859813219998955,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -12547,7 +12579,7 @@
      "height_raw_minus_phone_alt_median": -48.26999999999998,
      "dhdt_mps_over_vvel_raw_slope": 0.9794506475062617,
      "phone_gnss_speed_lag_s_vs_vbox": 3.2,
-     "phone_gnss_speed_corr_at_lag": 0.9615903527929105
+     "phone_gnss_speed_corr_at_lag": 0.9615903527929106
     }
    }
   },
@@ -12560,7 +12592,7 @@
      "kind": "S",
      "size_bytes": 116809,
      "sha256": "7c5479fc893131a8c4d75daf73c3b5ae25512a1e194a6ced50fa24633de0f215",
-     "content_digest": "eb8638d9504d32a4f1e3ced124e5516a994f83af30d88655852a3aa170258bfe",
+     "content_digest": "29ded334c48c39385a445ec46a3e9a2cef89f6827fcce5bfa1f7748dc0d57d14",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 645,
      "coerced_non_numeric": {},
@@ -12572,7 +12604,7 @@
      "kind": "S",
      "size_bytes": 123424,
      "sha256": "6b9f3372ca12ea7e96968fe3f92bc161d1d52249f1aa7dfab3af1711d905021d",
-     "content_digest": "eb8638d9504d32a4f1e3ced124e5516a994f83af30d88655852a3aa170258bfe",
+     "content_digest": "29ded334c48c39385a445ec46a3e9a2cef89f6827fcce5bfa1f7748dc0d57d14",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 645,
      "coerced_non_numeric": {},
@@ -12639,6 +12671,7 @@
    "phone": {
     "n_rows": 645,
     "duration_s": 64.4,
+    "span_first_to_last_s": 64.4,
     "timing": {
      "n_intervals": 644,
      "dt_median_s": 0.10000000000000142,
@@ -12709,7 +12742,7 @@
      "sats_used_p50": 21.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 2.7527777777777778,
+     "speed_mps_max": 9.91,
      "lat_mean_deg": 52.813313271317824,
      "alt_mean_m": 70.21899224806202
     },
@@ -12718,9 +12751,9 @@
      "norm_std_mps2": 3.319311559661645e-05,
      "norm_p01_mps2": 9.806502109539364,
      "norm_p99_mps2": 9.806665504563709,
-     "local_normal_gravity_mps2": 9.81296983994861,
+     "local_normal_gravity_mps2": 9.812969839948614,
      "mean_minus_g0": -5.4138046222007574e-05,
-     "mean_minus_local": -0.006373977994831748,
+     "mean_minus_local": -0.006373977994837077,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -12935,7 +12968,7 @@
      "height_raw_minus_phone_alt_median": -39.839999999999996,
      "dhdt_mps_over_vvel_raw_slope": 0.7496850402801701,
      "phone_gnss_speed_lag_s_vs_vbox": 5.5,
-     "phone_gnss_speed_corr_at_lag": 0.917645689893131
+     "phone_gnss_speed_corr_at_lag": 0.9176456898931327
     }
    }
   },
@@ -12948,7 +12981,7 @@
      "kind": "S",
      "size_bytes": 3175640,
      "sha256": "d6f65e16288c2fd1150435bca4c2383e323d55935824a8ae21799a8563271ccb",
-     "content_digest": "32dd745ddda4eb12680d7c6919bdb592a9450e3535a089a849d8968895c8fec7",
+     "content_digest": "fd9f99d7f035e457f816c0ad7abec6dd8dce0a5ee49b701ec4f8ff62c1599a2e",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 17136,
      "coerced_non_numeric": {},
@@ -12960,7 +12993,7 @@
      "kind": "S",
      "size_bytes": 3175635,
      "sha256": "6eddd2c7cee20e5625b2bd17e4299fb61cf7c998776968d078142f0a57fbef6a",
-     "content_digest": "32dd745ddda4eb12680d7c6919bdb592a9450e3535a089a849d8968895c8fec7",
+     "content_digest": "fd9f99d7f035e457f816c0ad7abec6dd8dce0a5ee49b701ec4f8ff62c1599a2e",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 17136,
      "coerced_non_numeric": {},
@@ -13027,6 +13060,7 @@
    "phone": {
     "n_rows": 17136,
     "duration_s": 1713.5,
+    "span_first_to_last_s": 1713.5,
     "timing": {
      "n_intervals": 17135,
      "dt_median_s": 0.09999999999990905,
@@ -13097,7 +13131,7 @@
      "sats_used_p50": 20.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 7.405555555555556,
+     "speed_mps_max": 26.66,
      "lat_mean_deg": 53.25279899836601,
      "alt_mean_m": 375.6081495098039
     },
@@ -13106,9 +13140,9 @@
      "norm_std_mps2": 3.473605206763363e-05,
      "norm_p01_mps2": 9.806502961300732,
      "norm_p99_mps2": 9.806672291608402,
-     "local_normal_gravity_mps2": 9.812410122837935,
+     "local_normal_gravity_mps2": 9.81241012283794,
      "mean_minus_g0": -5.289246983686269e-05,
-     "mean_minus_local": -0.005813015307772673,
+     "mean_minus_local": -0.005813015307778002,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -13323,7 +13357,7 @@
      "height_raw_minus_phone_alt_median": -50.40999999999997,
      "dhdt_mps_over_vvel_raw_slope": 0.9811799028266703,
      "phone_gnss_speed_lag_s_vs_vbox": 3.6,
-     "phone_gnss_speed_corr_at_lag": 0.9710864159052259
+     "phone_gnss_speed_corr_at_lag": 0.9710864159052255
     }
    }
   },
@@ -13336,7 +13370,7 @@
      "kind": "S",
      "size_bytes": 331302,
      "sha256": "0d16cd6deaddf30a98461a546ce47621f4b57fa3fd902623765bad1dd83c0887",
-     "content_digest": "36f3179902d4f26d9cf7db7f9a1d782884f1ce3dee4b72b6d6fdcfe8956e3e71",
+     "content_digest": "79cbbb619c2c07335e377d9ca894810185f7189b82df98207a965f56a1a215f7",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 1789,
      "coerced_non_numeric": {},
@@ -13348,7 +13382,7 @@
      "kind": "S",
      "size_bytes": 349178,
      "sha256": "e6ed618845fe8a0c48f77324353908db61a959d9618247683d6f47b43e230e17",
-     "content_digest": "36f3179902d4f26d9cf7db7f9a1d782884f1ce3dee4b72b6d6fdcfe8956e3e71",
+     "content_digest": "79cbbb619c2c07335e377d9ca894810185f7189b82df98207a965f56a1a215f7",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 1789,
      "coerced_non_numeric": {},
@@ -13415,6 +13449,7 @@
    "phone": {
     "n_rows": 1789,
     "duration_s": 178.799,
+    "span_first_to_last_s": 178.799,
     "timing": {
      "n_intervals": 1788,
      "dt_median_s": 0.09999999999999432,
@@ -13485,7 +13520,7 @@
      "sats_used_p50": 21.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 3.7555555555555555,
+     "speed_mps_max": 13.52,
      "lat_mean_deg": 52.82064978367803,
      "alt_mean_m": 107.9821185019564
     },
@@ -13494,9 +13529,9 @@
      "norm_std_mps2": 4.097921656663286e-05,
      "norm_p01_mps2": 9.806504516452334,
      "norm_p99_mps2": 9.806677274204526,
-     "local_normal_gravity_mps2": 9.812859705290153,
+     "local_normal_gravity_mps2": 9.812859705290156,
      "mean_minus_g0": -5.6414109179669936e-05,
-     "mean_minus_local": -0.006266119399333192,
+     "mean_minus_local": -0.006266119399336745,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -13711,7 +13746,7 @@
      "height_raw_minus_phone_alt_median": -47.56000000000001,
      "dhdt_mps_over_vvel_raw_slope": 0.9842101873452505,
      "phone_gnss_speed_lag_s_vs_vbox": 7.0,
-     "phone_gnss_speed_corr_at_lag": 0.856869124926627
+     "phone_gnss_speed_corr_at_lag": 0.8568691249266264
     }
    }
   },
@@ -13724,7 +13759,7 @@
      "kind": "S",
      "size_bytes": 57485,
      "sha256": "b9030167541be560621a7aa9ef6a89710cb666ec47ad204f65cb1d96f7606fa0",
-     "content_digest": "4f135a0eadf2a90417bbeb0d355c2cf41d9b54fb8103f536a62da0f06ecc8c49",
+     "content_digest": "86129ea35b858221760d58ecd77010bf23fe21fdce04f4917690f2e91e450907",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 307,
      "coerced_non_numeric": {},
@@ -13736,7 +13771,7 @@
      "kind": "S",
      "size_bytes": 60433,
      "sha256": "f4780e7cfdcf840fa89bfbd5c68da4fea7a17c864af548d2c269c0f05719238f",
-     "content_digest": "4f135a0eadf2a90417bbeb0d355c2cf41d9b54fb8103f536a62da0f06ecc8c49",
+     "content_digest": "86129ea35b858221760d58ecd77010bf23fe21fdce04f4917690f2e91e450907",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 307,
      "coerced_non_numeric": {},
@@ -13803,6 +13838,7 @@
    "phone": {
     "n_rows": 307,
     "duration_s": 30.600000000000023,
+    "span_first_to_last_s": 30.600000000000023,
     "timing": {
      "n_intervals": 306,
      "dt_median_s": 0.10000000000002274,
@@ -13873,7 +13909,7 @@
      "sats_used_p50": 23.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 3.7305555555555556,
+     "speed_mps_max": 13.43,
      "lat_mean_deg": 52.82982379478827,
      "alt_mean_m": 114.9684039087948
     },
@@ -13882,9 +13918,9 @@
      "norm_std_mps2": 4.328308062997516e-05,
      "norm_p01_mps2": 9.806505746187069,
      "norm_p99_mps2": 9.80667609594604,
-     "local_normal_gravity_mps2": 9.8128461508552,
+     "local_normal_gravity_mps2": 9.812846150855206,
      "mean_minus_g0": -5.7745884154414284e-05,
-     "mean_minus_local": -0.006253896739355724,
+     "mean_minus_local": -0.006253896739361053,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -14027,9 +14063,9 @@
     "row_paired_gyro_y_vs_yaw_corr": 0.6696844902811815,
     "alignment": {
      "method": "gyro_y vs CAN yaw rate, 1 s smoothed, moving rows, FFT xcorr",
-     "lag_s": -0.4,
-     "corr": 0.6980410172827638,
-     "phone_clock_correction_s": -0.3929999999978463,
+     "lag_s": -0.5,
+     "corr": 0.6989320141701796,
+     "phone_clock_correction_s": -0.2929999999978463,
      "status": "time_join_verified"
     },
     "time_aligned": {
@@ -14099,7 +14135,7 @@
      "height_raw_minus_phone_alt_median": -40.39,
      "dhdt_mps_over_vvel_raw_slope": 0.887487631555274,
      "phone_gnss_speed_lag_s_vs_vbox": 5.5,
-     "phone_gnss_speed_corr_at_lag": 0.8672576405805225
+     "phone_gnss_speed_corr_at_lag": 0.8672576405805218
     }
    }
   },
@@ -14112,7 +14148,7 @@
      "kind": "S",
      "size_bytes": 254665,
      "sha256": "15ad54e093b7ff783a88db02952fe634ba5b640173c93462d28152f71dcfa8a5",
-     "content_digest": "9db3029909364d227e417a8d7d05737c1d9a2935d1a948fcbd61467ce2e63476",
+     "content_digest": "5322e7c9c06f667418658e7acd10621a41ece4880d4d2f98da226e96708dc8d3",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 1376,
      "coerced_non_numeric": {},
@@ -14124,7 +14160,7 @@
      "kind": "S",
      "size_bytes": 272232,
      "sha256": "4042bf4ac484138343dfcc2d1d923ca261e56dcb6c05ee536940c65c82a1ac70",
-     "content_digest": "9db3029909364d227e417a8d7d05737c1d9a2935d1a948fcbd61467ce2e63476",
+     "content_digest": "5322e7c9c06f667418658e7acd10621a41ece4880d4d2f98da226e96708dc8d3",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 1376,
      "coerced_non_numeric": {},
@@ -14191,6 +14227,7 @@
    "phone": {
     "n_rows": 1376,
     "duration_s": 137.5,
+    "span_first_to_last_s": 137.5,
     "timing": {
      "n_intervals": 1375,
      "dt_median_s": 0.10000000000002274,
@@ -14261,7 +14298,7 @@
      "sats_used_p50": 21.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 7.941666666666667,
+     "speed_mps_max": 28.59,
      "lat_mean_deg": 52.83927277906977,
      "alt_mean_m": 121.7701308139535
     },
@@ -14270,9 +14307,9 @@
      "norm_std_mps2": 4.059449006925314e-05,
      "norm_p01_mps2": 9.806504361901846,
      "norm_p99_mps2": 9.80667585193882,
-     "local_normal_gravity_mps2": 9.812833405169561,
+     "local_normal_gravity_mps2": 9.812833405169565,
      "mean_minus_g0": -5.8367162264261196e-05,
-     "mean_minus_local": -0.006241772331826212,
+     "mean_minus_local": -0.006241772331829765,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -14415,9 +14452,9 @@
     "row_paired_gyro_y_vs_yaw_corr": 0.06632231128503088,
     "alignment": {
      "method": "gyro_y vs CAN yaw rate, 1 s smoothed, moving rows, FFT xcorr",
-     "lag_s": 9.3,
-     "corr": 0.1696307358413171,
-     "phone_clock_correction_s": -11.592999999997847,
+     "lag_s": 66.1,
+     "corr": 0.19221526008762205,
+     "phone_clock_correction_s": -68.39299999999784,
      "status": "unverified_weak_signal"
     },
     "time_aligned": {
@@ -14487,7 +14524,7 @@
      "height_raw_minus_phone_alt_median": -44.85000000000001,
      "dhdt_mps_over_vvel_raw_slope": 0.9891014715100803,
      "phone_gnss_speed_lag_s_vs_vbox": 4.0,
-     "phone_gnss_speed_corr_at_lag": 0.9528087594140765
+     "phone_gnss_speed_corr_at_lag": 0.9528087594140768
     }
    }
   },
@@ -14500,7 +14537,7 @@
      "kind": "S",
      "size_bytes": 155360,
      "sha256": "eb6e66dbb3397aea7af0c93fe212e9ca0fc8310341083ce64652fe7842248acf",
-     "content_digest": "420050514149ed7f00a94f4e00ccac473a9950fa0aca36a6dac929fd1d1e5121",
+     "content_digest": "d0d49017d73c66d8f11c5e591de158f1c4b5c51f27d6c7437bcf17b64168cd7a",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 840,
      "coerced_non_numeric": {},
@@ -14512,7 +14549,7 @@
      "kind": "S",
      "size_bytes": 164330,
      "sha256": "226b815eaf40a2f5756f0daca329c84eb18dc446c33b3332c456dcdcae08afef",
-     "content_digest": "420050514149ed7f00a94f4e00ccac473a9950fa0aca36a6dac929fd1d1e5121",
+     "content_digest": "d0d49017d73c66d8f11c5e591de158f1c4b5c51f27d6c7437bcf17b64168cd7a",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 840,
      "coerced_non_numeric": {},
@@ -14579,6 +14616,7 @@
    "phone": {
     "n_rows": 840,
     "duration_s": 83.90000000000003,
+    "span_first_to_last_s": 83.90000000000003,
     "timing": {
      "n_intervals": 839,
      "dt_median_s": 0.10000000000002274,
@@ -14649,7 +14687,7 @@
      "sats_used_p50": 22.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 8.558333333333334,
+     "speed_mps_max": 30.81,
      "lat_mean_deg": 52.85595975714286,
      "alt_mean_m": 128.2140357142857
     },
@@ -14658,9 +14696,9 @@
      "norm_std_mps2": 4.228311471331919e-05,
      "norm_p01_mps2": 9.80650535972929,
      "norm_p99_mps2": 9.806675437394672,
-     "local_normal_gravity_mps2": 9.812828077192762,
+     "local_normal_gravity_mps2": 9.812828077192766,
      "mean_minus_g0": -5.574765364180223e-05,
-     "mean_minus_local": -0.0062338248464044455,
+     "mean_minus_local": -0.006233824846407998,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -14875,7 +14913,7 @@
      "height_raw_minus_phone_alt_median": -57.279999999999994,
      "dhdt_mps_over_vvel_raw_slope": 1.0318564688564629,
      "phone_gnss_speed_lag_s_vs_vbox": 4.0,
-     "phone_gnss_speed_corr_at_lag": 0.9587655699786546
+     "phone_gnss_speed_corr_at_lag": 0.9587655699786544
     }
    }
   },
@@ -14888,7 +14926,7 @@
      "kind": "S",
      "size_bytes": 678900,
      "sha256": "cc1b57b0b539f1e756662c49ff4c4925d66e44396ad283e4d5fa472024675dec",
-     "content_digest": "2623e9179fa0f98d47be7c934b5ddea8d1dc73b01195e6af544686a4e72105fc",
+     "content_digest": "43206a0f74caed4a03156ea87681d7dd4a2a38549efc21b96b555af87a7edc82",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 3676,
      "coerced_non_numeric": {},
@@ -14900,7 +14938,7 @@
      "kind": "S",
      "size_bytes": 723761,
      "sha256": "d537ba88363da44ac758ecce88f4806ef2a44ccceede1b6cd2ff7fd1773ddd55",
-     "content_digest": "2623e9179fa0f98d47be7c934b5ddea8d1dc73b01195e6af544686a4e72105fc",
+     "content_digest": "43206a0f74caed4a03156ea87681d7dd4a2a38549efc21b96b555af87a7edc82",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 3676,
      "coerced_non_numeric": {},
@@ -14967,6 +15005,7 @@
    "phone": {
     "n_rows": 3676,
     "duration_s": 367.5,
+    "span_first_to_last_s": 367.5,
     "timing": {
      "n_intervals": 3675,
      "dt_median_s": 0.10000000000002274,
@@ -15037,7 +15076,7 @@
      "sats_used_p50": 22.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 5.861111111111112,
+     "speed_mps_max": 21.1,
      "lat_mean_deg": 52.870258064200215,
      "alt_mean_m": 116.24314200217627
     },
@@ -15046,9 +15085,9 @@
      "norm_std_mps2": 3.508537411019905e-05,
      "norm_p01_mps2": 9.806505526562454,
      "norm_p99_mps2": 9.806676674082816,
-     "local_normal_gravity_mps2": 9.812877491511514,
+     "local_normal_gravity_mps2": 9.812877491511518,
      "mean_minus_g0": -5.1184146082405846e-05,
-     "mean_minus_local": -0.006278675657597432,
+     "mean_minus_local": -0.006278675657600985,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -15263,7 +15302,7 @@
      "height_raw_minus_phone_alt_median": -52.81,
      "dhdt_mps_over_vvel_raw_slope": 0.9786975289256706,
      "phone_gnss_speed_lag_s_vs_vbox": 5.1,
-     "phone_gnss_speed_corr_at_lag": 0.977092702290586
+     "phone_gnss_speed_corr_at_lag": 0.9770927022905851
     }
    }
   },
@@ -15276,7 +15315,7 @@
      "kind": "S",
      "size_bytes": 29554,
      "sha256": "150b73335a4283e2aba5aa8c5320d32271bf20546005e7f5f60918d8381f5475",
-     "content_digest": "72fa4dcd409c5be45d76bf9220ace5df7724483ab153c9810c426ca74d2f27ff",
+     "content_digest": "c4d20d2ba59ecb810bd24c6d64c80a5b5371c87533960f12592d4f9179bc165c",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 156,
      "coerced_non_numeric": {},
@@ -15288,7 +15327,7 @@
      "kind": "S",
      "size_bytes": 31642,
      "sha256": "313f6705b2a7b92ea5503edf5ea380b816e75c3d2f032a2914c9be15bcaa4b1a",
-     "content_digest": "72fa4dcd409c5be45d76bf9220ace5df7724483ab153c9810c426ca74d2f27ff",
+     "content_digest": "c4d20d2ba59ecb810bd24c6d64c80a5b5371c87533960f12592d4f9179bc165c",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 156,
      "coerced_non_numeric": {},
@@ -15355,6 +15394,7 @@
    "phone": {
     "n_rows": 156,
     "duration_s": 15.497999999999934,
+    "span_first_to_last_s": 15.497999999999934,
     "timing": {
      "n_intervals": 155,
      "dt_median_s": 0.10000000000002274,
@@ -15425,7 +15465,7 @@
      "sats_used_p50": 21.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 5.7666666666666675,
+     "speed_mps_max": 20.76,
      "lat_mean_deg": 52.88152234615385,
      "alt_mean_m": 121.01769230769231
     },
@@ -15434,9 +15474,9 @@
      "norm_std_mps2": 4.135259949200126e-05,
      "norm_p01_mps2": 9.80650754896962,
      "norm_p99_mps2": 9.806671231590245,
-     "local_normal_gravity_mps2": 9.812872581651124,
+     "local_normal_gravity_mps2": 9.812872581651128,
      "mean_minus_g0": -5.0041529712885335e-05,
-     "mean_minus_local": -0.006272623180837655,
+     "mean_minus_local": -0.006272623180841208,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -15579,9 +15619,9 @@
     "row_paired_gyro_y_vs_yaw_corr": 0.23410232628009628,
     "alignment": {
      "method": "gyro_y vs CAN yaw rate, 1 s smoothed, moving rows, FFT xcorr",
-     "lag_s": -0.4,
-     "corr": 0.26387440412014135,
-     "phone_clock_correction_s": 0.1070000000021537,
+     "lag_s": -5.7,
+     "corr": 0.2566045219043358,
+     "phone_clock_correction_s": 5.407000000002154,
      "status": "unverified_weak_signal"
     },
     "time_aligned": {
@@ -15651,7 +15691,7 @@
      "height_raw_minus_phone_alt_median": -48.260000000000005,
      "dhdt_mps_over_vvel_raw_slope": 1.025034137460172,
      "phone_gnss_speed_lag_s_vs_vbox": 5.6,
-     "phone_gnss_speed_corr_at_lag": 0.864895342483352
+     "phone_gnss_speed_corr_at_lag": 0.8648953424833524
     }
    }
   },
@@ -15664,7 +15704,7 @@
      "kind": "S",
      "size_bytes": 6052896,
      "sha256": "7bdca3360c9411c58fdc41e4366fc79f336b087fd89c6d295976504c5e559e64",
-     "content_digest": "8d25f16fafb55187407f5f65af4b28d9c1d5e4db5ed1428e42f922b16228abb5",
+     "content_digest": "be0e6f4b2dcd82f63d6d760d182176b669aba3835f91ff2401beb9097433ccbf",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 32459,
      "coerced_non_numeric": {},
@@ -15676,7 +15716,7 @@
      "kind": "S",
      "size_bytes": 6052891,
      "sha256": "54a63803daedf7d05ced73ce1512f5ad8d2abfd423ee422182e3d9c8bc5f5dd5",
-     "content_digest": "8d25f16fafb55187407f5f65af4b28d9c1d5e4db5ed1428e42f922b16228abb5",
+     "content_digest": "be0e6f4b2dcd82f63d6d760d182176b669aba3835f91ff2401beb9097433ccbf",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 32459,
      "coerced_non_numeric": {},
@@ -15742,7 +15782,8 @@
    "route_group": "Vtb1",
    "phone": {
     "n_rows": 32459,
-    "duration_s": 3245.799,
+    "duration_s": 2584.423,
+    "span_first_to_last_s": 3245.799,
     "timing": {
      "n_intervals": 32458,
      "dt_median_s": 0.09999999999990905,
@@ -15813,7 +15854,7 @@
      "sats_used_p50": 18.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 530,
-     "speed_mps_max": 7.7138888888888895,
+     "speed_mps_max": 27.77,
      "lat_mean_deg": 53.239809854709016,
      "alt_mean_m": 305.11777288271355
     },
@@ -15822,9 +15863,9 @@
      "norm_std_mps2": 4.016601456604699e-05,
      "norm_p01_mps2": 9.806503635169875,
      "norm_p99_mps2": 9.806677679408047,
-     "local_normal_gravity_mps2": 9.812616369002038,
+     "local_normal_gravity_mps2": 9.812616369002043,
      "mean_minus_g0": -5.118817891336391e-05,
-     "mean_minus_local": -0.006017557180951982,
+     "mean_minus_local": -0.006017557180957311,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -16041,7 +16082,7 @@
      "height_raw_minus_phone_alt_median": -56.41,
      "dhdt_mps_over_vvel_raw_slope": 1.0163393014240723,
      "phone_gnss_speed_lag_s_vs_vbox": 2.7,
-     "phone_gnss_speed_corr_at_lag": 0.9452768792294838
+     "phone_gnss_speed_corr_at_lag": 0.9452768792294834
     }
    }
   },
@@ -16054,7 +16095,7 @@
      "kind": "S",
      "size_bytes": 37176,
      "sha256": "b81e128fd1594a0730f36d285c1c447d17a370e6637616e4017b44ff3c714742",
-     "content_digest": "ddb771823b76710dfe956f182618770aed4785306e894c9392d8727ce82dffc0",
+     "content_digest": "b1c949a34068d697711995f00400391849971de829d7fa8d5071465a3c25b406",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 196,
      "coerced_non_numeric": {},
@@ -16066,7 +16107,7 @@
      "kind": "S",
      "size_bytes": 38686,
      "sha256": "5fc125c8d12a042ebb41402795f0b35f84f0c96d348f5600f8f593daa15a57ad",
-     "content_digest": "ddb771823b76710dfe956f182618770aed4785306e894c9392d8727ce82dffc0",
+     "content_digest": "b1c949a34068d697711995f00400391849971de829d7fa8d5071465a3c25b406",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 196,
      "coerced_non_numeric": {},
@@ -16133,6 +16174,7 @@
    "phone": {
     "n_rows": 196,
     "duration_s": 19.50000000000091,
+    "span_first_to_last_s": 19.50000000000091,
     "timing": {
      "n_intervals": 195,
      "dt_median_s": 0.1000000000003638,
@@ -16203,7 +16245,7 @@
      "sats_used_p50": 22.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 5.216666666666667,
+     "speed_mps_max": 18.78,
      "lat_mean_deg": 52.55879455102041,
      "alt_mean_m": 142.71367346938777
     },
@@ -16212,9 +16254,9 @@
      "norm_std_mps2": 3.630576876809456e-05,
      "norm_p01_mps2": 9.806507741596878,
      "norm_p99_mps2": 9.806670932227533,
-     "local_normal_gravity_mps2": 9.812523734009652,
+     "local_normal_gravity_mps2": 9.812523734009655,
      "mean_minus_g0": -4.996804483070605e-05,
-     "mean_minus_local": -0.005923702054483115,
+     "mean_minus_local": -0.005923702054486668,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -16429,7 +16471,7 @@
      "height_raw_minus_phone_alt_median": -57.845,
      "dhdt_mps_over_vvel_raw_slope": 0.9313412091730346,
      "phone_gnss_speed_lag_s_vs_vbox": 1.7,
-     "phone_gnss_speed_corr_at_lag": 0.8205817580076172
+     "phone_gnss_speed_corr_at_lag": 0.8205817580076181
     }
    }
   },
@@ -16442,7 +16484,7 @@
      "kind": "S",
      "size_bytes": 68659,
      "sha256": "cd3ec5fb7285089c5e37e8f42e7e899875839b7911ebec77751d8b1a01d90510",
-     "content_digest": "cd2b4ae88744bfafc25ba47eebb11a4fd562b387763e8bf48a050d57e6495dd3",
+     "content_digest": "3874b3ed2d3f70eb4176e5095cbc165301e4938480f0d380de89a447ca3b4d69",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 361,
      "coerced_non_numeric": {},
@@ -16454,7 +16496,7 @@
      "kind": "S",
      "size_bytes": 70204,
      "sha256": "de859ad661ccfeee82d9605a43362bcc2a36f59af8d5c862efc36daa04f67f5d",
-     "content_digest": "cd2b4ae88744bfafc25ba47eebb11a4fd562b387763e8bf48a050d57e6495dd3",
+     "content_digest": "3874b3ed2d3f70eb4176e5095cbc165301e4938480f0d380de89a447ca3b4d69",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 361,
      "coerced_non_numeric": {},
@@ -16521,6 +16563,7 @@
    "phone": {
     "n_rows": 361,
     "duration_s": 36.0,
+    "span_first_to_last_s": 36.0,
     "timing": {
      "n_intervals": 360,
      "dt_median_s": 0.1000000000003638,
@@ -16591,7 +16634,7 @@
      "sats_used_p50": 21.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 5.75,
+     "speed_mps_max": 20.7,
      "lat_mean_deg": 52.556284279778396,
      "alt_mean_m": 148.02659279778393
     },
@@ -16600,9 +16643,9 @@
      "norm_std_mps2": 3.9725794048602116e-05,
      "norm_p01_mps2": 9.806511942887742,
      "norm_p99_mps2": 9.8066792826114,
-     "local_normal_gravity_mps2": 9.812505142326968,
+     "local_normal_gravity_mps2": 9.812505142326971,
      "mean_minus_g0": -5.361301623452164e-05,
-     "mean_minus_local": -0.005908755343202898,
+     "mean_minus_local": -0.005908755343206451,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -16817,7 +16860,7 @@
      "height_raw_minus_phone_alt_median": -56.14,
      "dhdt_mps_over_vvel_raw_slope": 0.971675298368861,
      "phone_gnss_speed_lag_s_vs_vbox": 3.3,
-     "phone_gnss_speed_corr_at_lag": 0.6896332657030954
+     "phone_gnss_speed_corr_at_lag": 0.6896332657030959
     }
    }
   },
@@ -16830,7 +16873,7 @@
      "kind": "S",
      "size_bytes": 83892,
      "sha256": "00e8dc12482919e0cfc43218275390f295c3f3b75e34ebeef0ade8b4809a3f5a",
-     "content_digest": "f2be67a1780d1b15bc7a41299164b580b5052c257c56534dba16e8ea0eed08f1",
+     "content_digest": "8ddaa9404df6ff3952e9baa0d65660888ab6cc56873150ac2ebcbc676c61642e",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 447,
      "coerced_non_numeric": {},
@@ -16842,7 +16885,7 @@
      "kind": "S",
      "size_bytes": 87659,
      "sha256": "00d15f725f9c5f83f0782bd75c442cf6912c244c232b33919466c741e87d4a79",
-     "content_digest": "f2be67a1780d1b15bc7a41299164b580b5052c257c56534dba16e8ea0eed08f1",
+     "content_digest": "8ddaa9404df6ff3952e9baa0d65660888ab6cc56873150ac2ebcbc676c61642e",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 447,
      "coerced_non_numeric": {},
@@ -16909,6 +16952,7 @@
    "phone": {
     "n_rows": 447,
     "duration_s": 44.60099999999875,
+    "span_first_to_last_s": 44.60099999999875,
     "timing": {
      "n_intervals": 446,
      "dt_median_s": 0.1000000000003638,
@@ -16979,7 +17023,7 @@
      "sats_used_p50": 22.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 5.466666666666667,
+     "speed_mps_max": 19.68,
      "lat_mean_deg": 52.55382173601791,
      "alt_mean_m": 152.99246085011183
     },
@@ -16988,9 +17032,9 @@
      "norm_std_mps2": 3.943740453562293e-05,
      "norm_p01_mps2": 9.80650707119508,
      "norm_p99_mps2": 9.806671242404324,
-     "local_normal_gravity_mps2": 9.81248766334737,
+     "local_normal_gravity_mps2": 9.812487663347376,
      "mean_minus_g0": -5.141183921075765e-05,
-     "mean_minus_local": -0.0058890751865821045,
+     "mean_minus_local": -0.0058890751865874336,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -17205,7 +17249,7 @@
      "height_raw_minus_phone_alt_median": -55.670000000000016,
      "dhdt_mps_over_vvel_raw_slope": 1.0639895380711264,
      "phone_gnss_speed_lag_s_vs_vbox": -0.3,
-     "phone_gnss_speed_corr_at_lag": 0.8500208941145251
+     "phone_gnss_speed_corr_at_lag": 0.8500208941145232
     }
    }
   },
@@ -17218,7 +17262,7 @@
      "kind": "S",
      "size_bytes": 1053029,
      "sha256": "6552ab344fe50a0163f980f3d852fef80ac8520530985902206eb7d15b44cfb1",
-     "content_digest": "be601d1ff67fd08940777b6cd397356dda09c21974d24819d7d9c2d81ecb65b4",
+     "content_digest": "96ce5560734875f1c1558d0028e1cdd5e38a88ab91c81ea01cc86ecee81dac8d",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 5712,
      "coerced_non_numeric": {},
@@ -17230,7 +17274,7 @@
      "kind": "S",
      "size_bytes": 1053024,
      "sha256": "d22bd5ee3daf27b68c7ba9a90d5d99aa8249a57cf555d14ff769c81e06aed5cb",
-     "content_digest": "be601d1ff67fd08940777b6cd397356dda09c21974d24819d7d9c2d81ecb65b4",
+     "content_digest": "96ce5560734875f1c1558d0028e1cdd5e38a88ab91c81ea01cc86ecee81dac8d",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 5712,
      "coerced_non_numeric": {},
@@ -17297,6 +17341,7 @@
    "phone": {
     "n_rows": 5712,
     "duration_s": 571.1,
+    "span_first_to_last_s": 571.1,
     "timing": {
      "n_intervals": 5711,
      "dt_median_s": 0.10000000000000142,
@@ -17367,7 +17412,7 @@
      "sats_used_p50": 19.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 140,
-     "speed_mps_max": 4.805555555555556,
+     "speed_mps_max": 17.3,
      "lat_mean_deg": 53.175970321953784,
      "alt_mean_m": 203.77414040616245
     },
@@ -17376,9 +17421,9 @@
      "norm_std_mps2": 3.7291797875959264e-05,
      "norm_p01_mps2": 9.806502407963809,
      "norm_p99_mps2": 9.806675229643327,
-     "local_normal_gravity_mps2": 9.812873619353047,
+     "local_normal_gravity_mps2": 9.812873619353052,
      "mean_minus_g0": -5.445833249240195e-05,
-     "mean_minus_local": -0.006278077685539785,
+     "mean_minus_local": -0.006278077685545114,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -17594,7 +17639,7 @@
      "height_raw_minus_phone_alt_median": -47.66,
      "dhdt_mps_over_vvel_raw_slope": 1.0112621513865774,
      "phone_gnss_speed_lag_s_vs_vbox": 3.2,
-     "phone_gnss_speed_corr_at_lag": 0.9637800451756179
+     "phone_gnss_speed_corr_at_lag": 0.9637800451756178
     }
    }
   },
@@ -17607,7 +17652,7 @@
      "kind": "S",
      "size_bytes": 1530275,
      "sha256": "7cadb0617ec69513de0ee718c707acc72cdb76261ec0ab33e629d8354cbaf883",
-     "content_digest": "a7b9ebdcd260fca878d37cd4985602c68ab9e362a0cead582d6ce7ed7da3dd6f",
+     "content_digest": "ca129e2e05eacdfc08f335ec8c9e720de575478988a0ea4568fe930d9ad5ac68",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 8240,
      "coerced_non_numeric": {},
@@ -17619,7 +17664,7 @@
      "kind": "S",
      "size_bytes": 1530270,
      "sha256": "7ee5a26e7c31aa388cd5f522cdbdb2211f948f025e99ada194eb8a3790029072",
-     "content_digest": "a7b9ebdcd260fca878d37cd4985602c68ab9e362a0cead582d6ce7ed7da3dd6f",
+     "content_digest": "ca129e2e05eacdfc08f335ec8c9e720de575478988a0ea4568fe930d9ad5ac68",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 8240,
      "coerced_non_numeric": {},
@@ -17686,6 +17731,7 @@
    "phone": {
     "n_rows": 8240,
     "duration_s": 823.9,
+    "span_first_to_last_s": 823.9,
     "timing": {
      "n_intervals": 8239,
      "dt_median_s": 0.10000000000002274,
@@ -17756,7 +17802,7 @@
      "sats_used_p50": 20.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 2.7055555555555557,
+     "speed_mps_max": 9.74,
      "lat_mean_deg": 53.17033958968447,
      "alt_mean_m": 226.76342961165048
     },
@@ -17765,9 +17811,9 @@
      "norm_std_mps2": 2.3025752313907565e-05,
      "norm_p01_mps2": 9.806500727853946,
      "norm_p99_mps2": 9.806644439455317,
-     "local_normal_gravity_mps2": 9.812797777855643,
+     "local_normal_gravity_mps2": 9.812797777855646,
      "mean_minus_g0": -5.213598634767891e-05,
-     "mean_minus_local": -0.006199913841991034,
+     "mean_minus_local": -0.0061999138419945865,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -17982,7 +18028,7 @@
      "height_raw_minus_phone_alt_median": -51.04999999999998,
      "dhdt_mps_over_vvel_raw_slope": 0.9053236574302286,
      "phone_gnss_speed_lag_s_vs_vbox": 2.5,
-     "phone_gnss_speed_corr_at_lag": 0.9675609225077898
+     "phone_gnss_speed_corr_at_lag": 0.967560922507789
     }
    }
   },
@@ -17995,7 +18041,7 @@
      "kind": "S",
      "size_bytes": 103090,
      "sha256": "cdc2626adc124083a440cefb8a5ed0299e4c5e25aa4a5612316fb3dc784708c4",
-     "content_digest": "3623ac2441d1ffacb9343c1dcb5586f706dcc9f65e66f8e7b14eccaa9e2614ae",
+     "content_digest": "259a544a84ef64e9c64fd59f9484df2c3aa46476eed020023002f1553a85470d",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 556,
      "coerced_non_numeric": {},
@@ -18007,7 +18053,7 @@
      "kind": "S",
      "size_bytes": 111008,
      "sha256": "046b47ad7199c2790abc95e6bb442a7fce9f469465ed4715be284fca25c9b02b",
-     "content_digest": "3623ac2441d1ffacb9343c1dcb5586f706dcc9f65e66f8e7b14eccaa9e2614ae",
+     "content_digest": "259a544a84ef64e9c64fd59f9484df2c3aa46476eed020023002f1553a85470d",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 556,
      "coerced_non_numeric": {},
@@ -18074,6 +18120,7 @@
    "phone": {
     "n_rows": 556,
     "duration_s": 55.5,
+    "span_first_to_last_s": 55.5,
     "timing": {
      "n_intervals": 555,
      "dt_median_s": 0.09999999999990905,
@@ -18144,7 +18191,7 @@
      "sats_used_p50": 21.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 2.1361111111111115,
+     "speed_mps_max": 7.69,
      "lat_mean_deg": 53.17106649280576,
      "alt_mean_m": 216.72057553956833
     },
@@ -18153,9 +18200,9 @@
      "norm_std_mps2": 3.775185780315263e-05,
      "norm_p01_mps2": 9.806501810559157,
      "norm_p99_mps2": 9.806676080227184,
-     "local_normal_gravity_mps2": 9.812829402242436,
+     "local_normal_gravity_mps2": 9.81282940224244,
      "mean_minus_g0": -5.414527592684237e-05,
-     "mean_minus_local": -0.006233547518363025,
+     "mean_minus_local": -0.006233547518366578,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -18370,7 +18417,7 @@
      "height_raw_minus_phone_alt_median": -50.370000000000005,
      "dhdt_mps_over_vvel_raw_slope": 0.9874106832218196,
      "phone_gnss_speed_lag_s_vs_vbox": 0.6,
-     "phone_gnss_speed_corr_at_lag": 0.8804703546223908
+     "phone_gnss_speed_corr_at_lag": 0.8804703546223898
     }
    }
   },
@@ -18383,7 +18430,7 @@
      "kind": "S",
      "size_bytes": 12010333,
      "sha256": "4753710832962b5ce8452cf62e314f81744a51dfa166f57f4dd7f678d4a199e8",
-     "content_digest": "cc9b6b0ef22185adb6005fa9d1735f4103e62d1af691cdc3473884c285415c39",
+     "content_digest": "afdc1aec06cd69406b783924244d22395be10551713ebbb676b77108f4d95854",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 64388,
      "coerced_non_numeric": {},
@@ -18395,7 +18442,7 @@
      "kind": "S",
      "size_bytes": 12612030,
      "sha256": "b6185b76cbe898588d7d37c9a34a866311f9ff0f62cdf4dbbdc880cecd02c4eb",
-     "content_digest": "cc9b6b0ef22185adb6005fa9d1735f4103e62d1af691cdc3473884c285415c39",
+     "content_digest": "afdc1aec06cd69406b783924244d22395be10551713ebbb676b77108f4d95854",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 64388,
      "coerced_non_numeric": {},
@@ -18462,6 +18509,7 @@
    "phone": {
     "n_rows": 64388,
     "duration_s": 6438.701,
+    "span_first_to_last_s": 6438.701,
     "timing": {
      "n_intervals": 64387,
      "dt_median_s": 0.09999999999990905,
@@ -18532,7 +18580,7 @@
      "sats_used_p50": 21.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 170,
-     "speed_mps_max": 8.51388888888889,
+     "speed_mps_max": 30.65,
      "lat_mean_deg": 52.95471388774306,
      "alt_mean_m": 169.25093014226255
     },
@@ -18541,9 +18589,9 @@
      "norm_std_mps2": 3.871282103150352e-05,
      "norm_p01_mps2": 9.806506762660188,
      "norm_p99_mps2": 9.806676904125066,
-     "local_normal_gravity_mps2": 9.812787543334439,
+     "local_normal_gravity_mps2": 9.812787543334442,
      "mean_minus_g0": -5.165396438400194e-05,
-     "mean_minus_local": -0.006189197298823501,
+     "mean_minus_local": -0.006189197298827054,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -18760,7 +18808,7 @@
      "height_raw_minus_phone_alt_median": -55.96000000000001,
      "dhdt_mps_over_vvel_raw_slope": 0.9890530229188013,
      "phone_gnss_speed_lag_s_vs_vbox": 2.8,
-     "phone_gnss_speed_corr_at_lag": 0.9878683828324473
+     "phone_gnss_speed_corr_at_lag": 0.9878683828324466
     }
    }
   },
@@ -18773,7 +18821,7 @@
      "kind": "S",
      "size_bytes": 94210,
      "sha256": "8ab4e1f0373173eb17f93426a6a2de2c1f01080fbc915c56443308256da28baa",
-     "content_digest": "9383e534e5d027299a30210275cd8f105135ea8930ab2a1265d2a4fcfd16b147",
+     "content_digest": "d0ed97f53e134592a950ee387171e3505f0f081f38c6743d9cf0913985260cf1",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 498,
      "coerced_non_numeric": {},
@@ -18785,7 +18833,7 @@
      "kind": "S",
      "size_bytes": 99549,
      "sha256": "c03d7f15776730080bb5c110240d480036e6f2a66cc5b8f337bc2a9af9d0b4a1",
-     "content_digest": "9383e534e5d027299a30210275cd8f105135ea8930ab2a1265d2a4fcfd16b147",
+     "content_digest": "d0ed97f53e134592a950ee387171e3505f0f081f38c6743d9cf0913985260cf1",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 498,
      "coerced_non_numeric": {},
@@ -18852,6 +18900,7 @@
    "phone": {
     "n_rows": 498,
     "duration_s": 49.69999999999982,
+    "span_first_to_last_s": 49.69999999999982,
     "timing": {
      "n_intervals": 497,
      "dt_median_s": 0.1000000000003638,
@@ -18922,7 +18971,7 @@
      "sats_used_p50": 20.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 5.391666666666667,
+     "speed_mps_max": 19.41,
      "lat_mean_deg": 52.576203385542165,
      "alt_mean_m": 137.61554216867472
     },
@@ -18931,9 +18980,9 @@
      "norm_std_mps2": 4.228747295887625e-05,
      "norm_p01_mps2": 9.806505514499035,
      "norm_p99_mps2": 9.806674717349361,
-     "local_normal_gravity_mps2": 9.812554694879314,
+     "local_normal_gravity_mps2": 9.812554694879317,
      "mean_minus_g0": -5.211286816830807e-05,
-     "mean_minus_local": -0.005956807747482529,
+     "mean_minus_local": -0.0059568077474860814,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -19076,9 +19125,9 @@
     "row_paired_gyro_y_vs_yaw_corr": 0.14132175529522434,
     "alignment": {
      "method": "gyro_y vs CAN yaw rate, 1 s smoothed, moving rows, FFT xcorr",
-     "lag_s": -0.7,
-     "corr": 0.27765292767858607,
-     "phone_clock_correction_s": 2.2240000000048896,
+     "lag_s": -19.4,
+     "corr": 0.4556384663065508,
+     "phone_clock_correction_s": 20.924000000004888,
      "status": "unverified_weak_signal"
     },
     "time_aligned": {
@@ -19148,7 +19197,7 @@
      "height_raw_minus_phone_alt_median": -56.13000000000001,
      "dhdt_mps_over_vvel_raw_slope": 1.7398666906863556,
      "phone_gnss_speed_lag_s_vs_vbox": 0.6,
-     "phone_gnss_speed_corr_at_lag": 0.7686098156979299
+     "phone_gnss_speed_corr_at_lag": 0.7686098156979306
     }
    }
   },
@@ -19161,7 +19210,7 @@
      "kind": "S",
      "size_bytes": 87349,
      "sha256": "b798d898dc371334ce8627ed416fcbfc423852b204993bdfe884a2dc11b56696",
-     "content_digest": "78a508e5bd00b40f341d3a6e7513cc85fc176aa138eba323d5644c86a17c2bc1",
+     "content_digest": "c5fc06c023d5ffa93b2ee673c1a16137f72d0c0ee786a05b702fc83dc524cd74",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 461,
      "coerced_non_numeric": {},
@@ -19173,7 +19222,7 @@
      "kind": "S",
      "size_bytes": 90646,
      "sha256": "47a81f47c46f5133d1d9bd5d4b2891303e4e00e554543ea1f55ba1c29803c109",
-     "content_digest": "78a508e5bd00b40f341d3a6e7513cc85fc176aa138eba323d5644c86a17c2bc1",
+     "content_digest": "c5fc06c023d5ffa93b2ee673c1a16137f72d0c0ee786a05b702fc83dc524cd74",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 461,
      "coerced_non_numeric": {},
@@ -19240,6 +19289,7 @@
    "phone": {
     "n_rows": 461,
     "duration_s": 46.001000000000204,
+    "span_first_to_last_s": 46.001000000000204,
     "timing": {
      "n_intervals": 460,
      "dt_median_s": 0.1000000000003638,
@@ -19310,7 +19360,7 @@
      "sats_used_p50": 21.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 5.202777777777778,
+     "speed_mps_max": 18.73,
      "lat_mean_deg": 52.571408763557486,
      "alt_mean_m": 134.33524945770068
     },
@@ -19319,9 +19369,9 @@
      "norm_std_mps2": 4.0235027331987175e-05,
      "norm_p01_mps2": 9.806509222858038,
      "norm_p99_mps2": 9.806680917721335,
-     "local_normal_gravity_mps2": 9.812560624106938,
+     "local_normal_gravity_mps2": 9.812560624106942,
      "mean_minus_g0": -5.008927940686192e-05,
-     "mean_minus_local": -0.0059607133863455175,
+     "mean_minus_local": -0.00596071338634907,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -19536,7 +19586,7 @@
      "height_raw_minus_phone_alt_median": -54.92999999999999,
      "dhdt_mps_over_vvel_raw_slope": 0.9324184402991206,
      "phone_gnss_speed_lag_s_vs_vbox": 6.6,
-     "phone_gnss_speed_corr_at_lag": 0.9519534860712556
+     "phone_gnss_speed_corr_at_lag": 0.9519534860712575
     }
    }
   },
@@ -19549,7 +19599,7 @@
      "kind": "S",
      "size_bytes": 126023,
      "sha256": "cdd40e3a04fe2f39eddf8dbaac68db124e0a1d858e70d08992ebc81708701e16",
-     "content_digest": "75a13d46c0b12e4d9e5f68200d7cf75178fe76f53562341b00edb6dae0bdf035",
+     "content_digest": "18cb4941480d04aed3a78a1c99462dd8feec507fef412cd4a36412bd0ce0e2eb",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 668,
      "coerced_non_numeric": {},
@@ -19561,7 +19611,7 @@
      "kind": "S",
      "size_bytes": 131319,
      "sha256": "9f31f5ea87e4a4a6e0ec7bbadf5c96b6aae12ae04f69b90be5e1b6d9b0a0e243",
-     "content_digest": "75a13d46c0b12e4d9e5f68200d7cf75178fe76f53562341b00edb6dae0bdf035",
+     "content_digest": "18cb4941480d04aed3a78a1c99462dd8feec507fef412cd4a36412bd0ce0e2eb",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 668,
      "coerced_non_numeric": {},
@@ -19628,6 +19678,7 @@
    "phone": {
     "n_rows": 668,
     "duration_s": 66.69999999999982,
+    "span_first_to_last_s": 66.69999999999982,
     "timing": {
      "n_intervals": 667,
      "dt_median_s": 0.1000000000003638,
@@ -19698,7 +19749,7 @@
      "sats_used_p50": 22.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 5.561111111111111,
+     "speed_mps_max": 20.02,
      "lat_mean_deg": 52.56633298502994,
      "alt_mean_m": 139.87691616766466
     },
@@ -19707,9 +19758,9 @@
      "norm_std_mps2": 4.042349589348811e-05,
      "norm_p01_mps2": 9.80650928164548,
      "norm_p99_mps2": 9.806681710017916,
-     "local_normal_gravity_mps2": 9.812539082642324,
+     "local_normal_gravity_mps2": 9.812539082642328,
      "mean_minus_g0": -4.9991843873442576e-05,
-     "mean_minus_local": -0.005939074486198237,
+     "mean_minus_local": -0.00593907448620179,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -19924,7 +19975,7 @@
      "height_raw_minus_phone_alt_median": -59.48000000000002,
      "dhdt_mps_over_vvel_raw_slope": 1.0258593234860067,
      "phone_gnss_speed_lag_s_vs_vbox": 0.1,
-     "phone_gnss_speed_corr_at_lag": 0.7214664894592008
+     "phone_gnss_speed_corr_at_lag": 0.721466489459201
     }
    }
   },
@@ -19937,7 +19988,7 @@
      "kind": "S",
      "size_bytes": 85640,
      "sha256": "0a9dcbe6816e28e6c663f1b90668d37e024f314ee9bc91a674d49eb28b7fb01c",
-     "content_digest": "ef8dfbc0c036c86196171cd1d001f2e80dc34b07847d5f073b44d01f61f8b634",
+     "content_digest": "93859cd1a6898a0c8616d9fdc9aed11f04e9becbfabb3a47c58d40aa60a77ea2",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 452,
      "coerced_non_numeric": {},
@@ -19949,7 +20000,7 @@
      "kind": "S",
      "size_bytes": 89626,
      "sha256": "4d2b412c205548755ee2a33e4f80a4f1a1641122cf0439e61d2e4c9ffc2263ad",
-     "content_digest": "ef8dfbc0c036c86196171cd1d001f2e80dc34b07847d5f073b44d01f61f8b634",
+     "content_digest": "93859cd1a6898a0c8616d9fdc9aed11f04e9becbfabb3a47c58d40aa60a77ea2",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 452,
      "coerced_non_numeric": {},
@@ -20016,6 +20067,7 @@
    "phone": {
     "n_rows": 452,
     "duration_s": 45.09900000000016,
+    "span_first_to_last_s": 45.09900000000016,
     "timing": {
      "n_intervals": 451,
      "dt_median_s": 0.1000000000003638,
@@ -20086,7 +20138,7 @@
      "sats_used_p50": 22.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 6.6722222222222225,
+     "speed_mps_max": 24.02,
      "lat_mean_deg": 52.56158848230089,
      "alt_mean_m": 146.02420353982302
     },
@@ -20095,9 +20147,9 @@
      "norm_std_mps2": 4.035178274946109e-05,
      "norm_p01_mps2": 9.806509611457075,
      "norm_p99_mps2": 9.806682416525987,
-     "local_normal_gravity_mps2": 9.812515961816334,
+     "local_normal_gravity_mps2": 9.81251596181634,
      "mean_minus_g0": -4.846955687476395e-05,
-     "mean_minus_local": -0.005914431373209794,
+     "mean_minus_local": -0.005914431373215123,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -20240,9 +20292,9 @@
     "row_paired_gyro_y_vs_yaw_corr": 0.04515280119861192,
     "alignment": {
      "method": "gyro_y vs CAN yaw rate, 1 s smoothed, moving rows, FFT xcorr",
-     "lag_s": -8.7,
-     "corr": 0.24988783130090642,
-     "phone_clock_correction_s": 10.323999999996158,
+     "lag_s": 19.9,
+     "corr": 0.27353533147696363,
+     "phone_clock_correction_s": -18.27600000000384,
      "status": "unverified_weak_signal"
     },
     "time_aligned": {
@@ -20312,7 +20364,7 @@
      "height_raw_minus_phone_alt_median": -55.95,
      "dhdt_mps_over_vvel_raw_slope": 1.0733275122150598,
      "phone_gnss_speed_lag_s_vs_vbox": 5.0,
-     "phone_gnss_speed_corr_at_lag": 0.8609030535573796
+     "phone_gnss_speed_corr_at_lag": 0.8609030535573786
     }
    }
   },
@@ -20325,7 +20377,7 @@
      "kind": "S",
      "size_bytes": 3524952,
      "sha256": "41fb71ae3223748b2c0513d5b58338f92f25c85a5dd4e2816a932b263cf5f05b",
-     "content_digest": "a88cfe7f36aef690541c77615abba7f482318d38b031b14a46f930b1667dc20f",
+     "content_digest": "b8eeb7bb2cfcd6bb35d8b9794172db06865236c01fceefb837c9fef14da5ef89",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 20476,
      "coerced_non_numeric": {},
@@ -20337,7 +20389,7 @@
      "kind": "S",
      "size_bytes": 3524947,
      "sha256": "a4fb23c9270c7bc5eaaace8ce06b342d7437619175fa4edfabedd8c179203eb7",
-     "content_digest": "a88cfe7f36aef690541c77615abba7f482318d38b031b14a46f930b1667dc20f",
+     "content_digest": "b8eeb7bb2cfcd6bb35d8b9794172db06865236c01fceefb837c9fef14da5ef89",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 20476,
      "coerced_non_numeric": {},
@@ -20404,6 +20456,7 @@
    "phone": {
     "n_rows": 20476,
     "duration_s": 2047.5,
+    "span_first_to_last_s": 2047.5,
     "timing": {
      "n_intervals": 20475,
      "dt_median_s": 0.10000000000000142,
@@ -20483,9 +20536,9 @@
      "norm_std_mps2": 2.1840249127228474e-05,
      "norm_p01_mps2": 9.806500522612538,
      "norm_p99_mps2": 9.80660955210821,
-     "local_normal_gravity_mps2": 9.812960562046001,
+     "local_normal_gravity_mps2": 9.812960562046007,
      "mean_minus_g0": -5.3105645884343744e-05,
-     "mean_minus_local": -0.006363667691886121,
+     "mean_minus_local": -0.00636366769189145,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -20708,7 +20761,7 @@
      "kind": "S",
      "size_bytes": 123092,
      "sha256": "b2aa8e3d7bae40e9f17cd20fe4c80d79f34b012a07e3b8aeb0eedf5ed42b7790",
-     "content_digest": "5af9362be64a78249623ef013b07e782803700ef7f466d893b3f418997999d1b",
+     "content_digest": "43b921c4470d854e08544b29420093ac2b393048cda3adc61f5817f28ca899b1",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 652,
      "coerced_non_numeric": {},
@@ -20720,7 +20773,7 @@
      "kind": "S",
      "size_bytes": 129358,
      "sha256": "3296af44b42221ad98763b31a96e1de42207530941b4a899d3f60ec003441dfe",
-     "content_digest": "5af9362be64a78249623ef013b07e782803700ef7f466d893b3f418997999d1b",
+     "content_digest": "43b921c4470d854e08544b29420093ac2b393048cda3adc61f5817f28ca899b1",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 652,
      "coerced_non_numeric": {},
@@ -20787,6 +20840,7 @@
    "phone": {
     "n_rows": 652,
     "duration_s": 65.10000000000036,
+    "span_first_to_last_s": 65.10000000000036,
     "timing": {
      "n_intervals": 651,
      "dt_median_s": 0.1000000000003638,
@@ -20857,7 +20911,7 @@
      "sats_used_p50": 23.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 3.7388888888888894,
+     "speed_mps_max": 13.46,
      "lat_mean_deg": 52.202343536809806,
      "alt_mean_m": 128.77388036809816
     },
@@ -20866,9 +20920,9 @@
      "norm_std_mps2": 4.161307152759624e-05,
      "norm_p01_mps2": 9.806505389887876,
      "norm_p99_mps2": 9.806683997916904,
-     "local_normal_gravity_mps2": 9.812254420771913,
+     "local_normal_gravity_mps2": 9.812254420771914,
      "mean_minus_g0": -5.4711716115818376e-05,
-     "mean_minus_local": -0.005659132488029073,
+     "mean_minus_local": -0.005659132488030849,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -21083,7 +21137,7 @@
      "height_raw_minus_phone_alt_median": -56.68000000000001,
      "dhdt_mps_over_vvel_raw_slope": 1.0087676413002649,
      "phone_gnss_speed_lag_s_vs_vbox": 2.0,
-     "phone_gnss_speed_corr_at_lag": 0.896435353214663
+     "phone_gnss_speed_corr_at_lag": 0.8964353532146624
     }
    }
   },
@@ -21096,7 +21150,7 @@
      "kind": "S",
      "size_bytes": 924189,
      "sha256": "b9dd70fc7282ba469fdf8835062286bb3cb53bbf4f6d3d2dff4d71c5b597a5c1",
-     "content_digest": "3925e5de4e24f978ef147be6f9d3cf237b4fb69311b0b321f1f1d9a91f195d04",
+     "content_digest": "4c82ea4cce0ee6bd7d7eec705fa2f2ccf81518a7dadd802ce42fbe741a7ca556",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 4909,
      "coerced_non_numeric": {},
@@ -21108,7 +21162,7 @@
      "kind": "S",
      "size_bytes": 964445,
      "sha256": "f0cc7a58c44f4f4a7fb0ffda50ec48d3a15e938f5185143a76c92e7197237d6b",
-     "content_digest": "3925e5de4e24f978ef147be6f9d3cf237b4fb69311b0b321f1f1d9a91f195d04",
+     "content_digest": "4c82ea4cce0ee6bd7d7eec705fa2f2ccf81518a7dadd802ce42fbe741a7ca556",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 4909,
      "coerced_non_numeric": {},
@@ -21175,6 +21229,7 @@
    "phone": {
     "n_rows": 4909,
     "duration_s": 490.7999999999993,
+    "span_first_to_last_s": 490.7999999999993,
     "timing": {
      "n_intervals": 4908,
      "dt_median_s": 0.1000000000003638,
@@ -21245,7 +21300,7 @@
      "sats_used_p50": 22.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 7.502777777777778,
+     "speed_mps_max": 27.01,
      "lat_mean_deg": 52.20873743613771,
      "alt_mean_m": 111.6358912202078
     },
@@ -21254,9 +21309,9 @@
      "norm_std_mps2": 3.829033356569143e-05,
      "norm_p01_mps2": 9.806502554529827,
      "norm_p99_mps2": 9.806675002099336,
-     "local_normal_gravity_mps2": 9.812312919907214,
+     "local_normal_gravity_mps2": 9.81231291990722,
      "mean_minus_g0": -5.525583010168589e-05,
-     "mean_minus_local": -0.005718175737316145,
+     "mean_minus_local": -0.005718175737321474,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -21471,7 +21526,7 @@
      "height_raw_minus_phone_alt_median": -55.510000000000005,
      "dhdt_mps_over_vvel_raw_slope": 1.0013483211710255,
      "phone_gnss_speed_lag_s_vs_vbox": 4.7,
-     "phone_gnss_speed_corr_at_lag": 0.9756040326441977
+     "phone_gnss_speed_corr_at_lag": 0.9756040326441981
     }
    }
   },
@@ -21484,7 +21539,7 @@
      "kind": "S",
      "size_bytes": 170958,
      "sha256": "e5598004be4250cba1361d3b7fea8cb45526ce6e8b8efb7466c5a03a2e6fd57e",
-     "content_digest": "477d2021e15b19fed4a7ca1d216322e8e8b7089627ccb82ee544fc1ca7c9dcad",
+     "content_digest": "66b15a8f636aae200b67d52f3866ff163d7fd8899a68936fcf3d6b70fe552869",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 918,
      "coerced_non_numeric": {},
@@ -21496,7 +21551,7 @@
      "kind": "S",
      "size_bytes": 176321,
      "sha256": "f69e0f39ab555fe954d219f87d8d552770d10f4b86ec0a8c27716ef119faff16",
-     "content_digest": "477d2021e15b19fed4a7ca1d216322e8e8b7089627ccb82ee544fc1ca7c9dcad",
+     "content_digest": "66b15a8f636aae200b67d52f3866ff163d7fd8899a68936fcf3d6b70fe552869",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 918,
      "coerced_non_numeric": {},
@@ -21562,7 +21617,8 @@
    "route_group": "Vw12",
    "phone": {
     "n_rows": 918,
-    "duration_s": 91.7,
+    "duration_s": 91.69999999999999,
+    "span_first_to_last_s": 91.7,
     "timing": {
      "n_intervals": 917,
      "dt_median_s": 0.10000000000000142,
@@ -21633,7 +21689,7 @@
      "sats_used_p50": 22.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 7.355555555555556,
+     "speed_mps_max": 26.48,
      "lat_mean_deg": 52.243276519607846,
      "alt_mean_m": 126.81590413943356
     },
@@ -21642,9 +21698,9 @@
      "norm_std_mps2": 4.046011287604282e-05,
      "norm_p01_mps2": 9.806508540209405,
      "norm_p99_mps2": 9.806678671742022,
-     "local_normal_gravity_mps2": 9.81229638048545,
+     "local_normal_gravity_mps2": 9.812296380485455,
      "mean_minus_g0": -5.3124806399296176e-05,
-     "mean_minus_local": -0.0056995052918491496,
+     "mean_minus_local": -0.005699505291854479,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -21859,7 +21915,7 @@
      "height_raw_minus_phone_alt_median": -56.370000000000005,
      "dhdt_mps_over_vvel_raw_slope": 0.9550825548929719,
      "phone_gnss_speed_lag_s_vs_vbox": 3.3,
-     "phone_gnss_speed_corr_at_lag": 0.930353564754616
+     "phone_gnss_speed_corr_at_lag": 0.9303535647546154
     }
    }
   },
@@ -21872,7 +21928,7 @@
      "kind": "S",
      "size_bytes": 53041,
      "sha256": "8dbdb8d7c3c0790c66dc33bfffd3eb98d59010f849ef15bdf7097b67f23b8733",
-     "content_digest": "7ad57dba66ec2d826d782a70d21649e39f61137770f9a03c1e6cf80988af36d4",
+     "content_digest": "6d3c3aee1ffe2859a6a40c98a8d9090472efe7d8112f649991980831a1611a22",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 284,
      "coerced_non_numeric": {},
@@ -21884,7 +21940,7 @@
      "kind": "S",
      "size_bytes": 54886,
      "sha256": "7002b6e986b2366ab2f97252545fd33b50eb017e3dd0a3b38b6283797a0f9c80",
-     "content_digest": "7ad57dba66ec2d826d782a70d21649e39f61137770f9a03c1e6cf80988af36d4",
+     "content_digest": "6d3c3aee1ffe2859a6a40c98a8d9090472efe7d8112f649991980831a1611a22",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 284,
      "coerced_non_numeric": {},
@@ -21951,6 +22007,7 @@
    "phone": {
     "n_rows": 284,
     "duration_s": 28.3,
+    "span_first_to_last_s": 28.3,
     "timing": {
      "n_intervals": 283,
      "dt_median_s": 0.09999999999999964,
@@ -22021,7 +22078,7 @@
      "sats_used_p50": 23.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 8.73611111111111,
+     "speed_mps_max": 31.45,
      "lat_mean_deg": 52.27776426056338,
      "alt_mean_m": 108.69207746478871
     },
@@ -22030,9 +22087,9 @@
      "norm_std_mps2": 4.1726661113537734e-05,
      "norm_p01_mps2": 9.806508558263559,
      "norm_p99_mps2": 9.806676570398237,
-     "local_normal_gravity_mps2": 9.812382562401028,
+     "local_normal_gravity_mps2": 9.812382562401032,
      "mean_minus_g0": -5.363929025392622e-05,
-     "mean_minus_local": -0.005786201691282855,
+     "mean_minus_local": -0.005786201691286408,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -22175,9 +22232,9 @@
     "row_paired_gyro_y_vs_yaw_corr": 0.01471156439679788,
     "alignment": {
      "method": "gyro_y vs CAN yaw rate, 1 s smoothed, moving rows, FFT xcorr",
-     "lag_s": -10.8,
-     "corr": 0.3786542194623403,
-     "phone_clock_correction_s": 9.795999999999186,
+     "lag_s": -10.9,
+     "corr": 0.3813776292847413,
+     "phone_clock_correction_s": 9.895999999999185,
      "status": "unverified_weak_signal"
     },
     "time_aligned": {
@@ -22247,7 +22304,7 @@
      "height_raw_minus_phone_alt_median": -52.06999999999999,
      "dhdt_mps_over_vvel_raw_slope": 0.9310667266745025,
      "phone_gnss_speed_lag_s_vs_vbox": 4.2,
-     "phone_gnss_speed_corr_at_lag": 0.8659422712978022
+     "phone_gnss_speed_corr_at_lag": 0.8659422712978001
     }
    }
   },
@@ -22260,7 +22317,7 @@
      "kind": "S",
      "size_bytes": 585872,
      "sha256": "de5b5da05baa7bedd0d9fa66c6faa908823ab731849c1dad0156d400252e4646",
-     "content_digest": "971343a8df73b05fa673d882ad07355f1857c7f5a7f2c7b53f303f2bf15408db",
+     "content_digest": "bc493584d73f99b007907f3fa9939e5acb8debbc786f17d6e8d294bd8aab53ba",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 3138,
      "coerced_non_numeric": {},
@@ -22272,7 +22329,7 @@
      "kind": "S",
      "size_bytes": 608561,
      "sha256": "ef28b592b6fc7ae1e9df258b90094ea26f3cd10d55ff4a687062d60f56e03e8d",
-     "content_digest": "971343a8df73b05fa673d882ad07355f1857c7f5a7f2c7b53f303f2bf15408db",
+     "content_digest": "bc493584d73f99b007907f3fa9939e5acb8debbc786f17d6e8d294bd8aab53ba",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 3138,
      "coerced_non_numeric": {},
@@ -22339,6 +22396,7 @@
    "phone": {
     "n_rows": 3138,
     "duration_s": 313.70000000000005,
+    "span_first_to_last_s": 313.70000000000005,
     "timing": {
      "n_intervals": 3137,
      "dt_median_s": 0.09999999999999432,
@@ -22409,7 +22467,7 @@
      "sats_used_p50": 23.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 8.241666666666667,
+     "speed_mps_max": 29.67,
      "lat_mean_deg": 52.317127788400256,
      "alt_mean_m": 130.41397068196304
     },
@@ -22418,9 +22476,9 @@
      "norm_std_mps2": 4.0991166374509284e-05,
      "norm_p01_mps2": 9.806507746919898,
      "norm_p99_mps2": 9.80668036040229,
-     "local_normal_gravity_mps2": 9.812350045977714,
+     "local_normal_gravity_mps2": 9.812350045977718,
      "mean_minus_g0": -5.412716978447918e-05,
-     "mean_minus_local": -0.005754173147499486,
+     "mean_minus_local": -0.005754173147503039,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -22648,7 +22706,7 @@
      "kind": "S",
      "size_bytes": 3668924,
      "sha256": "5f13f8ede6117bb26ea26f977f19282415dc4064368b6ad3a502c8d3c1150b3f",
-     "content_digest": "e845c77b31a6234f101912e44ac14d64af5a7e9f4a77356b0d594634ce72dd62",
+     "content_digest": "dc43f85dff2eb91379823ff12297aa062d49787101bb7d67813f6b35d7d2a4a5",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 19588,
      "coerced_non_numeric": {},
@@ -22660,7 +22718,7 @@
      "kind": "S",
      "size_bytes": 3869411,
      "sha256": "ce2195f70240c4cd5ac68eb75b68188e3cdf1296514a8bc28f135309c729ff32",
-     "content_digest": "e845c77b31a6234f101912e44ac14d64af5a7e9f4a77356b0d594634ce72dd62",
+     "content_digest": "dc43f85dff2eb91379823ff12297aa062d49787101bb7d67813f6b35d7d2a4a5",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 19588,
      "coerced_non_numeric": {},
@@ -22727,6 +22785,7 @@
    "phone": {
     "n_rows": 19588,
     "duration_s": 1958.701,
+    "span_first_to_last_s": 1958.701,
     "timing": {
      "n_intervals": 19587,
      "dt_median_s": 0.10000000000002274,
@@ -22797,7 +22856,7 @@
      "sats_used_p50": 24.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 8.844444444444445,
+     "speed_mps_max": 31.84,
      "lat_mean_deg": 52.40691665866858,
      "alt_mean_m": 186.08354706963445
     },
@@ -22806,9 +22865,9 @@
      "norm_std_mps2": 4.043246897045838e-05,
      "norm_p01_mps2": 9.80650743782413,
      "norm_p99_mps2": 9.806680190115307,
-     "local_normal_gravity_mps2": 9.812256938618358,
+     "local_normal_gravity_mps2": 9.812256938618361,
      "mean_minus_g0": -5.2916703353389494e-05,
-     "mean_minus_local": -0.00565985532171176,
+     "mean_minus_local": -0.0056598553217153125,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -23025,7 +23084,7 @@
      "height_raw_minus_phone_alt_median": -59.58000000000001,
      "dhdt_mps_over_vvel_raw_slope": 0.988546371073979,
      "phone_gnss_speed_lag_s_vs_vbox": 4.7,
-     "phone_gnss_speed_corr_at_lag": 0.9907826689856406
+     "phone_gnss_speed_corr_at_lag": 0.9907826689856412
     }
    }
   },
@@ -23038,7 +23097,7 @@
      "kind": "S",
      "size_bytes": 2957471,
      "sha256": "ce97c12ec0c9cff740dfe3a18e17aa0be0b8b7ec43bc53daa01b357dd6bf11d7",
-     "content_digest": "99a8429c78a97c14fdd9471b5b9777c16d694e63f0576c57302aec2860427cd7",
+     "content_digest": "2620d4211ce8d726c5fae3d34be47bee263de523592bb6f5e822f1544248e2d3",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 15826,
      "coerced_non_numeric": {},
@@ -23050,7 +23109,7 @@
      "kind": "S",
      "size_bytes": 3129600,
      "sha256": "eb02eb04285257214a30d46465fae51bfc79c53f9677b4f26872f7531b5f7de3",
-     "content_digest": "99a8429c78a97c14fdd9471b5b9777c16d694e63f0576c57302aec2860427cd7",
+     "content_digest": "2620d4211ce8d726c5fae3d34be47bee263de523592bb6f5e822f1544248e2d3",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 15826,
      "coerced_non_numeric": {},
@@ -23117,6 +23176,7 @@
    "phone": {
     "n_rows": 15826,
     "duration_s": 1582.5,
+    "span_first_to_last_s": 1582.5,
     "timing": {
      "n_intervals": 15825,
      "dt_median_s": 0.09999999999990905,
@@ -23187,7 +23247,7 @@
      "sats_used_p50": 23.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 7.669444444444444,
+     "speed_mps_max": 27.61,
      "lat_mean_deg": 52.570184502780236,
      "alt_mean_m": 156.91175154808542
     },
@@ -23196,9 +23256,9 @@
      "norm_std_mps2": 3.576862684440049e-05,
      "norm_p01_mps2": 9.806501707540768,
      "norm_p99_mps2": 9.806671844718778,
-     "local_normal_gravity_mps2": 9.812489882156196,
+     "local_normal_gravity_mps2": 9.8124898821562,
      "mean_minus_g0": -5.3803505702276766e-05,
-     "mean_minus_local": -0.005893685661899184,
+     "mean_minus_local": -0.005893685661902737,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -23413,7 +23473,7 @@
      "height_raw_minus_phone_alt_median": -58.099999999999994,
      "dhdt_mps_over_vvel_raw_slope": 1.0615014375527658,
      "phone_gnss_speed_lag_s_vs_vbox": 3.8,
-     "phone_gnss_speed_corr_at_lag": 0.9840395304756056
+     "phone_gnss_speed_corr_at_lag": 0.9840395304756043
     }
    }
   },
@@ -23426,7 +23486,7 @@
      "kind": "S",
      "size_bytes": 254039,
      "sha256": "7e440cc28168a538f694c07d24b374c75af7cce13cb108e342f5eb2ef5633728",
-     "content_digest": "9e6efc1896d3402a5be290d3239244781ab256c09afd961cad28179c18716f80",
+     "content_digest": "716708222dd463f5c554f7cb9df59ff4ba02a7a25116f54093ff4f07fb227a45",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 1380,
      "coerced_non_numeric": {},
@@ -23438,7 +23498,7 @@
      "kind": "S",
      "size_bytes": 268621,
      "sha256": "6c4905e75b2296818c6338963144dd789b00ac25205e2ac8dfd10464fa40bbf7",
-     "content_digest": "9e6efc1896d3402a5be290d3239244781ab256c09afd961cad28179c18716f80",
+     "content_digest": "716708222dd463f5c554f7cb9df59ff4ba02a7a25116f54093ff4f07fb227a45",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 1380,
      "coerced_non_numeric": {},
@@ -23505,6 +23565,7 @@
    "phone": {
     "n_rows": 1380,
     "duration_s": 137.9,
+    "span_first_to_last_s": 137.9,
     "timing": {
      "n_intervals": 1379,
      "dt_median_s": 0.09999999999999987,
@@ -23584,9 +23645,9 @@
      "norm_std_mps2": 1.6732304228603516e-05,
      "norm_p01_mps2": 9.806500427853965,
      "norm_p99_mps2": 9.806603640873837,
-     "local_normal_gravity_mps2": 9.812541073708166,
+     "local_normal_gravity_mps2": 9.812541073708172,
      "mean_minus_g0": -5.211205188437873e-05,
-     "mean_minus_local": -0.005943185760051151,
+     "mean_minus_local": -0.00594318576005648,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -23809,7 +23870,7 @@
      "kind": "S",
      "size_bytes": 1100323,
      "sha256": "1b25f604e07545448be54970cd480b23bc7a37814118d6b86dad10ff29ba8d0f",
-     "content_digest": "5eebeaf4c3baec56a7c11635dd8babc83e728ffd862d66c91d57161c9de4390b",
+     "content_digest": "446499512add3c5be5ebaaa37a2c0951170144e7c148896f59987e19ca4df346",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 5879,
      "coerced_non_numeric": {},
@@ -23821,7 +23882,7 @@
      "kind": "S",
      "size_bytes": 1152501,
      "sha256": "247747c811504a4fcc731a3e780389f7fc470eb9b84ad019a5683d22eb5c362c",
-     "content_digest": "5eebeaf4c3baec56a7c11635dd8babc83e728ffd862d66c91d57161c9de4390b",
+     "content_digest": "446499512add3c5be5ebaaa37a2c0951170144e7c148896f59987e19ca4df346",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 5879,
      "coerced_non_numeric": {},
@@ -23888,6 +23949,7 @@
    "phone": {
     "n_rows": 5879,
     "duration_s": 587.799,
+    "span_first_to_last_s": 587.799,
     "timing": {
      "n_intervals": 5878,
      "dt_median_s": 0.10000000000000142,
@@ -23958,7 +24020,7 @@
      "sats_used_p50": 23.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 6.297222222222223,
+     "speed_mps_max": 22.67,
      "lat_mean_deg": 52.58388233339004,
      "alt_mean_m": 142.15947440040824
     },
@@ -23967,9 +24029,9 @@
      "norm_std_mps2": 3.994572828279133e-05,
      "norm_p01_mps2": 9.806503202752753,
      "norm_p99_mps2": 9.806675425035746,
-     "local_normal_gravity_mps2": 9.812547388529932,
+     "local_normal_gravity_mps2": 9.812547388529936,
      "mean_minus_g0": -5.5158072978400696e-05,
-     "mean_minus_local": -0.005952546602911113,
+     "mean_minus_local": -0.005952546602914666,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -24184,7 +24246,7 @@
      "height_raw_minus_phone_alt_median": -56.41999999999999,
      "dhdt_mps_over_vvel_raw_slope": 0.9623799889907995,
      "phone_gnss_speed_lag_s_vs_vbox": 4.0,
-     "phone_gnss_speed_corr_at_lag": 0.9835899062083945
+     "phone_gnss_speed_corr_at_lag": 0.9835899062083939
     }
    }
   },
@@ -24197,7 +24259,7 @@
      "kind": "S",
      "size_bytes": 211892,
      "sha256": "817fd5f786beebb804b39e00c0da1a541e37074b7dcb843fdb43ea94dbefa190",
-     "content_digest": "0c0c8c5240ca5b2dcccfd3790c9046664c0bc7a875ac73553bb2914a300cf017",
+     "content_digest": "1ae0556f46306f7776d8770c7451c2a78d5ce510167ed3f8f6a101cc5f1c7676",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 1126,
      "coerced_non_numeric": {},
@@ -24209,7 +24271,7 @@
      "kind": "S",
      "size_bytes": 221088,
      "sha256": "744cdb2874f0c9c2b2e8f05da0348a8b8bee49bf4f54ced295385b077cd72aea",
-     "content_digest": "0c0c8c5240ca5b2dcccfd3790c9046664c0bc7a875ac73553bb2914a300cf017",
+     "content_digest": "1ae0556f46306f7776d8770c7451c2a78d5ce510167ed3f8f6a101cc5f1c7676",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 1126,
      "coerced_non_numeric": {},
@@ -24276,6 +24338,7 @@
    "phone": {
     "n_rows": 1126,
     "duration_s": 112.50099999999998,
+    "span_first_to_last_s": 112.50099999999998,
     "timing": {
      "n_intervals": 1125,
      "dt_median_s": 0.10000000000002274,
@@ -24346,7 +24409,7 @@
      "sats_used_p50": 24.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 6.522222222222223,
+     "speed_mps_max": 23.48,
      "lat_mean_deg": 52.55920275666075,
      "alt_mean_m": 139.40746891651864
     },
@@ -24355,9 +24418,9 @@
      "norm_std_mps2": 4.1032367161527665e-05,
      "norm_p01_mps2": 9.806507876532807,
      "norm_p99_mps2": 9.806678494271136,
-     "local_normal_gravity_mps2": 9.812534294054972,
+     "local_normal_gravity_mps2": 9.812534294054975,
      "mean_minus_g0": -5.553670828284396e-05,
-     "mean_minus_local": -0.005939830763255216,
+     "mean_minus_local": -0.005939830763258769,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -24500,9 +24563,9 @@
     "row_paired_gyro_y_vs_yaw_corr": 0.2531155400779954,
     "alignment": {
      "method": "gyro_y vs CAN yaw rate, 1 s smoothed, moving rows, FFT xcorr",
-     "lag_s": 0.0,
-     "corr": 0.25320878741355296,
-     "phone_clock_correction_s": 0.19700000000011642,
+     "lag_s": 46.3,
+     "corr": 0.2361239539343812,
+     "phone_clock_correction_s": -46.10299999999988,
      "status": "unverified_weak_signal"
     },
     "time_aligned": {
@@ -24572,7 +24635,7 @@
      "height_raw_minus_phone_alt_median": -51.55,
      "dhdt_mps_over_vvel_raw_slope": 0.9762608132931319,
      "phone_gnss_speed_lag_s_vs_vbox": 3.5,
-     "phone_gnss_speed_corr_at_lag": 0.9483337467965677
+     "phone_gnss_speed_corr_at_lag": 0.9483337467965672
     }
    }
   },
@@ -24585,7 +24648,7 @@
      "kind": "S",
      "size_bytes": 62489,
      "sha256": "cc55c4ce1a945a78ccfa71d3f3e290a30145f88610d1e6cbc541cb1c48cd6ce4",
-     "content_digest": "b024cf44f52c95d30425a1e29c2f29873d9d0187f0410e63fcb220660190fbbd",
+     "content_digest": "d8983c149f04e66ed15cd1fa71854eb28d7941a2fdd275b6c1fe2bf6388457d5",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 329,
      "coerced_non_numeric": {},
@@ -24597,7 +24660,7 @@
      "kind": "S",
      "size_bytes": 65869,
      "sha256": "4c6ac7bab9c36765acaeb43975e455b13745e5ebd335aec38c495ca08f47d0b6",
-     "content_digest": "b024cf44f52c95d30425a1e29c2f29873d9d0187f0410e63fcb220660190fbbd",
+     "content_digest": "d8983c149f04e66ed15cd1fa71854eb28d7941a2fdd275b6c1fe2bf6388457d5",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 329,
      "coerced_non_numeric": {},
@@ -24664,6 +24727,7 @@
    "phone": {
     "n_rows": 329,
     "duration_s": 32.80099999999993,
+    "span_first_to_last_s": 32.80099999999993,
     "timing": {
      "n_intervals": 328,
      "dt_median_s": 0.10000000000002274,
@@ -24734,7 +24798,7 @@
      "sats_used_p50": 24.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 5.444444444444445,
+     "speed_mps_max": 19.6,
      "lat_mean_deg": 52.55431535258358,
      "alt_mean_m": 144.9220972644377
     },
@@ -24743,9 +24807,9 @@
      "norm_std_mps2": 3.9902603352769756e-05,
      "norm_p01_mps2": 9.80650791839779,
      "norm_p99_mps2": 9.806672684901846,
-     "local_normal_gravity_mps2": 9.812513000324646,
+     "local_normal_gravity_mps2": 9.812513000324651,
      "mean_minus_g0": -5.37978576478082e-05,
-     "mean_minus_local": -0.005916798182294514,
+     "mean_minus_local": -0.005916798182299843,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -24888,9 +24952,9 @@
     "row_paired_gyro_y_vs_yaw_corr": 0.2427279509124405,
     "alignment": {
      "method": "gyro_y vs CAN yaw rate, 1 s smoothed, moving rows, FFT xcorr",
-     "lag_s": 0.0,
-     "corr": 0.2427279509124405,
-     "phone_clock_correction_s": -1.602999999995518,
+     "lag_s": -5.1,
+     "corr": 0.24118744016484003,
+     "phone_clock_correction_s": 3.4970000000044816,
      "status": "unverified_weak_signal"
     },
     "time_aligned": {
@@ -24960,7 +25024,7 @@
      "height_raw_minus_phone_alt_median": -54.389999999999986,
      "dhdt_mps_over_vvel_raw_slope": 0.9617952933818852,
      "phone_gnss_speed_lag_s_vs_vbox": -2.4,
-     "phone_gnss_speed_corr_at_lag": 0.8294204004327774
+     "phone_gnss_speed_corr_at_lag": 0.8294204004327781
     }
    }
   },
@@ -24973,7 +25037,7 @@
      "kind": "S",
      "size_bytes": 9883172,
      "sha256": "c153268bf5f53e173934f50084c598d0c29ba93aad4a3b50b14a314d5402dbab",
-     "content_digest": "ee163ecd757bf018d11e5edb1962dbb82cc350f09daaaa8508e72dd60da44a25",
+     "content_digest": "cd93b133b63955b5fa378a93ccddab41b293c0f54130c597aeee8bffd3613dbc",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 52713,
      "coerced_non_numeric": {},
@@ -24985,7 +25049,7 @@
      "kind": "S",
      "size_bytes": 9883167,
      "sha256": "cf055eb4817080037d4a7916e7895f363c854aad3503482500f1fbf11775e547",
-     "content_digest": "ee163ecd757bf018d11e5edb1962dbb82cc350f09daaaa8508e72dd60da44a25",
+     "content_digest": "cd93b133b63955b5fa378a93ccddab41b293c0f54130c597aeee8bffd3613dbc",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 52713,
      "coerced_non_numeric": {},
@@ -25051,7 +25115,8 @@
    "route_group": "Vw2",
    "phone": {
     "n_rows": 52713,
-    "duration_s": 5271.199,
+    "duration_s": 5271.1990000000005,
+    "span_first_to_last_s": 5271.199,
     "timing": {
      "n_intervals": 52712,
      "dt_median_s": 0.09999999999990905,
@@ -25122,7 +25187,7 @@
      "sats_used_p50": 20.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 10,
-     "speed_mps_max": 8.780555555555555,
+     "speed_mps_max": 31.61,
      "lat_mean_deg": 52.28898330187999,
      "alt_mean_m": 152.05737313376207
     },
@@ -25131,9 +25196,9 @@
      "norm_std_mps2": 4.00748119741979e-05,
      "norm_p01_mps2": 9.806504827062493,
      "norm_p99_mps2": 9.806675914987707,
-     "local_normal_gravity_mps2": 9.812258576159588,
+     "local_normal_gravity_mps2": 9.812258576159591,
      "mean_minus_g0": -5.5111030127008576e-05,
-     "mean_minus_local": -0.005663687189715105,
+     "mean_minus_local": -0.005663687189718658,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -25350,7 +25415,7 @@
      "height_raw_minus_phone_alt_median": -51.230000000000004,
      "dhdt_mps_over_vvel_raw_slope": 0.9963227399529995,
      "phone_gnss_speed_lag_s_vs_vbox": 4.3,
-     "phone_gnss_speed_corr_at_lag": 0.9829681474977314
+     "phone_gnss_speed_corr_at_lag": 0.9829681474977313
     }
    }
   },
@@ -25363,7 +25428,7 @@
      "kind": "S",
      "size_bytes": 720455,
      "sha256": "6fa0f3d88a6c7c80cf7adf82b9e969d2de489e799b4f9a604758c8ce479ce7a3",
-     "content_digest": "265907fc069953de17c33de3fe3eb6d60ac4bd4d00d9fdc49f2ce0dc6f90426e",
+     "content_digest": "9350e7ebd0408eb3cdb0f74143e7566712c9d7ad937e452410bc51c12c0e313c",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 3861,
      "coerced_non_numeric": {},
@@ -25375,7 +25440,7 @@
      "kind": "S",
      "size_bytes": 754118,
      "sha256": "7a35c1dd571e00e2da76758145f1961f6e3ed9be04f91b9fbeb2676676862a37",
-     "content_digest": "265907fc069953de17c33de3fe3eb6d60ac4bd4d00d9fdc49f2ce0dc6f90426e",
+     "content_digest": "9350e7ebd0408eb3cdb0f74143e7566712c9d7ad937e452410bc51c12c0e313c",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 3861,
      "coerced_non_numeric": {},
@@ -25442,6 +25507,7 @@
    "phone": {
     "n_rows": 3861,
     "duration_s": 386.0009999999993,
+    "span_first_to_last_s": 386.0009999999993,
     "timing": {
      "n_intervals": 3860,
      "dt_median_s": 0.1000000000003638,
@@ -25512,7 +25578,7 @@
      "sats_used_p50": 21.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 5.830555555555556,
+     "speed_mps_max": 20.99,
      "lat_mean_deg": 52.03554290442891,
      "alt_mean_m": 147.74173012173014
     },
@@ -25521,9 +25587,9 @@
      "norm_std_mps2": 3.954851522626305e-05,
      "norm_p01_mps2": 9.806504489164322,
      "norm_p99_mps2": 9.806676793185344,
-     "local_normal_gravity_mps2": 9.812049390440281,
+     "local_normal_gravity_mps2": 9.812049390440285,
      "mean_minus_g0": -5.629238960658256e-05,
-     "mean_minus_local": -0.005455682829888175,
+     "mean_minus_local": -0.005455682829891728,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -25738,7 +25804,7 @@
      "height_raw_minus_phone_alt_median": -47.480000000000004,
      "dhdt_mps_over_vvel_raw_slope": 0.9879939012808147,
      "phone_gnss_speed_lag_s_vs_vbox": 5.0,
-     "phone_gnss_speed_corr_at_lag": 0.943677248182546
+     "phone_gnss_speed_corr_at_lag": 0.9436772481825458
     }
    }
   },
@@ -25751,7 +25817,7 @@
      "kind": "S",
      "size_bytes": 23607418,
      "sha256": "0d79ef3cd96f48b611e5da7dd14f4cb6ed0f1f747d247d26847918545440b9d3",
-     "content_digest": "bffb86fde6b80e500cf0fe77d28490d145821d41e0aa4f58835a7000bb387120",
+     "content_digest": "9c4456b2320ce7e490dd6da754680b39b6a6cd738578adfa0506aab99a447939",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 126526,
      "coerced_non_numeric": {},
@@ -25763,7 +25829,7 @@
      "kind": "S",
      "size_bytes": 23607413,
      "sha256": "9b1df13544c192ace7df4087d64a0294b45952576e0d6532176b15819a70966b",
-     "content_digest": "bffb86fde6b80e500cf0fe77d28490d145821d41e0aa4f58835a7000bb387120",
+     "content_digest": "9c4456b2320ce7e490dd6da754680b39b6a6cd738578adfa0506aab99a447939",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 126526,
      "coerced_non_numeric": {},
@@ -25830,6 +25896,7 @@
    "phone": {
     "n_rows": 126526,
     "duration_s": 12652.5,
+    "span_first_to_last_s": 12652.5,
     "timing": {
      "n_intervals": 126525,
      "dt_median_s": 0.1000000000003638,
@@ -25900,7 +25967,7 @@
      "sats_used_p50": 22.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 9.947222222222223,
+     "speed_mps_max": 35.81,
      "lat_mean_deg": 52.17527924707175,
      "alt_mean_m": 138.60772497352323
     },
@@ -25909,9 +25976,9 @@
      "norm_std_mps2": 4.011753470186529e-05,
      "norm_p01_mps2": 9.806503154922247,
      "norm_p99_mps2": 9.806674995634351,
-     "local_normal_gravity_mps2": 9.812200318344727,
+     "local_normal_gravity_mps2": 9.81220031834473,
      "mean_minus_g0": -5.734718353522794e-05,
-     "mean_minus_local": -0.005607665528263084,
+     "mean_minus_local": -0.0056076655282666366,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -26128,7 +26195,7 @@
      "height_raw_minus_phone_alt_median": -53.93999999999999,
      "dhdt_mps_over_vvel_raw_slope": 0.9908701525045467,
      "phone_gnss_speed_lag_s_vs_vbox": 4.5,
-     "phone_gnss_speed_corr_at_lag": 0.9858820903784046
+     "phone_gnss_speed_corr_at_lag": 0.985882090378404
     }
    }
   },
@@ -26141,7 +26208,7 @@
      "kind": "S",
      "size_bytes": 188883,
      "sha256": "0750e1ddccb84440e4984f308872a2ff20c64019b64e27815d79496a7e6dbce6",
-     "content_digest": "47055a75b0b558ebd32f35e48534347588d2faccafe4b14cc4da407a6677ee58",
+     "content_digest": "22b0e3b7fbbb3e009588223ba30dfbf9c23930b789fe06213a66c974412a98ab",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 1012,
      "coerced_non_numeric": {},
@@ -26153,7 +26220,7 @@
      "kind": "S",
      "size_bytes": 194565,
      "sha256": "2b150cccb61f2cc18f8d294ade513f790efece25dea3d3fd260aa75a3c709d6d",
-     "content_digest": "47055a75b0b558ebd32f35e48534347588d2faccafe4b14cc4da407a6677ee58",
+     "content_digest": "22b0e3b7fbbb3e009588223ba30dfbf9c23930b789fe06213a66c974412a98ab",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 1012,
      "coerced_non_numeric": {},
@@ -26220,6 +26287,7 @@
    "phone": {
     "n_rows": 1012,
     "duration_s": 101.10100000000057,
+    "span_first_to_last_s": 101.10100000000057,
     "timing": {
      "n_intervals": 1011,
      "dt_median_s": 0.1000000000003638,
@@ -26290,7 +26358,7 @@
      "sats_used_p50": 24.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 2.7416666666666667,
+     "speed_mps_max": 9.87,
      "lat_mean_deg": 52.21007729644269,
      "alt_mean_m": 99.0259090909091
     },
@@ -26299,9 +26367,9 @@
      "norm_std_mps2": 3.920536192867278e-05,
      "norm_p01_mps2": 9.806505742648602,
      "norm_p99_mps2": 9.806674713357221,
-     "local_normal_gravity_mps2": 9.812353010136446,
+     "local_normal_gravity_mps2": 9.81235301013645,
      "mean_minus_g0": -5.468290421006827e-05,
-     "mean_minus_local": -0.005757693040656875,
+     "mean_minus_local": -0.005757693040660428,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -26516,7 +26584,7 @@
      "height_raw_minus_phone_alt_median": -55.575,
      "dhdt_mps_over_vvel_raw_slope": 0.9494170894028947,
      "phone_gnss_speed_lag_s_vs_vbox": 6.1,
-     "phone_gnss_speed_corr_at_lag": 0.7151891687271484
+     "phone_gnss_speed_corr_at_lag": 0.7151891687271489
     }
    }
   },
@@ -26529,7 +26597,7 @@
      "kind": "S",
      "size_bytes": 238315,
      "sha256": "9543a52492106a1ee4ad815f5a2f183e2f7142979f4edb2ae34755d0c4b3a087",
-     "content_digest": "130675420fc97bf29f9ea50ff55285d3127d657e76dc1cee9c494af9c6b799d4",
+     "content_digest": "a5018c1ff7e9183564036834daafea51bda3a59d4fc7310395f920dd286a6ae1",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 1281,
      "coerced_non_numeric": {},
@@ -26541,7 +26609,7 @@
      "kind": "S",
      "size_bytes": 246923,
      "sha256": "3acfdd4226a2190afe3e79865c731a0583ebda5edf9d0866b15c256a2a71e6ab",
-     "content_digest": "130675420fc97bf29f9ea50ff55285d3127d657e76dc1cee9c494af9c6b799d4",
+     "content_digest": "a5018c1ff7e9183564036834daafea51bda3a59d4fc7310395f920dd286a6ae1",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 1281,
      "coerced_non_numeric": {},
@@ -26608,6 +26676,7 @@
    "phone": {
     "n_rows": 1281,
     "duration_s": 128.0,
+    "span_first_to_last_s": 128.0,
     "timing": {
      "n_intervals": 1280,
      "dt_median_s": 0.1000000000003638,
@@ -26678,7 +26747,7 @@
      "sats_used_p50": 25.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 2.8944444444444444,
+     "speed_mps_max": 10.42,
      "lat_mean_deg": 52.21275318735362,
      "alt_mean_m": 95.16295862607339
     },
@@ -26687,9 +26756,9 @@
      "norm_std_mps2": 4.041349904279385e-05,
      "norm_p01_mps2": 9.806506209552916,
      "norm_p99_mps2": 9.806676353484905,
-     "local_normal_gravity_mps2": 9.812367279447887,
+     "local_normal_gravity_mps2": 9.81236727944789,
      "mean_minus_g0": -5.359571795082729e-05,
-     "mean_minus_local": -0.005770875165838518,
+     "mean_minus_local": -0.005770875165842071,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -26904,7 +26973,7 @@
      "height_raw_minus_phone_alt_median": -53.48,
      "dhdt_mps_over_vvel_raw_slope": 0.9489572061478956,
      "phone_gnss_speed_lag_s_vs_vbox": 1.8,
-     "phone_gnss_speed_corr_at_lag": 0.6505082326444763
+     "phone_gnss_speed_corr_at_lag": 0.6505082326444764
     }
    }
   },
@@ -26917,7 +26986,7 @@
      "kind": "S",
      "size_bytes": 300843,
      "sha256": "953176680614bf889a938ee4cc940227d820206a2f58942f8a5ff74ada4e7b2f",
-     "content_digest": "83806fbb7bfd13ba749ba04cf6e5bbad5d691a12193edaadc882c7f714cd0661",
+     "content_digest": "75752092b26b7685fd36a126798e6452c727b6a3775c85a6742ecc99fd13147b",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 1602,
      "coerced_non_numeric": {},
@@ -26929,7 +26998,7 @@
      "kind": "S",
      "size_bytes": 313333,
      "sha256": "82783cbf1d9767a4a9bf4176dabbf8596983cc59ace82585c4ce2cd5ca665e4e",
-     "content_digest": "83806fbb7bfd13ba749ba04cf6e5bbad5d691a12193edaadc882c7f714cd0661",
+     "content_digest": "75752092b26b7685fd36a126798e6452c727b6a3775c85a6742ecc99fd13147b",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 1602,
      "coerced_non_numeric": {},
@@ -26996,6 +27065,7 @@
    "phone": {
     "n_rows": 1602,
     "duration_s": 160.09900000000016,
+    "span_first_to_last_s": 160.09900000000016,
     "timing": {
      "n_intervals": 1601,
      "dt_median_s": 0.1000000000003638,
@@ -27066,7 +27136,7 @@
      "sats_used_p50": 23.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 3.8055555555555554,
+     "speed_mps_max": 13.7,
      "lat_mean_deg": 52.20250611235955,
      "alt_mean_m": 124.99808988764045
     },
@@ -27075,9 +27145,9 @@
      "norm_std_mps2": 4.002440506767798e-05,
      "norm_p01_mps2": 9.806502515142695,
      "norm_p99_mps2": 9.806672915892523,
-     "local_normal_gravity_mps2": 9.81226621554193,
+     "local_normal_gravity_mps2": 9.812266215541934,
      "mean_minus_g0": -5.685266065391659e-05,
-     "mean_minus_local": -0.00567306820258473,
+     "mean_minus_local": -0.005673068202588283,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -27220,9 +27290,9 @@
     "row_paired_gyro_y_vs_yaw_corr": 0.06326921186816425,
     "alignment": {
      "method": "gyro_y vs CAN yaw rate, 1 s smoothed, moving rows, FFT xcorr",
-     "lag_s": 4.6,
-     "corr": 0.2981156156663828,
-     "phone_clock_correction_s": 163.1960000000021,
+     "lag_s": 8.8,
+     "corr": 0.29596402478761735,
+     "phone_clock_correction_s": 158.99600000000208,
      "status": "unverified_time_join_no_overlap"
     },
     "time_aligned": {
@@ -27303,7 +27373,7 @@
      "kind": "S",
      "size_bytes": 287123,
      "sha256": "f1321e689b66128e7b116b9aedb0e8e5304f9566781f8111c4d1f4a933c543a2",
-     "content_digest": "92770f38d263ed0f026fdc0852b4ba241d3f35a955d7195ad647fdac63298e8f",
+     "content_digest": "4e9bd898db84e37c99d24d4e4f5fb0fb00e58d8bf4756a747ee2d24665766288",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 1529,
      "coerced_non_numeric": {},
@@ -27315,7 +27385,7 @@
      "kind": "S",
      "size_bytes": 297380,
      "sha256": "00e6ff8ff5075ffcf25e9504c545158cd89f7a43a6159496dc7c2d4afe4aa654",
-     "content_digest": "92770f38d263ed0f026fdc0852b4ba241d3f35a955d7195ad647fdac63298e8f",
+     "content_digest": "4e9bd898db84e37c99d24d4e4f5fb0fb00e58d8bf4756a747ee2d24665766288",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 1529,
      "coerced_non_numeric": {},
@@ -27382,6 +27452,7 @@
    "phone": {
     "n_rows": 1529,
     "duration_s": 152.79999999999927,
+    "span_first_to_last_s": 152.79999999999927,
     "timing": {
      "n_intervals": 1528,
      "dt_median_s": 0.1000000000003638,
@@ -27452,7 +27523,7 @@
      "sats_used_p50": 22.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 2.988888888888889,
+     "speed_mps_max": 10.76,
      "lat_mean_deg": 52.20246831262263,
      "alt_mean_m": 125.10593198168738
     },
@@ -27461,9 +27532,9 @@
      "norm_std_mps2": 4.153180343737486e-05,
      "norm_p01_mps2": 9.806503240238078,
      "norm_p99_mps2": 9.80667784163424,
-     "local_normal_gravity_mps2": 9.812265849567202,
+     "local_normal_gravity_mps2": 9.812265849567206,
      "mean_minus_g0": -5.602686576011706e-05,
-     "mean_minus_local": -0.005671876432963074,
+     "mean_minus_local": -0.005671876432966627,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -27689,7 +27760,7 @@
      "kind": "S",
      "size_bytes": 103572,
      "sha256": "40d96f99b100518c0f2dbe6bf9dbfc94b89e25c865b3d1e6b795d132127d917c",
-     "content_digest": "028bb4002c9ba863dbd8f50797ab0cffb0ee3e68f06e21076447c37ff71066a9",
+     "content_digest": "2bfe2bad3f023b390805eb776c53335409b1507a2a0be8e33992e9c91aaf6c1b",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 552,
      "coerced_non_numeric": {},
@@ -27701,7 +27772,7 @@
      "kind": "S",
      "size_bytes": 106439,
      "sha256": "f1f7d4b0762586d40c23bcaa039f2742ab77a9c70ede381c3ec3e09ca660c14a",
-     "content_digest": "028bb4002c9ba863dbd8f50797ab0cffb0ee3e68f06e21076447c37ff71066a9",
+     "content_digest": "2bfe2bad3f023b390805eb776c53335409b1507a2a0be8e33992e9c91aaf6c1b",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 552,
      "coerced_non_numeric": {},
@@ -27768,6 +27839,7 @@
    "phone": {
     "n_rows": 552,
     "duration_s": 55.10100000000057,
+    "span_first_to_last_s": 55.10100000000057,
     "timing": {
      "n_intervals": 551,
      "dt_median_s": 0.1000000000003638,
@@ -27838,7 +27910,7 @@
      "sats_used_p50": 23.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 0,
-     "speed_mps_max": 3.9,
+     "speed_mps_max": 14.04,
      "lat_mean_deg": 52.202410110507245,
      "alt_mean_m": 126.43634057971012
     },
@@ -27847,9 +27919,9 @@
      "norm_std_mps2": 4.0924760591869146e-05,
      "norm_p01_mps2": 9.806508804120863,
      "norm_p99_mps2": 9.806676260425844,
-     "local_normal_gravity_mps2": 9.812261692846556,
+     "local_normal_gravity_mps2": 9.812261692846562,
      "mean_minus_g0": -5.1949255356120716e-05,
-     "mean_minus_local": -0.005663642101913169,
+     "mean_minus_local": -0.005663642101918498,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -28064,7 +28136,7 @@
      "height_raw_minus_phone_alt_median": -46.11999999999999,
      "dhdt_mps_over_vvel_raw_slope": 0.9844546749520015,
      "phone_gnss_speed_lag_s_vs_vbox": 6.9,
-     "phone_gnss_speed_corr_at_lag": 0.8486798233362854
+     "phone_gnss_speed_corr_at_lag": 0.8486798233362843
     }
    }
   },
@@ -28077,11 +28149,11 @@
      "kind": "S",
      "size_bytes": 13039543,
      "sha256": "cf17b89f6eec6872de2412f8a17a82ab9821a881c20cbcadc23d867d9e1dde84",
-     "content_digest": "666334495961ffe812e2ea5ef5533598377ef8ff24bb9e1883a62e507e7589e1",
+     "content_digest": "be6b61ef4d68f263f718194bad06a0b83d011dcb7e3f9b47226a3f3319819a07",
      "header_variant": "Yaw/Pitch/Roll",
      "n_rows": 70285,
      "coerced_non_numeric": {
-      "gps_speed_kmh": 4,
+      "gps_speed_raw": 4,
       "gps_bearing_deg": 94
      },
      "status": "canonical"
@@ -28092,11 +28164,11 @@
      "kind": "S",
      "size_bytes": 13039538,
      "sha256": "2a1a582993bfcf54bb16b19d58182e3a4727cd5662a5f0044074ab5ff246fc3c",
-     "content_digest": "666334495961ffe812e2ea5ef5533598377ef8ff24bb9e1883a62e507e7589e1",
+     "content_digest": "be6b61ef4d68f263f718194bad06a0b83d011dcb7e3f9b47226a3f3319819a07",
      "header_variant": "XYZ/Azimuth",
      "n_rows": 70285,
      "coerced_non_numeric": {
-      "gps_speed_kmh": 4,
+      "gps_speed_raw": 4,
       "gps_bearing_deg": 94
      },
      "status": "duplicate"
@@ -28145,7 +28217,7 @@
     "date_unparsed": 0,
     "utc_lost_at_dst": 0,
     "coerced_non_numeric": {
-     "gps_speed_kmh": 4,
+     "gps_speed_raw": 4,
      "gps_bearing_deg": 94
     }
    },
@@ -28164,7 +28236,8 @@
    "route_group": "Y1",
    "phone": {
     "n_rows": 70285,
-    "duration_s": 6690.761,
+    "duration_s": 7027.995000000001,
+    "span_first_to_last_s": 6690.761,
     "timing": {
      "n_intervals": 70284,
      "dt_median_s": 0.0999999999999659,
@@ -28235,7 +28308,7 @@
      "sats_used_p50": 18.0,
      "n_sats_used_gt_visible": 0,
      "n_sats_excel_recovered": 181,
-     "speed_mps_max": 5.980555555555556,
+     "speed_mps_max": 21.53,
      "lat_mean_deg": 52.42280669659245,
      "alt_mean_m": 146.49867368570818
     },
@@ -28244,9 +28317,9 @@
      "norm_std_mps2": 2.4515644813108617e-05,
      "norm_p01_mps2": 9.806580243917855,
      "norm_p99_mps2": 9.806682579241565,
-     "local_normal_gravity_mps2": 9.812393016552603,
+     "local_normal_gravity_mps2": 9.812393016552607,
      "mean_minus_g0": -2.8076247268415955e-05,
-     "mean_minus_local": -0.00577109279987198,
+     "mean_minus_local": -0.005771092799875532,
      "dominant_axis": "z"
     },
     "kinematics": {
@@ -28258,7 +28331,7 @@
    },
    "vehicle": {
     "n_rows": 70285,
-    "duration_s": 7666.799999999996,
+    "duration_s": 7028.19999999999,
     "timing": {
      "n_intervals": 70284,
      "dt_median_s": 0.09999999999854481,
@@ -28463,7 +28536,7 @@
      "height_raw_minus_phone_alt_median": -42.19,
      "dhdt_mps_over_vvel_raw_slope": 0.9227770002890108,
      "phone_gnss_speed_lag_s_vs_vbox": 4.6,
-     "phone_gnss_speed_corr_at_lag": 0.9387953373170528
+     "phone_gnss_speed_corr_at_lag": 0.9387953373170529
     }
    }
   }

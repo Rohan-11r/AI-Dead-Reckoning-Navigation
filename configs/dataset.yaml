@@ -1,0 +1,16 @@
+# SIH26168 -- single source of truth for dataset locations (AGENTS.md 5: "data paths
+# configured in one place"). Loaded ONLY through training/preprocessing/config.py.
+#
+# Relative paths resolve against the repository root. The environment variable
+# SIH26168_DATASET_ROOT, if set, overrides `raw_root` (see .env.example).
+schema_version: 1
+
+dataset:
+  name: IO-VNBD
+  raw_root: data/raw/IO-VNBD                  # READ-ONLY, gitignored
+  processed_root: data/processed/iovnbd/v1    # regenerable Parquet (Phase 2)
+  synced_root: data/processed/iovnbd/v1/synced  # phone+vehicle joined on UTC (Phase 3)
+  splits_dir: data/splits                     # tracked manifests
+  split_manifest: data/splits/iovnbd_split_v2.json
+  normalization_dir: models/normalization     # train-only statistics (Phase 3)
+  reports_dir: reports

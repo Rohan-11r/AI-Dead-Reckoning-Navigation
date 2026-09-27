@@ -1,0 +1,15 @@
+{
+ "generated": "2026-09-27T18:20:24",
+ "script": "training/preprocessing/pipeline.py",
+ "question": "unit of the phone 'GPS SPEED (Kmh)' column",
+ "method": "median(logged phone speed / VBOX Doppler speed [m/s]) at the fix epoch, VBOX speed > 5 m/s, sessions with a measured GNSS latency",
+ "n_sessions": 40,
+ "ratio_median": 0.9974768470097473,
+ "ratio_iqr": [
+  0.9929157184443829,
+  0.9996403937537733
+ ],
+ "expected_if_mps": 1.0,
+ "expected_if_kmh": 3.6,
+ "conclusion": "m/s -- the 'Kmh' header is wrong (Android Location.getSpeed returns m/s). Phases 0-2 divided the value by 3.6; fixed in Phase 3."
+}

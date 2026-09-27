@@ -52,7 +52,7 @@ def safe(severity: str, name: str):
         def inner(*a, **kw):
             try:
                 return fn(*a, **kw)
-            except Exception as exc:  # noqa: BLE001 - report, never hide
+            except Exception as exc:
                 record(severity, name, False, f"raised {type(exc).__name__}: {exc}")
                 return None
         return inner
@@ -285,7 +285,7 @@ def check_third_party_imports() -> None:
             m = importlib.import_module(name)
             v = getattr(m, attr, "?") if attr else "ok"
             versions.append(f"{name}={v}")
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             failures.append(f"{name}: {type(exc).__name__}")
     record(
         CRITICAL,
@@ -308,7 +308,7 @@ def check_project_imports(layout) -> None:
             m = importlib.import_module(mod)
             if mod == "navcore.ins":
                 navcore_file = getattr(m, "__file__", None)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             failures.append(f"{mod}: {type(exc).__name__}")
     record(
         CRITICAL,

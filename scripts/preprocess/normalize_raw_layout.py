@@ -36,12 +36,17 @@ from datetime import datetime
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-RAW = REPO_ROOT / "data" / "raw"
-TARGET = RAW / "IO-VNBD"
+sys.path.insert(0, str(REPO_ROOT))
+
+from training.preprocessing.config import load_dataset_config  # noqa: E402
+
+CFG = load_dataset_config()
+TARGET = CFG.raw_root
+RAW = TARGET.parent
 LEGACY_TOP = "data raw  IO-VNBD"
 LEGACY_INNER = ("Synchronised V abd S datasets", "Synchronised V abd S datasets")
 EXPECTED_CHILDREN = {"Categorised IOVNB Dataset", "Uncategorised IOVNB Dataset"}
-REPORT = REPO_ROOT / "reports" / "phase2_raw_layout.json"
+REPORT = CFG.reports_dir / "phase2_raw_layout.json"
 
 
 def inventory(root: Path) -> dict[str, tuple[int, int]]:

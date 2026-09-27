@@ -137,7 +137,7 @@ def test_local_to_utc_bst_gmt_and_dst_gap():
 
 
 def test_speed_conversion_kmh_to_mps():
-    assert io.KMH_TO_MPS * 36.0 == pytest.approx(10.0, rel=1e-15)
+    assert pytest.approx(10.0, rel=1e-15) == io.KMH_TO_MPS * 36.0
 
 
 # ---- dedupe --------------------------------------------------------------------------
@@ -161,11 +161,11 @@ def test_route_group_keeps_segments_together():
 
 # ---- audit helpers -------------------------------------------------------------------
 
-def test_wgs84_constants_match_the_spec_doc():
-    # docs/navigation_math.md section 2
-    assert audit.WGS84_GAMMA_E == 9.7803253359
-    assert audit.WGS84_K == 1.93185265241e-3
-    assert audit.WGS84_E2 == pytest.approx(2 / 298.257223563 - (1 / 298.257223563) ** 2, rel=1e-11)
+def test_audit_uses_the_single_constants_source():
+    # Phase 3: the Phase 2 duplicate constants are gone; the audit delegates to navcore
+    import navcore.geometry.geodesy as geodesy
+    assert audit._normal_gravity_rad is geodesy.normal_gravity
+    assert not hasattr(audit, "WGS84_GAMMA_E")
 
 
 def test_normal_gravity_reproduces_doc_value():
@@ -191,3 +191,36 @@ def test_dt_stats_duplicates_do_not_break_segments_but_restarts_do():
     assert st["n_gaps_gt_1s"] == 1
     assert st["n_continuous_segments"] == 3
     assert math.isclose(st["dt_median_s"], 0.1)
+
+
+def test_recorded_duration_survives_clock_resets_duplicates_and_gaps():
+    # synthetic: 10 s, then TIME SINCE START resets to 0 and runs 5 s more; one duplicate;
+    # one 30 s gap. Recorded time is 15 s -- t[-1] - t[0] would say 5 s (the Phase 2 bug).
+    t = np.r_[np.arange(0, 10.01, 0.1), np.arange(0, 5.01, 0.1)]
+    t = np.insert(t, 50, t[50])
+    t = np.r_[t, t[-1] + 30.0]
+    assert audit.recorded_duration_s(t) == pytest.approx(15.0, abs=1e-9)
+    assert t[-1] - t[0] != pytest.approx(15.0)
+
+
+def test_fft_xcorr_is_unbiased_for_broad_correlation_peaks_synthetic():
+    # Regression (Phase 3): the Phase 2 version maximised the RAW xcorr sum, which is
+    # weighted by the overlap n-|L| and pulled broad peaks (slow signals like speed)
+    # toward zero lag. A very smooth synthetic signal with a known 30-sample lag:
+    rng = np.random.default_rng(1)
+    ref = np.convolve(rng.standard_normal(3000), np.ones(400) / 400, mode="same")
+    x = np.r_[np.full(30, ref[0]), ref[:-30]]
+    lag, c = audit.fft_xcorr_lag(x, ref, 100)
+    assert lag == 30 and c > 0.999
+
+
+def test_phone_gps_speed_is_kept_as_logged_mps_not_divided_by_3p6():
+    # Regression (Phase 3): the header says "Kmh" but Android logs m/s; the loader must
+    # NOT convert it. SYNTHETIC one-row raw frame.
+    names = [c for c, _ in io.PHONE_SCHEMA]
+    row = dict.fromkeys(names, 0.0)
+    row.update(gps_speed_raw=5.57, t_rel_ms=2922.0, gps_sats_raw="27 / 28",
+               date_raw="2019-09-08 10:07:49:546")
+    raw = pd.DataFrame([row]).astype({"gps_sats_raw": "string", "date_raw": "string"})
+    out = io.to_si_phone(raw, io.ParseReport(path="synthetic", kind="S"))
+    assert out["gps_speed_mps"].iloc[0] == 5.57

@@ -1,0 +1,539 @@
+{
+ "generated": "2026-09-27T18:20:12",
+ "script": "scripts/preprocess/calibrate_wheel_speed.py",
+ "reference": "VBOX GNSS Doppler speed (V-file), same logger as the CAN channels",
+ "gate": {
+  "min_speed_mps": 5.0,
+  "max_abs_long_accel_mps2": 0.3,
+  "max_abs_yaw_rate_radps": 0.03,
+  "min_vbox_sats": 8
+ },
+ "n_sessions": 62,
+ "n_clean_samples": 330853,
+ "lag_samples_counts": {
+  "-1": 61,
+  "0": 1
+ },
+ "median_ratio_raw_per_kmh": {
+  "fl": 1.0026156467267846,
+  "fr": 1.0021346853006905,
+  "rl": 1.0018913280220096,
+  "rr": 0.998436286659504,
+  "rear": 1.000194347270809
+ },
+ "driven_axle": {
+  "corr_front_minus_rear_vs_long_accel_median": 0.27330482406111556,
+  "fraction_sessions_positive": 0.9857142857142858,
+  "n_sessions": 70,
+  "conclusion": "front-wheel drive: front wheels over-speed under throttle; the REAR (non-driven) axle mean is the slip-free speed reference"
+ },
+ "calibration": {
+  "channel": "mean(wheel_speed_rl_raw, wheel_speed_rr_raw)",
+  "k_rear_raw_per_kmh": 1.000194347270809,
+  "formula": "gt_wheel_speed_mps = rear_raw_mean / (3.6 * k_rear_raw_per_kmh)",
+  "session_ratio_median_range": [
+   0.9952554337836598,
+   1.0075689721369019
+  ],
+  "session_ratio_iqr": [
+   0.9990783828472796,
+   1.0030556807852007
+  ],
+  "resid_vs_vbox_median_mps": -3.552713678800501e-15,
+  "resid_vs_vbox_p50_abs_mps": 0.05756689027681361,
+  "resid_vs_vbox_p95_abs_mps": 0.23318578147891386,
+  "by_speed_bin": [
+   {
+    "speed_bin_mps": "(5, 10]",
+    "n": 43202,
+    "rear_ratio_median": 1.003304461177926,
+    "resid_median_mps": 0.0252491896830902,
+    "resid_p95_abs_mps": 0.2873787994448295
+   },
+   {
+    "speed_bin_mps": "(10, 15]",
+    "n": 85393,
+    "rear_ratio_median": 1.0024486088347384,
+    "resid_median_mps": 0.028059680777237972,
+    "resid_p95_abs_mps": 0.2237113038784809
+   },
+   {
+    "speed_bin_mps": "(15, 20]",
+    "n": 56652,
+    "rear_ratio_median": 1.000592152457266,
+    "resid_median_mps": 0.006864040134161087,
+    "resid_p95_abs_mps": 0.2522286002698749
+   },
+   {
+    "speed_bin_mps": "(20, 25]",
+    "n": 67735,
+    "rear_ratio_median": 0.9986094960126857,
+    "resid_median_mps": -0.03547463181432775,
+    "resid_p95_abs_mps": 0.1808725204718943
+   },
+   {
+    "speed_bin_mps": "(25, 30]",
+    "n": 62587,
+    "rear_ratio_median": 0.9995473376565867,
+    "resid_median_mps": -0.01785773768216714,
+    "resid_p95_abs_mps": 0.20856091063305085
+   },
+   {
+    "speed_bin_mps": "(30, 45]",
+    "n": 15284,
+    "rear_ratio_median": 0.9942962816288882,
+    "resid_median_mps": -0.18583936695196357,
+    "resid_p95_abs_mps": 0.29551506091449264
+   }
+  ]
+ },
+ "unit_decision": {
+  "label_in_file": "rad/sec",
+  "identifiable_from_data": false,
+  "why_not": "H_kmh and H_rads differ by a constant factor only; every kinematic relation (speed, left/right turn differential, gear ratios) scales identically, so the label cannot be proven from this data",
+  "implied_rolling_radius_under_rad_s_m": 0.2777238029146426,
+  "favoured": "km/h",
+  "evidence": [
+   "rear-axle mean equals VBOX speed in km/h to a factor 1.00019: the expected result for a calibrated km/h signal",
+   "under rad/s the rear rolling radius would have to be 0.27772 m, i.e. exactly 1/3.6 m to within the calibration spread -- a coincidence",
+   "the channel tracks CAN 'Indicated Vehicle Speed (km/hr)' to ~0.1 %"
+  ],
+  "ground_truth_consequence": "none: the empirical factor above converts the channel to m/s regardless of the label"
+ },
+ "per_session": [
+  {
+   "session_id": "M",
+   "lag_samples": -1,
+   "lag_corr": 0.9964473487902613,
+   "n_clean": 32960,
+   "rear_ratio_median": 1.0023049388640626
+  },
+  {
+   "session_id": "S1",
+   "lag_samples": -1,
+   "lag_corr": 0.9969626593301482,
+   "n_clean": 12276,
+   "rear_ratio_median": 1.0037826594932606
+  },
+  {
+   "session_id": "S2",
+   "lag_samples": -1,
+   "lag_corr": 0.9998133282493823,
+   "n_clean": 20760,
+   "rear_ratio_median": 1.0022679045164504
+  },
+  {
+   "session_id": "S3a",
+   "lag_samples": -1,
+   "lag_corr": 0.9998611365928979,
+   "n_clean": 7959,
+   "rear_ratio_median": 1.0030659595624793
+  },
+  {
+   "session_id": "S3b",
+   "lag_samples": -1,
+   "lag_corr": 0.999182429006785,
+   "n_clean": 1245,
+   "rear_ratio_median": 1.004190914346276
+  },
+  {
+   "session_id": "S3c",
+   "lag_samples": -1,
+   "lag_corr": 0.9958755561728263,
+   "n_clean": 8946,
+   "rear_ratio_median": 1.0015618220354512
+  },
+  {
+   "session_id": "S4",
+   "lag_samples": -1,
+   "lag_corr": 0.9998003527609652,
+   "n_clean": 20934,
+   "rear_ratio_median": 1.0026008806071967
+  },
+  {
+   "session_id": "Vfa01",
+   "lag_samples": -1,
+   "lag_corr": 0.9999024046874592,
+   "n_clean": 3424,
+   "rear_ratio_median": 1.0023764187206046
+  },
+  {
+   "session_id": "Vfa02",
+   "lag_samples": -1,
+   "lag_corr": 0.9995592981382855,
+   "n_clean": 39723,
+   "rear_ratio_median": 1.0005479052738362
+  },
+  {
+   "session_id": "Vta10",
+   "lag_samples": -1,
+   "lag_corr": 0.9999564040004268,
+   "n_clean": 628,
+   "rear_ratio_median": 1.000205318279988
+  },
+  {
+   "session_id": "Vta12",
+   "lag_samples": -1,
+   "lag_corr": 0.9974481821139647,
+   "n_clean": 181,
+   "rear_ratio_median": 1.0017702161138837
+  },
+  {
+   "session_id": "Vta14",
+   "lag_samples": -1,
+   "lag_corr": 0.999405915823938,
+   "n_clean": 1041,
+   "rear_ratio_median": 1.0017792431815713
+  },
+  {
+   "session_id": "Vta15",
+   "lag_samples": -1,
+   "lag_corr": 0.9984568472089435,
+   "n_clean": 411,
+   "rear_ratio_median": 1.0017273400262348
+  },
+  {
+   "session_id": "Vta16",
+   "lag_samples": -1,
+   "lag_corr": 0.9994246527480861,
+   "n_clean": 2415,
+   "rear_ratio_median": 1.0025210084033611
+  },
+  {
+   "session_id": "Vta17",
+   "lag_samples": -1,
+   "lag_corr": 0.9996962442126099,
+   "n_clean": 679,
+   "rear_ratio_median": 1.0036291454465252
+  },
+  {
+   "session_id": "Vta1a",
+   "lag_samples": -1,
+   "lag_corr": 0.9998144682769964,
+   "n_clean": 7930,
+   "rear_ratio_median": 1.0023270672920919
+  },
+  {
+   "session_id": "Vta1b",
+   "lag_samples": -1,
+   "lag_corr": 0.9990002734597957,
+   "n_clean": 139,
+   "rear_ratio_median": 1.0043961033600264
+  },
+  {
+   "session_id": "Vta2",
+   "lag_samples": -1,
+   "lag_corr": 0.9997804804241078,
+   "n_clean": 3352,
+   "rear_ratio_median": 1.0026752641420384
+  },
+  {
+   "session_id": "Vta21",
+   "lag_samples": -1,
+   "lag_corr": 0.9997657860805667,
+   "n_clean": 578,
+   "rear_ratio_median": 1.004137250513307
+  },
+  {
+   "session_id": "Vta22",
+   "lag_samples": -1,
+   "lag_corr": 0.9987094951006984,
+   "n_clean": 250,
+   "rear_ratio_median": 1.002730070590541
+  },
+  {
+   "session_id": "Vta23",
+   "lag_samples": -1,
+   "lag_corr": 0.9995073174520894,
+   "n_clean": 144,
+   "rear_ratio_median": 1.0032856866623947
+  },
+  {
+   "session_id": "Vta24",
+   "lag_samples": -1,
+   "lag_corr": 0.9998899532716291,
+   "n_clean": 87,
+   "rear_ratio_median": 1.0032766855135782
+  },
+  {
+   "session_id": "Vta26",
+   "lag_samples": -1,
+   "lag_corr": 0.9996584925566555,
+   "n_clean": 83,
+   "rear_ratio_median": 1.0075689721369019
+  },
+  {
+   "session_id": "Vta27",
+   "lag_samples": -1,
+   "lag_corr": 0.9997805700372135,
+   "n_clean": 601,
+   "rear_ratio_median": 1.0024172554853104
+  },
+  {
+   "session_id": "Vta28",
+   "lag_samples": -1,
+   "lag_corr": 0.9995679595821167,
+   "n_clean": 485,
+   "rear_ratio_median": 1.0029298588297966
+  },
+  {
+   "session_id": "Vta29",
+   "lag_samples": -1,
+   "lag_corr": 0.9996406647962598,
+   "n_clean": 3364,
+   "rear_ratio_median": 1.003444730902982
+  },
+  {
+   "session_id": "Vta3",
+   "lag_samples": -1,
+   "lag_corr": 0.9998773008031087,
+   "n_clean": 138,
+   "rear_ratio_median": 1.0032936552153315
+  },
+  {
+   "session_id": "Vta30",
+   "lag_samples": -1,
+   "lag_corr": 0.9997971646983247,
+   "n_clean": 2916,
+   "rear_ratio_median": 1.0029839430401664
+  },
+  {
+   "session_id": "Vta4",
+   "lag_samples": -1,
+   "lag_corr": 0.9951707056302378,
+   "n_clean": 694,
+   "rear_ratio_median": 1.0028735395532595
+  },
+  {
+   "session_id": "Vta5",
+   "lag_samples": -1,
+   "lag_corr": 0.9983809696707663,
+   "n_clean": 123,
+   "rear_ratio_median": 1.0032926520367513
+  },
+  {
+   "session_id": "Vta6",
+   "lag_samples": -1,
+   "lag_corr": 0.9997733427506621,
+   "n_clean": 569,
+   "rear_ratio_median": 1.0019966246196754
+  },
+  {
+   "session_id": "Vta7",
+   "lag_samples": -1,
+   "lag_corr": 0.9999010523408859,
+   "n_clean": 119,
+   "rear_ratio_median": 1.005313681098679
+  },
+  {
+   "session_id": "Vta8",
+   "lag_samples": -1,
+   "lag_corr": 0.9999562891604182,
+   "n_clean": 1116,
+   "rear_ratio_median": 1.0027012421958017
+  },
+  {
+   "session_id": "Vtb1",
+   "lag_samples": -1,
+   "lag_corr": 0.9838277272732041,
+   "n_clean": 4167,
+   "rear_ratio_median": 1.0033229609980763
+  },
+  {
+   "session_id": "Vtb11",
+   "lag_samples": -1,
+   "lag_corr": 0.9987683219611525,
+   "n_clean": 263,
+   "rear_ratio_median": 1.0016111762120992
+  },
+  {
+   "session_id": "Vtb12",
+   "lag_samples": -1,
+   "lag_corr": 0.9999160705324653,
+   "n_clean": 85,
+   "rear_ratio_median": 1.003024844453365
+  },
+  {
+   "session_id": "Vtb2",
+   "lag_samples": -1,
+   "lag_corr": 0.9992834549817273,
+   "n_clean": 275,
+   "rear_ratio_median": 1.004366192302361
+  },
+  {
+   "session_id": "Vtb3",
+   "lag_samples": 0,
+   "lag_corr": 0.9993536009663114,
+   "n_clean": 107,
+   "rear_ratio_median": 1.0013336296954878
+  },
+  {
+   "session_id": "Vtb4",
+   "lag_samples": -1,
+   "lag_corr": 0.9993533069958338,
+   "n_clean": 68,
+   "rear_ratio_median": 1.0041138718538383
+  },
+  {
+   "session_id": "Vtb5",
+   "lag_samples": -1,
+   "lag_corr": 0.9992289531190376,
+   "n_clean": 28339,
+   "rear_ratio_median": 1.0013776495432112
+  },
+  {
+   "session_id": "Vtb6",
+   "lag_samples": -1,
+   "lag_corr": 0.9985899262786389,
+   "n_clean": 298,
+   "rear_ratio_median": 1.002025595516972
+  },
+  {
+   "session_id": "Vtb7",
+   "lag_samples": -1,
+   "lag_corr": 0.9997936885691531,
+   "n_clean": 138,
+   "rear_ratio_median": 1.0027933722879243
+  },
+  {
+   "session_id": "Vtb8",
+   "lag_samples": -1,
+   "lag_corr": 0.9992527950603141,
+   "n_clean": 465,
+   "rear_ratio_median": 1.001642354054731
+  },
+  {
+   "session_id": "Vtb9",
+   "lag_samples": -1,
+   "lag_corr": 0.9977516100827546,
+   "n_clean": 199,
+   "rear_ratio_median": 1.0017387944358578
+  },
+  {
+   "session_id": "Vw10",
+   "lag_samples": -1,
+   "lag_corr": 0.9997409428108633,
+   "n_clean": 121,
+   "rear_ratio_median": 0.9982472249269718
+  },
+  {
+   "session_id": "Vw11",
+   "lag_samples": -1,
+   "lag_corr": 0.99996887225639,
+   "n_clean": 1278,
+   "rear_ratio_median": 0.9965533399703542
+  },
+  {
+   "session_id": "Vw12",
+   "lag_samples": -1,
+   "lag_corr": 0.9989788291622562,
+   "n_clean": 760,
+   "rear_ratio_median": 0.9957994911962722
+  },
+  {
+   "session_id": "Vw13",
+   "lag_samples": -1,
+   "lag_corr": 0.99955896030325,
+   "n_clean": 147,
+   "rear_ratio_median": 0.995482641444748
+  },
+  {
+   "session_id": "Vw14a",
+   "lag_samples": -1,
+   "lag_corr": 0.9996887700752795,
+   "n_clean": 1643,
+   "rear_ratio_median": 0.9957028852056473
+  },
+  {
+   "session_id": "Vw14b",
+   "lag_samples": -1,
+   "lag_corr": 0.9998913260590574,
+   "n_clean": 12257,
+   "rear_ratio_median": 0.9960693064746433
+  },
+  {
+   "session_id": "Vw14c",
+   "lag_samples": -1,
+   "lag_corr": 0.9999743143606877,
+   "n_clean": 3989,
+   "rear_ratio_median": 0.9964281315432937
+  },
+  {
+   "session_id": "Vw16a",
+   "lag_samples": -1,
+   "lag_corr": 0.9999319616824189,
+   "n_clean": 2467,
+   "rear_ratio_median": 0.9974549440517849
+  },
+  {
+   "session_id": "Vw16b",
+   "lag_samples": -1,
+   "lag_corr": 0.9998738165225155,
+   "n_clean": 394,
+   "rear_ratio_median": 0.996307915283591
+  },
+  {
+   "session_id": "Vw17",
+   "lag_samples": -1,
+   "lag_corr": 0.9979420520430057,
+   "n_clean": 85,
+   "rear_ratio_median": 0.997718031683094
+  },
+  {
+   "session_id": "Vw2",
+   "lag_samples": -1,
+   "lag_corr": 0.9993738751870804,
+   "n_clean": 28555,
+   "rear_ratio_median": 0.9952554337836598
+  },
+  {
+   "session_id": "Vw3",
+   "lag_samples": -1,
+   "lag_corr": 0.9998586008615027,
+   "n_clean": 1310,
+   "rear_ratio_median": 0.9962195925794528
+  },
+  {
+   "session_id": "Vw4",
+   "lag_samples": -1,
+   "lag_corr": 0.999838152629624,
+   "n_clean": 49026,
+   "rear_ratio_median": 0.9952573795787938
+  },
+  {
+   "session_id": "Vw5",
+   "lag_samples": -1,
+   "lag_corr": 0.999388552842465,
+   "n_clean": 195,
+   "rear_ratio_median": 0.9985502898746124
+  },
+  {
+   "session_id": "Vw6",
+   "lag_samples": -1,
+   "lag_corr": 0.9991323679364931,
+   "n_clean": 439,
+   "rear_ratio_median": 0.9991198310751364
+  },
+  {
+   "session_id": "Vw7",
+   "lag_samples": -1,
+   "lag_corr": 0.9996283069173535,
+   "n_clean": 199,
+   "rear_ratio_median": 0.9983200917137676
+  },
+  {
+   "session_id": "Vw8",
+   "lag_samples": -1,
+   "lag_corr": 0.9997039190115332,
+   "n_clean": 199,
+   "rear_ratio_median": 0.9990645667713274
+  },
+  {
+   "session_id": "Y1",
+   "lag_samples": -1,
+   "lag_corr": 0.8765681506704612,
+   "n_clean": 17115,
+   "rear_ratio_median": 1.0013985198997724
+  }
+ ]
+}

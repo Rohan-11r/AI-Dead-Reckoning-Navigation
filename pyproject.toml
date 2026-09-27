@@ -155,7 +155,13 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["B011"]
+# SIM300 misfires on the pytest idiom `CONSTANT == pytest.approx(expected)`
+"tests/**" = ["B011", "SIM300"]
+
+[tool.ruff.lint.isort]
+# navcore is the import name of navigation-core/ (package-dir remap), so ruff cannot
+# discover it from the filesystem.
+known-first-party = ["navcore", "training", "evaluation", "hardware", "simulation"]
 
 [tool.mypy]
 python_version = "3.14"

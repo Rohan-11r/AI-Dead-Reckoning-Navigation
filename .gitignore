@@ -109,3 +109,7 @@ Desktop.ini
 !.env.example
 secrets.yaml
 *.pem
+
+# Normalisation statistics are small, reviewable, and part of the parity contract
+# (AGENTS.md 4, docs/ml_pipeline.md 3) -- keep them tracked.
+!models/normalization/*.json

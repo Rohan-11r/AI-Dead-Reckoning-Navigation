@@ -3,7 +3,7 @@
 **Project:** AI-ML based Intelligent Dead Reckoning system for seamless navigation
 **Workspace:** `C:\Users\Shreeyash\OneDrive\Desktop\dead reckening`
 **Governing document:** [`AGENTS.md`](./AGENTS.md) — the core directive overrides anything here.
-**Last updated:** 2026-09-27 (Phase 2)
+**Last updated:** 2026-09-27 (Phase 3)
 
 > **Status honesty rule.** A phase is `COMPLETED` only when its exit criteria are met by
 > code in this repo that anyone can re-run. Nothing is marked done on intent. No metric
@@ -29,7 +29,7 @@
 | 0 | Environment Bootstrap & Reconnaissance | **COMPLETED** |
 | 1 | Architecture & Repository Creation | **COMPLETED** |
 | 2 | Dataset Ingestion, Schema Normalisation & Integrity Audit | **COMPLETED** |
-| 3 | Geodesy & Reference-Frame Foundations | `NOT STARTED` |
+| 3 | Preprocessing Pipeline & Coordinate Systems | **COMPLETED** |
 | 4 | Sensor Characterisation & Calibration | `NOT STARTED` |
 | 5 | Attitude Estimation (AHRS) | `NOT STARTED` |
 | 6 | Strapdown INS Mechanization | `NOT STARTED` |
@@ -168,6 +168,9 @@ ORIENTATION (Yaw) (°), ORIENTATION (Pitch) (°), ORIENTATION (Roll ) (°)
    decimal point. `strptime` needs an explicit format; auto-inference will misparse.
 5. `GPS SPEED` is in **km/h**, while accelerations are SI. Conversion belongs at the
    loader boundary, per `AGENTS.md` §3.
+   **⚠ WRONG — corrected in Phase 3:** the header says `Kmh` but the values are **m/s**
+   (Android `Location.getSpeed`). Logged / VBOX [m/s] = 0.997 over 40 sessions
+   (`reports/phase3/phone_gps_speed_unit.json`). Phases 0–2 divided by 3.6.
 6. Gyroscope axes are labelled **Yaw / Pitch / Roll**, not X / Y / Z. The mapping from
    these labels to a body frame must be established empirically in Phase 4 and never
    assumed.
@@ -495,8 +498,15 @@ distinct smartphone recordings. The loader therefore computes a **content digest
 the parsed values (rounded to 1e-9, header labels excluded) as well as SHA-256. The
 Categorised copy is canonical: it carries the driver/category directory metadata.
 
-Unique data: **1,070,745 phone rows, 25.08 h, 1,341 km** (VBOX speed integrated with real
+Unique data: **1,070,745 phone rows, 29.56 h, 1,341 km** (VBOX speed integrated with real
 `dt`), 4 drivers, 7 categories, 66 route groups.
+
+> **Correction (Phase 3).** Phase 2 originally reported **25.08 h**. That figure was
+> wrong: session duration was computed as `TIME SINCE START` last − first, which breaks
+> in the 5 concatenated sessions where that clock resets (S3b came out *negative*,
+> S4 0.10 h instead of 2.63 h). Durations are now the sum of real intervals
+> `0 < dt ≤ 1 s` (`iovnbd_audit.recorded_duration_s`, regression-tested), and the
+> Phase 2 report was regenerated. The v1 split had been balanced on the wrong numbers.
 
 ### 2.4 Parsing hazards — the 8 from Phase 0, plus the ones found here
 
@@ -509,7 +519,7 @@ Unique data: **1,070,745 phone rows, 25.08 h, 1,341 km** (VBOX speed integrated 
 | 3b | *new:* **Excel date damage** | The CSVs went through Excel, which turned `12 / 14` into `Dec-14` and `10 / 12` into `10-Dec` (UK d/m). Deterministic and lossless, so the integers are recovered exactly and rows flagged `gps_sats_excel_recovered` | **2,118 cells, 12 sessions** |
 | 4 | `HH:MM:SS:mmm` datetime | Explicit `%Y-%m-%d %H:%M:%S:%f`; a decimal-point form is counted as a failure, not accepted | 0 failures |
 | 4b | *new:* timezone | Phone `DATE` is UK civil time. Localised to Europe/London → UTC; DST-ambiguous times become NaT and are counted | 0 lost |
-| 5 | km/h | → m/s at the loader (phone GPS, VBOX, CAN); CAN `g` × 9.80665; psi → Pa | — |
+| 5 | km/h | → m/s at the loader (VBOX, CAN); CAN `g` × 9.80665; psi → Pa. **Phone GPS speed: the "Kmh" label is wrong, values are m/s** — found and fixed in Phase 3 (§3.4) | — |
 | 6 | Gyro Yaw/Pitch/Roll | See §2.6 — the labels are positional aliases, and "Yaw" on column 1 is **wrong** | — |
 | 7 | Accel gravity-inclusive? | **Yes** — stationary \|a\| = 9.863 m/s² over 103,449 rows | settled |
 | 8 | Categorised vs Uncategorised | §2.3 | settled |
@@ -600,6 +610,14 @@ in the report for downstream stages to handle explicitly.
 
 ### 2.9 Route/driver split — `data/splits/iovnbd_split_v1.json`
 
+> **SUPERSEDED in Phase 3 by `iovnbd_split_v2.json` (§3.6).** v1 grouped sessions only by
+> route-group letter suffix. Most IO-VNBD sessions are consecutive slices of one drive, a
+> few seconds apart, so v1 put adjacent samples of the same drive on both sides of a
+> split — **49 violations** under the drive-adjacency rule (e.g. Vta1b in train ends 6.2 s
+> before Vta2 in val starts). v1 is kept only as a record; nothing may train on it. The
+> table below is from the original Phase 2 run, which also used the wrong durations
+> (§2.3 correction).
+
 Per `docs/ml_pipeline.md` §3, assigned from real durations. Test = the held-out driver(s)
 whose share is closest to 20 % (bounds 10–35 %); val = whole route groups of the remaining
 drivers, seed 26168, never emptying a driver's train set.
@@ -628,7 +646,7 @@ ever be in train; val is therefore all driver E.
 
 | Item | Affects | Severity |
 | --- | --- | --- |
-| **Decision needed:** may CAN channels (wheel speed, yaw rate) be model *inputs*? A phone-only Android deployment has no CAN bus; using them as inputs would train a model that cannot run on-device. Default until decided: reference/evaluation truth only | Phases 4, 7, 11 | **High** |
+| **DECIDED 2026-09-27 (user): CAN channels are ground truth only, never inputs** — enforced in Phase 3 §3.5. Original question: may CAN channels (wheel speed, yaw rate) be model *inputs*? A phone-only Android deployment has no CAN bus; using them as inputs would train a model that cannot run on-device. Default until decided: reference/evaluation truth only | Phases 4, 7, 11 | **High** |
 | 45 of 72 sessions have unverified S/V alignment | Phase 7 targets from V | Medium |
 | Horizontal gyro axes unresolved | Phases 4–6 | Medium |
 | Wheel-speed unit (km/h vs rad/s label) | Phase 4 odometry | Low — calibrated against VBOX anyway |
@@ -641,26 +659,175 @@ ever be in train; val is therefore all driver E.
 
 ---
 
-## Phase 3 — Geodesy & Reference-Frame Foundations
+## Phase 3 — Preprocessing Pipeline & Coordinate Systems
 
-**Status:** `NOT STARTED`
+**Status:** `COMPLETED`
+**Date:** 2026-09-27
+**Evidence:** `reports/phase3_validation.txt` — **20/20 CRITICAL checks PASS**; 128 tests pass; `ruff check .` clean
+**Scope note:** renamed from "Geodesy & Reference-Frame Foundations" at the user's
+direction; the original geodesy/frames scope is included, plus the preprocessing pipeline.
 
-**Objective:** The single audited coordinate path that all position output must flow
-through, per `AGENTS.md` §2.1.
+**Re-run with:**
 
-**Planned scope**
-- WGS84 constants from one source of truth, exported for both Python and Android.
-- Geodetic ↔ ECEF ↔ local-tangent ENU conversions, plus NED where needed.
-- Great-circle / geodesic distance for evaluation.
-- Rotation library: quaternions, rotation matrices, Euler — with the convention declared
-  once and asserted.
-- Round-trip and analytically-known test cases (poles, equator, prime meridian,
-  known baselines).
+```
+.venv/Scripts/python.exe -m training.preprocessing.pipeline   # ~17 s: calibrate, sync, split, normalise
+.venv/Scripts/python.exe scripts/phase3_validate.py           # the gate (runs lint, tests, mutation check)
+```
 
-**Exit criteria**
-- [ ] Round-trip conversions accurate to sub-millimetre over the dataset's operating region
-- [ ] Rotation conventions documented and test-enforced
-- [ ] Constants file generated, not hand-copied
+### 3.1 Housekeeping requested at the end of Phase 2
+
+| Item | Result |
+| --- | --- |
+| Phase 2 commit | `e22997b` |
+| CAN data rule | **Ground truth only, never a model/filter input** — enforced in code (§3.5), not by convention |
+| `ruff` | Already pinned `ruff==0.16.9` in `requirements-dev.txt` but never installed; now installed at that version. 16 pre-existing findings fixed; `known-first-party` set so `navcore` imports sort correctly; `SIM300` ignored in tests (misfires on `CONST == pytest.approx(...)`) |
+| `configs/dataset.yaml` | Created; loaded only via `training/preprocessing/config.py` (env override `SIH26168_DATASET_ROOT`; missing keys raise). All Phase 0/2 scripts switched to it — including `phase0_validate.py`, whose hardcoded `Desktop\SIH26168\…` path no longer existed. The gate greps for path construction in code |
+| Single constants source | `navigation-core/common/constants.py`; the Phase 2 duplicate WGS84/gravity constants in the audit and loader were removed |
+
+### 3.2 Wheel-speed unit — resolved as far as the data allows (`reports/phase3/wheel_speed_calibration.json`)
+
+The label question (km/h vs rad/s) **cannot be proven from this data**: the two hypotheses
+differ by a constant factor, and every kinematic relation (speed, left/right turn
+differential, gear ratios) scales identically. What the ground truth needs — the factor to
+m/s and its accuracy — is measured against VBOX Doppler speed:
+
+| | Result |
+| --- | --- |
+| Driven axle | **Front-wheel drive**: (front − rear) correlates with longitudinal acceleration in 98.6 % of sessions, so the **rear (non-driven) axle** is the slip-free reference |
+| Rear-axle mean ÷ VBOX speed in km/h | **k = 1.00019** (330,853 steady, straight, well-tracked samples, 62 sessions; session IQR 0.9991–1.0031) |
+| Residual of `rear / (3.6 k)` vs VBOX | median 0.000, median \|·\| 0.058, p95 \|·\| 0.233 m/s |
+| Speed dependence (honest limit) | ratio 1.0033 at 5–10 m/s → 0.9943 at 30–45 m/s; bias **−0.19 m/s above 30 m/s** (0.6 %) — not corrected, documented |
+| Label decision | **km/h, by strong inference**: under rad/s the rear rolling radius would have to be 0.27772 m ≈ exactly 1/3.6 m |
+
+`gt_wheel_speed_mps = mean(RL, RR) / (3.6 × 1.00019)`.
+
+### 3.3 Coordinate frames — `navigation-core/geometry/`
+
+| Module | Content |
+| --- | --- |
+| `quaternion.py` | `[w,x,y,z]`, Hamilton, `q_ab ≙ R_b^a` (spec §4.1). Product, rotate, conj/inverse, DCM ↔ q (Shepperd, stable at 180°), exp/log with the shared small-angle Taylor branch (`SMALL_ANGLE_THRESHOLD_RAD = 1e-6`), integration with real `dt`, slerp (short arc), ZYX Euler with explicit gimbal-lock handling, ENU-yaw ↔ compass heading |
+| `rotation.py` | skew/unskew, elementary rotations, Euler ↔ DCM, proper-rotation check (rejects reflections), SVD orthonormalisation |
+| `geodesy.py` | WGS84 geodetic ↔ ECEF (Heikkinen closed form for the inverse: exact, non-iterative, parity-friendly), `R_e^n`, **`LocalTangentPlane` with an immutable origin**, ENU ↔ NED, radii of curvature, Somigliana gravity |
+| `frames.py` | `Frame` enum (BODY = DEVICE, VEHICLE [FLU], ENU, NED, ECEF, GEODETIC), `FramedVector`, `Rotation(dst ← src)` stored as a quaternion. Applying or composing across mismatched frames raises `FrameMismatchError`; untagged arrays are refused; GEODETIC is not a vector frame |
+
+**Tests (`tests/navigation/`, 78):** the conventions §11 of the spec requires (Hamilton
+`ij = k`, active right-handed rotation, composition order, ENU axis order), algebraic
+identities on 1000s of seeded random quaternions, DCM/rotvec/Euler round trips including
+180° and gimbal lock, small-angle branch continuity from 0 to 1e-4 rad, constant-rate
+integration equal to the exact rotation to 1e-11 rad, geodesy vs **pyproj as an independent
+oracle** (5,000 points, ≤ 1e-6 m), round-trip closure **< 1e-4 m globally** (20,000 points,
+−1 km to 100 km, poles included), and frame-mismatch rejection.
+
+**Mutation check (in the gate):** injecting a JPL product, a passive rotation, a transposed
+`R_e^n`, a removed small-angle branch, or an ignored height makes the suite fail — **5/5
+caught** — so the tests pin the conventions rather than merely running them.
+
+One test bug was found and fixed while writing them: "1 m east" at height h uses
+radius `(N + h)cos φ`, not `N cos φ`; the geodesy code was right.
+
+### 3.4 Synchronisation — `training/preprocessing/sync.py`
+
+One frame per session on the phone timeline, joined to ground truth by **UTC time**
+(nearest ≤ 60 ms), never by row index:
+
+| Step | Result |
+| --- | --- |
+| Rows | 1,070,745 in → **1,065,371** out; **5,374 exact duplicate rows dropped and counted**; 86 duplicate timestamps with different values kept (dt = 0) |
+| Clock | Phase 2's measured phone-clock correction applied in the **25 verified** sessions (−0.87…+1.52 s); 0 elsewhere, flagged `alignment_verified = False` |
+| Ground truth matched | **98.96 %** of phone rows |
+| Time-join sanity (recomputed by the gate) | gyro_y vs CAN yaw rate, verified sessions: median r = **0.742** over 23 sessions |
+| Segments | 83 (break where real `dt` > 1 s) |
+| Stationary rows (`gt_stationary`) | 103,447 — the Phase 2 carry-over, now exported for Phases 4 and 8 |
+
+**Phone GNSS latency (the "4.1 s").** The fix is kept **exactly as received** — shifting it
+earlier would feed future information to a real-time filter — and every row carries
+`ph_gnss_epoch_utc = t_utc − latency`, the instant the fix actually describes (the
+delayed-measurement form Phase 8 needs). Latency is measured per session (phone GNSS speed
+vs VBOX): **41 sessions measured, pooled median 4.1 s, IQR 3.1–4.7 s, range 0.1–8.3 s**;
+the other 31 use the pooled median, and the source is recorded per session. Checked by the
+gate: comparing each fix with truth *at its epoch* lowers the median speed error from
+**0.82 to 0.53 m/s**, better in 40 of 41 sessions.
+
+**Two defects found by the gate's value-level checks — both would have survived a
+"runs without error" standard:**
+
+1. **Phone GPS speed is m/s, not km/h.** The header says `Kmh`; logged ÷ VBOX [m/s] =
+   **0.997** (IQR 0.993–1.000, 40 sessions) — the km/h reading predicts 3.6. Phases 0–2
+   divided by 3.6, so every phone speed was 3.6× too small. Latency estimation is
+   scale-invariant and could not see it; the error-magnitude check could. Fixed in the
+   loader, regression-tested, evidence in `reports/phase3/phone_gps_speed_unit.json`.
+2. **Cross-correlation lag bias.** The Phase 2 `fft_xcorr_lag` maximised the raw xcorr
+   sum, which is weighted by overlap length and pulls broad peaks (slow signals like speed)
+   toward zero — a known 3.0 s synthetic lag read as 2.0 s. Now normalised by overlap and
+   refined with exact Pearson correlation. **Phase 2 conclusions re-run: unchanged**
+   (alignment statuses, clock corrections and gyro results identical — yaw-rate peaks are
+   sharp). The Phase 3 GNSS latency was the affected quantity (biased 3.75 s → 4.1 s).
+
+### 3.5 The CAN rule, enforced — `training/preprocessing/columns.py`
+
+Synced columns are exactly `META + INPUT + GT`. All 15 vehicle-derived columns are
+`gt_*`. `assert_model_inputs` rejects any `gt_`, `can_`, `wheel`, `steering`, `yaw_rate`,
+`vbox_`, `brake`, `gear`, `engine`, `pedal` or `clutch` column and any undeclared input;
+`assert_model_targets` rejects latitude/longitude targets (AGENTS.md §2.1). Normalisation
+calls the input guard, each synced file records its input/ground-truth lists in its
+metadata, and the gate re-checks them.
+
+### 3.6 Leak-free split v2 — `data/splits/iovnbd_split_v2.json`
+
+**Unit = the drive**: sessions connected by the same driver AND (same route group OR a gap
+under 600 s). The largest same-drive gap observed is 444 s; the next gaps are 809 s and
+over. 72 sessions → **14 drives** (e.g. `E:Vta1a` = 28 consecutive sessions, 2.44 h).
+
+| Split | Drives | Sessions | Hours | Fraction |
+| --- | --- | --- | --- | --- |
+| train | 10 | 56 | 20.48 | 0.693 |
+| val | 2 (`A:S3a`, `E:Vtb2`) | 14 | 4.18 | 0.141 |
+| test | 2 (**drivers B and D held out entirely**) | 2 | 4.90 | 0.166 |
+
+With the corrected durations (A 8.58 h, B 2.94, D 1.95, E 16.08), the held-out-driver rule
+selects **B + D** (16.6 %, closest to 20 %) rather than v1's A. `find_leaks` re-derives
+temporal adjacency from the timestamps (it does not trust `drive_id`): **v2: 0
+violations; v1: 49.** *Caveat:* the test set is two drivers with one long drive each —
+a real held-out-driver test, but a small one (2 drives).
+
+### 3.7 Normalisation — `models/normalization/imu_{mean,std}.json` (tracked)
+
+Per-channel mean and population std over the **56 train sessions only** (738,516 samples,
+float64 two-pass) for 12 phone channels (accel, gyro, mag, gravity). Each file records the
+sessions used, the split manifest path and its SHA-256, script and commit. The code raises
+`SplitLeakError` if offered a val/test session, and the gate recomputes the files from
+scratch (difference 0.0).
+
+| | acc x/y/z m/s² | gyro x/y/z rad/s | grav z |
+| --- | --- | --- | --- |
+| mean | 0.023 / −0.058 / 9.841 | −0.0004 / −0.0021 / −0.0001 | 9.8065 |
+| std | 1.887 / 1.732 / 0.831 | 0.122 / **0.257** / 0.161 | 0.0019 |
+
+`gyro_y` having the largest spread is consistent with it being the yaw axis (§2.6).
+`.gitignore` gained `!models/normalization/*.json`: these small files are part of the
+parity contract, while checkpoints stay ignored.
+
+### 3.8 Exit criteria
+
+- [x] Reproducible preprocessing pipeline, one command, deterministic
+- [x] Phone/vehicle synchronised on UTC time; GNSS latency measured and epoch-tagged
+- [x] Frame system (Device/Body, Vehicle, ENU, NED, ECEF, WGS84) with quaternions internally
+- [x] Strict math tests incl. pyproj oracle and mutation check; round trip < 1e-4 m
+- [x] Group-based split with an independent leak audit; adjacent samples never split
+- [x] Normalisation from train only, reproducible, leak-guarded
+- [x] ruff clean; all 128 tests pass
+
+### 3.9 Not done / carried forward
+
+| Item | Affects |
+| --- | --- |
+| **Geodesic (Vincenty/Karney) distance for evaluation** (original Phase 3 scope) — not implemented; pyproj's `Geod` is the planned oracle | Phase 11 |
+| Constants **generated** for Kotlin — Python single source exists; generator deferred | Phase 12 |
+| Horizontal gyro axes still unresolved; `BODY` mapping of raw gyro columns is a Phase 4 output | Phases 4–6 |
+| 47 sessions keep unverified S/V alignment (flagged per row) | Phase 7 labels |
+| Wheel-speed GT has a −0.19 m/s bias above 30 m/s | Phase 11 |
+| GNSS latency varies 0.1–8.3 s between sessions; 31 sessions use the pooled value | Phase 8 |
+| mypy not run (not requested; not installed) | hygiene |
 
 ---
 
@@ -943,3 +1110,4 @@ defensible uncertainty.
 | 2026-09-27 | Phase 0 opened and COMPLETED. Environment, toolchain, network, and dataset surveyed. `AGENTS.md`, `PROJECT_STATUS.md`, `TODO.md` created. IO-VNBD confirmed present and real (288 CSV files, 816 MB, 10 Hz, Coventry UK). JDK/Android SDK found absent and logged as a high-severity blocker for Phases 12–14. Validation script `scripts/phase0_validate.py` written and run: 16/16 CRITICAL checks PASS, output in `reports/phase0_validation.txt`. |
 | 2026-09-27 | Phase 1 COMPLETED: monorepo structure created from a re-runnable manifest (82 dirs, 51 packages); git repo initialised with `.gitignore`/`.gitattributes`; Python 3.14.4 chosen on wheel evidence; venv built and 22 pinned dependencies installed at exact versions; `navigation-core` mapped to the `navcore` import namespace; `docs/architecture.md`, `navigation_math.md`, `ml_pipeline.md`, `map_matching.md` written; `scripts/phase1_validate.py` run with 17/17 CRITICAL checks PASS. Roadmap renumbered (see revision note); two AI phases merged to keep the range at 0-14. |
 | 2026-09-27 | Phase 2 COMPLETED: raw layout normalised to `data/raw/IO-VNBD/`; two schemas found (S phone 24-col, V vehicle/CAN 29-col); 288 files → 72 unique sessions (V pairs byte-identical, S pairs content-identical, max diff 7.1e-15); 2,118 Excel-damaged satellite cells recovered; GRAVITY channel shown normalised to g0 in 72/72 sessions; gyro vertical axis = column 2 (gain 0.997); S/V row pairing shown misaligned by the phone clock error (up to 314 s), UTC-time join adopted (25 verified, 0 contradicted); driver-held-out split v1; `navigation_math.md` §5.2 arithmetic corrected (9.812377 → 9.812381); `scripts/phase2_validate.py` 26/26 CRITICAL PASS. |
+| 2026-09-27 | Phase 3 COMPLETED (renamed "Preprocessing Pipeline & Coordinate Systems"): Phase 2 committed (`e22997b`); ruff installed at the pinned 0.16.9, repo lint-clean; `configs/dataset.yaml` replaces hardcoded paths; single constants source; wheel speed calibrated vs VBOX (rear axle, k = 1.00019, km/h by inference, FWD); `navcore.geometry` quaternion/rotation/geodesy/frames with 78 tests (pyproj oracle, mutation check 5/5); UTC-time sync of 72 sessions with measured GNSS latency (median 4.1 s) as epoch tags; CAN-as-ground-truth enforced in code; drive-level split v2 (0 leaks; v1 had 49); train-only normalisation. **Corrections to earlier phases:** phone GPS speed is m/s not km/h (Phases 0-2 divided by 3.6); total recorded time 29.56 h not 25.08 h; xcorr lag bias fixed (Phase 2 conclusions unchanged). `scripts/phase3_validate.py` 20/20 CRITICAL PASS. |

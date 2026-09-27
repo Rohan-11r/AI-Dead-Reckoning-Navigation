@@ -24,9 +24,11 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
 from training.preprocessing import iovnbd as io  # noqa: E402
+from training.preprocessing.config import load_dataset_config  # noqa: E402
 
-RAW_ROOT = REPO_ROOT / "data" / "raw" / "IO-VNBD"
-OUT = REPO_ROOT / "reports" / "phase2" / "schema_validation.json"
+CFG = load_dataset_config()
+RAW_ROOT = CFG.raw_root
+OUT = CFG.reports_dir / "phase2" / "schema_validation.json"
 
 
 def validate_file(path: Path) -> dict:

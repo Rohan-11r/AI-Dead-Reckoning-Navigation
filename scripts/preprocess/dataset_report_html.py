@@ -36,7 +36,7 @@ svg text{fill:var(--ink2);font-size:11px}svg .bar{fill:var(--bar)}svg .bar:hover
 """
 
 STATUS = {"PASS": ("ok", "✔ PASS"), "FAIL": ("bad", "✖ FAIL"),
-          "WARN": ("warn", "⚠ NOTE"), "INFO": ("", "ℹ INFO")}
+          "WARN": ("warn", "⚠ NOTE"), "INFO": ("", "&#8505; INFO")}
 
 
 def esc(x) -> str:
@@ -168,9 +168,9 @@ def render(rep: dict) -> str:
 
     d = s["dedupe"]
     out.append("<h2>Deduplication</h2>")
-    out.append(f'<p class="note">Two hashes per file: SHA-256 of the bytes, and a digest of the '
-               f"parsed values rounded to 1e-9 (header labels excluded). Canonical copy = "
-               f"Categorised.</p>")
+    out.append('<p class="note">Two hashes per file: SHA-256 of the bytes, and a digest of the '
+               "parsed values rounded to 1e-9 (header labels excluded). Canonical copy = "
+               "Categorised.</p>")
     out.append(table(["measure", "value"], [
         ["CSV files", num(s["files"]["total_csv"])],
         ["unique SHA-256", num(s["files"]["unique_sha256"])],

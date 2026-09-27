@@ -12,15 +12,8 @@ import math
 import numpy as np
 import pandas as pd
 
-from training.preprocessing.iovnbd import STANDARD_GRAVITY_MPS2
-
-# WGS84 normal gravity (docs/navigation_math.md sections 2 and 5.1). Phase 3 will generate
-# these from the single constants source; duplicated here ONLY for the Phase 2 audit, and
-# asserted equal to the doc values in tests/unit/test_iovnbd_audit.py.
-WGS84_GAMMA_E = 9.7803253359
-WGS84_K = 1.93185265241e-3
-WGS84_E2 = 6.69437999014e-3
-FREE_AIR_PER_M = 3.086e-6
+from navcore.common.constants import STANDARD_GRAVITY_MPS2
+from navcore.geometry.geodesy import normal_gravity as _normal_gravity_rad
 
 GAP_S = 0.15  # dt above this is a gap at a nominal 10 Hz
 BREAK_S = 1.0  # dt above this (or < 0) breaks a continuous trajectory segment
@@ -28,6 +21,7 @@ SMOOTH_SAMPLES = 10  # 1 s centred moving average before correlating gyro vs CAN
 ALIGN_MAX_LAG_S = 400.0  # wide search: clock errors up to ~314 s were observed
 ALIGN_MIN_CORR = 0.5  # below this the lag estimate is not trusted
 ALIGN_MAX_CORRECTION_S = 2.0  # |phone clock correction| accepted as "time join verified"
+REFINE_LAGS = 30  # exact-Pearson refinement window around the coarse xcorr peak
 MOVING_MPS = 3.0  # vehicle speed above which yaw-rate / axis correlations are computed
 STATIONARY_MPS = 0.05
 DT_BINS = [-np.inf, -1e-9, 1e-9, 0.05, 0.095, 0.105, 0.15, 1.0, np.inf]
@@ -36,9 +30,9 @@ DT_BIN_LABELS = ["<0", "0", "(0,50ms]", "(50,95ms]", "(95,105ms]", "(105,150ms]"
 
 
 def normal_gravity(lat_deg: float, h_m: float) -> float:
-    """Somigliana normal gravity with free-air correction [m/s^2]."""
-    s2 = math.sin(math.radians(lat_deg)) ** 2
-    return WGS84_GAMMA_E * (1 + WGS84_K * s2) / math.sqrt(1 - WGS84_E2 * s2) - FREE_AIR_PER_M * h_m
+    """Somigliana normal gravity [m/s^2] -- degrees-in wrapper around the single audited
+    implementation in navcore.geometry.geodesy (Phase 3 removed the Phase 2 copy)."""
+    return float(_normal_gravity_rad(math.radians(lat_deg), h_m))
 
 
 def _f(x) -> float | None:
@@ -81,13 +75,24 @@ def dt_stats(t_s: np.ndarray) -> dict:
     }
 
 
+def recorded_duration_s(t_s: np.ndarray) -> float:
+    """Sum of the real sample intervals 0 < dt <= BREAK_S: robust to clock resets
+    (dt < 0), duplicates (dt == 0) and recording gaps (dt > BREAK_S)."""
+    dt = np.diff(np.asarray(t_s, dtype=np.float64))
+    return float(np.sum(dt[(dt > 0) & (dt <= BREAK_S)]))
+
+
 def nan_counts(df: pd.DataFrame) -> dict[str, int]:
     return {c: int(v) for c, v in df.isna().sum().items()}
 
 
 def audit_phone(p: pd.DataFrame) -> dict:
     t = p["t_rel_s"].to_numpy()
-    out: dict = {"n_rows": len(p), "duration_s": _f(t[-1] - t[0])}
+    # Recorded time = sum of real intervals inside continuous segments. NOT t[-1] - t[0]:
+    # TIME SINCE START resets in concatenated sessions (M, S2, S3b, S4, Y1), which made
+    # the Phase 2 v1 figures wrong (S3b came out negative). Fixed in Phase 3.
+    out: dict = {"n_rows": len(p), "duration_s": recorded_duration_s(t),
+                 "span_first_to_last_s": _f(t[-1] - t[0])}
     out["timing"] = dt_stats(t)
     # the DATE column and TIME SINCE START are two clocks; they must agree
     loc = (p["t_local"] - p["t_local"].iloc[0]).dt.total_seconds().to_numpy()
@@ -149,7 +154,7 @@ def audit_vehicle(v: pd.DataFrame) -> dict:
     wrap = np.flatnonzero(np.diff(t) < -43200)  # midnight rollover
     for i in wrap:
         t[i + 1:] += 86400.0
-    out: dict = {"n_rows": len(v), "duration_s": _f(t[-1] - t[0])}
+    out: dict = {"n_rows": len(v), "duration_s": recorded_duration_s(t)}
     out["timing"] = dt_stats(t)
     out["n_midnight_rollovers"] = int(wrap.size)
     out["sample_period_values"] = {
@@ -239,7 +244,15 @@ def _smooth(x: np.ndarray, k: int = SMOOTH_SAMPLES) -> np.ndarray:
 
 
 def fft_xcorr_lag(x: np.ndarray, ref: np.ndarray, max_lag: int) -> tuple[int, float | None]:
-    """Wide-range lag via FFT: L maximising corr(x[t+L], ref[t]). NaN treated as 0."""
+    """Lag L in [-max_lag, max_lag] maximising the Pearson corr(x[t+L], ref[t]).
+
+    Coarse search by FFT, with the raw cross-covariance divided by the overlap length
+    n - |L|. (Phase 3 fix: the Phase 2 version took the argmax of the RAW sum, which is
+    weighted by the overlap and biases broad correlation peaks -- e.g. slowly varying
+    speed -- toward zero lag; a known 3.0 s synthetic lag read as 2.0 s.) The coarse
+    peak is then refined with the exact Pearson correlation at every lag within
+    +-REFINE_LAGS. NaN is treated as 0 after mean removal.
+    """
     x = np.nan_to_num(x - np.nanmean(x))
     ref = np.nan_to_num(ref - np.nanmean(ref))
     n = x.size
@@ -248,8 +261,17 @@ def fft_xcorr_lag(x: np.ndarray, ref: np.ndarray, max_lag: int) -> tuple[int, fl
     c = np.fft.irfft(np.fft.rfft(x, nfft) * np.conj(np.fft.rfft(ref, nfft)), nfft)
     lags = np.r_[0:max_lag + 1, -max_lag:0]
     vals = np.r_[c[:max_lag + 1], c[nfft - max_lag:] if max_lag else np.array([])]
-    L = int(lags[int(np.argmax(vals))])
-    return L, (_corr(x[L:], ref[:n - L]) if L >= 0 else _corr(x[:L], ref[-L:]))
+    L0 = int(lags[int(np.argmax(vals / (n - np.abs(lags))))])
+
+    def pearson(L: int) -> float | None:
+        return _corr(x[L:], ref[:n - L]) if L >= 0 else _corr(x[:L], ref[-L:])
+
+    best, best_c = L0, pearson(L0)
+    for L in range(max(-max_lag, L0 - REFINE_LAGS), min(max_lag, L0 + REFINE_LAGS) + 1):
+        cL = pearson(L)
+        if cL is not None and (best_c is None or cL > best_c):
+            best, best_c = L, cL
+    return best, best_c
 
 
 def _axis_scan(cols: dict[str, np.ndarray], ref: np.ndarray, mask: np.ndarray) -> dict:

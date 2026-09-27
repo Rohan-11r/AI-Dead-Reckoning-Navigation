@@ -13,7 +13,7 @@ Detailed per-phase status lives in [`PROJECT_STATUS.md`](./PROJECT_STATUS.md).
 Phase 0   Environment                         [COMPLETED]
 Phase 1   Architecture & repo                  [COMPLETED]
 Phase 2   Data                                [COMPLETED]
-Phase 3   Geodesy  ------------------------------- + -- foundations
+Phase 3   Preprocessing & frames          [COMPLETED]
 Phase 4   Calibration                              |
               |
 Phase 5   AHRS          ------------------\
@@ -39,21 +39,18 @@ in parallel. Everything from Phase 12 on is gated by installing a JDK and the An
 
 ## Immediate Next Actions (top of the stack)
 
-1. **Decision needed (user):** may V-file CAN channels (wheel speed, CAN yaw rate) be model
-   *inputs*, or only reference/evaluation truth? See `PROJECT_STATUS.md` §2.10.
-2. **Phase 3:** single constants source (WGS84, g0, normal-gravity coefficients) generated
-   for Python and Kotlin — replaces the audit-only copy in `training/preprocessing/iovnbd_audit.py`.
-3. **Phase 3:** single dataset-path config module (carried over from Phase 2).
-4. **Phase 4:** horizontal gyro axes; Allan variance on stationary sessions `Vw1`, `Vw15`.
-5. **Android:** built externally / in CI in later phases (Android Studio not installed locally).
-   This blocks Phases 12–14 and has a long lead time.
-5. **Out of band:** confirm a physical Android handset is available for Phases 13–14.
-   An emulator cannot generate real IMU data.
-6. **Before Phase 7:** install `requirements-gpu.txt` and confirm
-   `torch.cuda.is_available()`. Driver 555.97 vs a `cu126` build is expected to work but
-   is untested.
-7. **Housekeeping:** consider moving the workspace out of the OneDrive-synced tree, or
-   excluding `.venv/` from sync — 42,926 files, 1.27 GB logical / 1.4 GB on disk.
+1. **Phase 4:** resolve the two horizontal gyro axes (vertical = column 2 `gyro_y`, proven);
+   Allan variance on the stationary sessions `Vw1` (34 min) and `Vw15`; mounting rotation
+   `R_b^v` into `navcore.geometry.frames.vehicle_from_body`.
+2. **Phase 4:** use `gt_stationary` (103,447 rows) as labelled stationary segments for
+   bias estimation and, later, the ZUPT detector's false-positive calibration.
+3. **Before Phase 7:** refine per-session S/V alignment for the 47 unverified sessions before
+   any `gt_*` channel becomes a 10 Hz training target; install `requirements-gpu.txt` and
+   confirm `torch.cuda.is_available()` (driver 555.97 vs `cu126` is untested).
+4. **Android:** built externally / in CI in later phases (Android Studio not installed
+   locally, per user). A physical handset is still needed for Phases 13-14.
+5. **Housekeeping:** consider moving the workspace out of the OneDrive-synced tree, or
+   excluding `.venv/` and `data/processed/` from sync.
 
 ---
 
@@ -120,7 +117,7 @@ Not done (deliberately):
       constant in each Phase 2 script + `.env.example`. Carry to Phase 3.
 - [x] Loader: cp1252 + per-token mojibake repair, normalised column names, explicit datetime
 - [x] Split `GPS SATELLITES IN RANGE` into used/visible; 2,118 Excel-damaged cells repaired
-- [x] Convert km/h to m/s at the loader boundary; SI everywhere inside
+- [x] Convert km/h to m/s at the loader boundary; SI everywhere inside *(Phase 3: phone GPS speed was actually m/s -- fixed)*
 - [x] Checksum `Categorised` vs `Uncategorised` — settled: 72 unique sessions
 - [x] Per-recording integrity audit: rows, duration, real `dt` histogram, monotonicity,
       gaps, duplicates, per-column NaN counts
@@ -148,19 +145,22 @@ Not done (deliberately):
 
 ---
 
-## Phase 3 — Geodesy & Reference-Frame Foundations
+## Phase 3 — Preprocessing Pipeline & Coordinate Systems
 
-**Goal: the one audited code path all position output must flow through.**
+**Status: COMPLETED 2026-09-27** — `reports/phase3_validation.txt`, 20/20 CRITICAL PASS.
 
-- [ ] WGS84 constants from a single source of truth
-- [ ] Constants generator emitting both Python and Kotlin/C++ (for Phase 12)
-- [ ] Geodetic ↔ ECEF conversions
-- [ ] ECEF ↔ local tangent ENU (and NED where needed)
-- [ ] Geodesic distance for evaluation metrics
-- [ ] Quaternion / rotation-matrix / Euler library
-- [ ] **Declare rotation conventions once** and assert them in tests
-- [ ] Round-trip tests to sub-millimetre over the dataset's operating region
-- [ ] Analytically-known test cases (equator, poles, prime meridian, known baselines)
+- [x] Commit Phase 2; install pinned ruff; repo lint-clean
+- [x] `configs/dataset.yaml` + loader; no hardcoded dataset paths (gate-checked)
+- [x] Wheel-speed unit/scale calibrated vs VBOX (rear axle, FWD, k = 1.00019)
+- [x] Single Python constants source (`navcore.common.constants`)
+- [x] Quaternion / rotation / geodesy / frames in `navigation-core/geometry/`
+- [x] 78 math tests incl. pyproj oracle and a 5/5 mutation check
+- [x] UTC-time sync pipeline; GNSS latency measured and epoch-tagged
+- [x] CAN = ground truth only, enforced by `columns.assert_model_inputs`
+- [x] Drive-level split v2 with independent leak audit (0 leaks)
+- [x] Train-only normalisation `models/normalization/imu_{mean,std}.json`
+- [ ] Geodesic (Vincenty/Karney) distance for evaluation -> Phase 11
+- [ ] Generate Kotlin constants from the Python source -> Phase 12
 
 ---
 

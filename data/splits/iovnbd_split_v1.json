@@ -9,38 +9,47 @@
   ],
   "val_fraction_target_of_remaining": 0.15,
   "test_drivers": [
-    "A"
+    "B",
+    "D"
   ],
   "driver_duration_h": {
-    "A": 5.246,
-    "B": 1.714,
-    "D": 1.859,
-    "E": 16.266
+    "A": 8.579,
+    "B": 2.944,
+    "D": 1.952,
+    "E": 16.082
   },
   "splits": {
     "train": [
-      "M",
+      "S2",
+      "S3a",
+      "S3b",
+      "S3c",
+      "S4",
       "Vfa01",
       "Vfa02",
       "Vta10",
       "Vta11",
+      "Vta12",
+      "Vta13",
       "Vta14",
       "Vta15",
       "Vta16",
       "Vta17",
       "Vta19",
-      "Vta2",
+      "Vta1a",
+      "Vta1b",
       "Vta20",
-      "Vta22",
-      "Vta23",
+      "Vta21",
+      "Vta24",
+      "Vta25",
       "Vta26",
       "Vta27",
-      "Vta28",
       "Vta29",
+      "Vta3",
       "Vta30",
       "Vta4",
-      "Vta5",
       "Vta6",
+      "Vta7",
       "Vta8",
       "Vta9",
       "Vtb1",
@@ -50,7 +59,9 @@
       "Vtb4",
       "Vtb5",
       "Vtb6",
-      "Vtb7",
+      "Vtb9",
+      "Vw10",
+      "Vw11",
       "Vw12",
       "Vw13",
       "Vw14a",
@@ -62,90 +73,80 @@
       "Vw17",
       "Vw3",
       "Vw4",
-      "Vw5",
+      "Vw6",
       "Vw7",
       "Vw8",
-      "Vw9",
-      "Y1"
+      "Vw9"
     ],
     "val": [
-      "Vta12",
-      "Vta13",
-      "Vta1a",
-      "Vta1b",
-      "Vta21",
-      "Vta24",
-      "Vta25",
-      "Vta3",
-      "Vta7",
+      "S1",
+      "Vta2",
+      "Vta22",
+      "Vta23",
+      "Vta28",
+      "Vta5",
       "Vtb10",
       "Vtb12",
+      "Vtb7",
       "Vtb8",
-      "Vtb9",
       "Vw1",
-      "Vw10",
-      "Vw11",
       "Vw2",
-      "Vw6"
+      "Vw5"
     ],
     "test": [
-      "S1",
-      "S2",
-      "S3a",
-      "S3b",
-      "S3c",
-      "S4"
+      "M",
+      "Y1"
     ]
   },
   "sessions": {
     "M": {
-      "split": "train",
+      "split": "test",
       "driver": "B",
       "category": "M",
       "route_group": "M",
-      "duration_s": 6171.748
+      "duration_s": 10597.1
     },
     "S1": {
-      "split": "test",
+      "split": "val",
       "driver": "A",
       "category": "S",
       "route_group": "S1",
       "duration_s": 5174.499
     },
     "S2": {
-      "split": "test",
+      "split": "train",
       "driver": "A",
       "category": "S",
       "route_group": "S2",
-      "duration_s": 9201.099
+      "duration_s": 9387.4
     },
     "S3a": {
-      "split": "test",
+      "split": "train",
       "driver": "A",
       "category": "S",
       "route_group": "S3",
       "duration_s": 2462.0
     },
     "S3b": {
-      "split": "test",
+      "split": "train",
       "driver": "A",
       "category": "S",
       "route_group": "S3",
-      "duration_s": -2026.412
+      "duration_s": 681.1
     },
     "S3c": {
-      "split": "test",
+      "split": "train",
       "driver": "A",
       "category": "S",
       "route_group": "S3",
       "duration_s": 3718.199
     },
     "S4": {
-      "split": "test",
+      "split": "train",
       "driver": "A",
       "category": "S",
       "route_group": "S4",
-      "duration_s": 354.78
+      "duration_s": 9459.699
     },
     "Vfa01": {
       "split": "train",
@@ -176,14 +177,14 @@
       "duration_s": 50.9
     },
     "Vta12": {
-      "split": "val",
+      "split": "train",
       "driver": "E",
       "category": "Vta",
       "route_group": "Vta12",
       "duration_s": 60.9
     },
     "Vta13": {
-      "split": "val",
+      "split": "train",
       "driver": "E",
       "category": "Vta",
       "route_group": "Vta13",
@@ -215,7 +216,7 @@
       "driver": "E",
       "category": "Vta",
       "route_group": "Vta17",
-      "duration_s": 452.986
+      "duration_s": 451.702
     },
     "Vta19": {
       "split": "train",
@@ -225,21 +226,21 @@
       "duration_s": 29.101
     },
     "Vta1a": {
-      "split": "val",
+      "split": "train",
       "driver": "E",
       "category": "Vta",
       "route_group": "Vta1",
       "duration_s": 2567.499
     },
     "Vta1b": {
-      "split": "val",
+      "split": "train",
       "driver": "E",
       "category": "Vta",
       "route_group": "Vta1",
       "duration_s": 95.3
     },
     "Vta2": {
-      "split": "train",
+      "split": "val",
       "driver": "E",
       "category": "Vta",
       "route_group": "Vta2",
@@ -253,35 +254,35 @@
       "duration_s": 322.2
     },
     "Vta21": {
-      "split": "val",
+      "split": "train",
       "driver": "E",
       "category": "Vta",
       "route_group": "Vta21",
       "duration_s": 207.8
     },
     "Vta22": {
-      "split": "train",
+      "split": "val",
       "driver": "E",
       "category": "Vta",
       "route_group": "Vta22",
       "duration_s": 156.301
     },
     "Vta23": {
-      "split": "train",
+      "split": "val",
       "driver": "E",
       "category": "Vta",
       "route_group": "Vta23",
       "duration_s": 110.9
     },
     "Vta24": {
-      "split": "val",
+      "split": "train",
       "driver": "E",
       "category": "Vta",
       "route_group": "Vta24",
       "duration_s": 117.001
     },
     "Vta25": {
-      "split": "val",
+      "split": "train",
       "driver": "E",
       "category": "Vta",
       "route_group": "Vta25",
@@ -302,7 +303,7 @@
       "duration_s": 253.9
     },
     "Vta28": {
-      "split": "train",
+      "split": "val",
       "driver": "E",
       "category": "Vta",
       "route_group": "Vta28",
@@ -316,7 +317,7 @@
       "duration_s": 2369.778
     },
     "Vta3": {
-      "split": "val",
+      "split": "train",
       "driver": "E",
       "category": "Vta",
       "route_group": "Vta3",
@@ -337,7 +338,7 @@
       "duration_s": 178.799
     },
     "Vta5": {
-      "split": "train",
+      "split": "val",
       "driver": "E",
       "category": "Vta",
       "route_group": "Vta5",
@@ -351,7 +352,7 @@
       "duration_s": 137.5
     },
     "Vta7": {
-      "split": "val",
+      "split": "train",
       "driver": "E",
       "category": "Vta",
       "route_group": "Vta7",
@@ -376,7 +377,7 @@
       "driver": "E",
       "category": "Vtb",
       "route_group": "Vtb1",
-      "duration_s": 3245.799
+      "duration_s": 2584.423
     },
     "Vtb10": {
       "split": "val",
@@ -435,7 +436,7 @@
       "duration_s": 49.7
     },
     "Vtb7": {
-      "split": "train",
+      "split": "val",
       "driver": "E",
       "category": "Vtb",
       "route_group": "Vtb7",
@@ -449,7 +450,7 @@
       "duration_s": 66.7
     },
     "Vtb9": {
-      "split": "val",
+      "split": "train",
       "driver": "E",
       "category": "Vtb",
       "route_group": "Vtb9",
@@ -463,14 +464,14 @@
       "duration_s": 2047.5
     },
     "Vw10": {
-      "split": "val",
+      "split": "train",
       "driver": "E",
       "category": "Vw",
       "route_group": "Vw10",
       "duration_s": 65.1
     },
     "Vw11": {
-      "split": "val",
+      "split": "train",
       "driver": "E",
       "category": "Vw",
       "route_group": "Vw11",
@@ -561,14 +562,14 @@
       "duration_s": 12652.5
     },
     "Vw5": {
-      "split": "train",
+      "split": "val",
       "driver": "E",
       "category": "Vw",
       "route_group": "Vw5",
       "duration_s": 101.101
     },
     "Vw6": {
-      "split": "val",
+      "split": "train",
       "driver": "E",
       "category": "Vw",
       "route_group": "Vw6",
@@ -596,22 +597,22 @@
       "duration_s": 55.101
     },
     "Y1": {
-      "split": "train",
+      "split": "test",
       "driver": "D",
       "category": "Y",
       "route_group": "Y1",
-      "duration_s": 6690.761
+      "duration_s": 7027.995
     }
   },
   "split_duration_h": {
-    "train": 16.65,
-    "val": 3.189,
-    "test": 5.246
+    "train": 20.608,
+    "val": 4.052,
+    "test": 4.896
   },
   "split_fraction": {
-    "train": 0.6638,
-    "val": 0.1271,
-    "test": 0.2091
+    "train": 0.6972,
+    "val": 0.1371,
+    "test": 0.1656
   },
-  "test_fraction_actual": 0.2091
+  "test_fraction_actual": 0.1656
 }

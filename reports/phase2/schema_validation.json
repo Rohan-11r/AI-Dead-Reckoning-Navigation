@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-27T17:38:21",
+ "generated": "2026-09-27T17:59:44",
  "script": "scripts/preprocess/validate_schema.py",
  "n_files": 288,
  "n_ok": 288,

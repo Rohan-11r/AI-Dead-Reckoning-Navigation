@@ -35,10 +35,11 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+# Single constants source (Phase 3). STANDARD_GRAVITY_MPS2 is used here ONLY to convert
+# the CAN "g" channels -- never as the navigation gravity model.
+from navcore.common.constants import DEG_TO_RAD, KMH_TO_MPS, STANDARD_GRAVITY_MPS2
+
 RAW_ENCODING = "cp1252"
-KMH_TO_MPS = 1.0 / 3.6
-DEG_TO_RAD = np.pi / 180.0
-STANDARD_GRAVITY_MPS2 = 9.80665  # defined constant g0; used ONLY for the CAN "g" channels
 PSI_TO_PA = 6894.757293168
 PHONE_TIMEZONE = "Europe/London"  # phone DATE is local civil time; verified vs VBOX UTC
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S:%f"  # colon before milliseconds: 2019-09-07 09:13:29:506
@@ -92,7 +93,9 @@ PHONE_SCHEMA: list[tuple[str, tuple[str, ...]]] = [
     ("gps_lat_deg", ("gps latitude (degrees)",)),
     ("gps_lon_deg", ("gps longitude (degrees)",)),
     ("gps_alt_m", ("gps altitude (m)",)),
-    ("gps_speed_kmh", ("gps speed (kmh)",)),
+    # Header says "Kmh" but the values are m/s (Android Location.getSpeed); Phase 3 measured
+    # logged / VBOX[m/s] = 0.997 over 59 sessions. Canonical name records the raw value.
+    ("gps_speed_raw", ("gps speed (kmh)",)),
     ("gps_accuracy_m", ("gps accuracy (m)",)),
     ("gps_bearing_deg", ("gps orientation (deg)",)),
     ("gps_sats_raw", ("gps satellites in range",)),
@@ -354,7 +357,9 @@ def to_si_phone(raw: pd.DataFrame, rep: ParseReport) -> pd.DataFrame:
     out["t_utc"], rep.utc_lost_at_dst = local_to_utc(t_local)
     for c in ("gps_lat_deg", "gps_lon_deg", "gps_alt_m"):
         out[c] = raw[c]
-    out["gps_speed_mps"] = raw["gps_speed_kmh"] * KMH_TO_MPS
+    # NOT converted: the "Kmh" label is wrong, the logged value is already m/s
+    # (reports/phase3/phone_gps_speed_unit.json). Phase 0-2 divided by 3.6 -- a bug.
+    out["gps_speed_mps"] = raw["gps_speed_raw"]
     out["gps_accuracy_m"] = raw["gps_accuracy_m"]
     out["gps_bearing_deg"] = raw["gps_bearing_deg"]
     used, visible, recovered, rep.sats_malformed = parse_satellites(raw["gps_sats_raw"])

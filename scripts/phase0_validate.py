@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import itertools
 import os
 import platform
 import shutil
@@ -28,18 +29,17 @@ from datetime import datetime
 from pathlib import Path
 
 # --------------------------------------------------------------------------------------
-# Configuration.  Single source of truth for the dataset location during Phase 0.
-# Phase 2 replaces this with a proper config module.
+# Configuration. The dataset location comes from configs/dataset.yaml (Phase 3); Phase 0
+# originally hardcoded C:\...\Desktop\SIH26168\data raw  IO-VNBD\..., which no longer
+# exists since the data moved into data/raw/IO-VNBD (Phase 2).
 # --------------------------------------------------------------------------------------
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO_ROOT))
 
-DATASET_ROOT = Path(
-    r"C:\Users\Shreeyash\OneDrive\Desktop\SIH26168"
-    r"\data raw  IO-VNBD"
-    r"\Synchronised V abd S datasets"
-    r"\Synchronised V abd S datasets"
-)
+from training.preprocessing.config import load_dataset_config  # noqa: E402
+
+DATASET_ROOT = load_dataset_config().raw_root
 
 EXPECTED_CSV_COUNT = 288
 EXPECTED_JPG_COUNT = 72
@@ -84,7 +84,7 @@ def safe(severity: str, name: str):
         def inner(*a, **kw):
             try:
                 return fn(*a, **kw)
-            except Exception as exc:  # noqa: BLE001 - report, do not hide
+            except Exception as exc:
                 record(severity, name, False, f"raised {type(exc).__name__}: {exc}")
                 return None
 
@@ -193,9 +193,9 @@ def check_network(enabled: bool) -> None:
 
     for url in NETWORK_ENDPOINTS:
         try:
-            with urllib.request.urlopen(url, timeout=15) as resp:  # noqa: S310
+            with urllib.request.urlopen(url, timeout=15) as resp:
                 record(INFO, f"network: {url}", None, f"HTTP {resp.status}")
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             record(INFO, f"network: {url}", None, f"unreachable ({type(exc).__name__})")
 
 
@@ -243,7 +243,7 @@ def check_dataset() -> None:
             CRITICAL,
             "IO-VNBD dataset root exists",
             False,
-            f"not found: {DATASET_ROOT}  (edit DATASET_ROOT in this script)",
+            f"not found: {DATASET_ROOT}  (set raw_root in configs/dataset.yaml)",
         )
         return
     record(CRITICAL, "IO-VNBD dataset root exists", True, str(DATASET_ROOT))
@@ -338,7 +338,7 @@ def check_dataset() -> None:
     t_idx = cols.get("TIME SINCE START (MS)")
     if t_idx is not None:
         ts = [int(r[t_idx]) for r in rows]
-        deltas = [b - a for a, b in zip(ts, ts[1:])]
+        deltas = [b - a for a, b in itertools.pairwise(ts)]
         record(
             CRITICAL,
             f"sample interval == {EXPECTED_DT_MS} ms (10 Hz)",

@@ -27,14 +27,16 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
 from training.preprocessing import iovnbd as io  # noqa: E402
+from training.preprocessing.config import load_dataset_config  # noqa: E402
 
-RAW = REPO_ROOT / "data" / "raw" / "IO-VNBD"
-PROC = REPO_ROOT / "data" / "processed" / "iovnbd" / "v1"
-REPORT = REPO_ROOT / "reports" / "phase2" / "dataset_report.json"
-SCHEMA_REPORT = REPO_ROOT / "reports" / "phase2" / "schema_validation.json"
-HTML = REPO_ROOT / "reports" / "phase2" / "dataset_report.html"
-SPLIT = REPO_ROOT / "data" / "splits" / "iovnbd_split_v1.json"
-OUT = REPO_ROOT / "reports" / "phase2_validation.txt"
+CFG = load_dataset_config()
+RAW = CFG.raw_root
+PROC = CFG.processed_root
+REPORT = CFG.reports_dir / "phase2" / "dataset_report.json"
+SCHEMA_REPORT = CFG.reports_dir / "phase2" / "schema_validation.json"
+HTML = CFG.reports_dir / "phase2" / "dataset_report.html"
+SPLIT = CFG.splits_dir / "iovnbd_split_v1.json"  # the Phase 2 manifest (superseded by v2)
+OUT = CFG.reports_dir / "phase2_validation.txt"
 
 CRITICAL, INFO = "CRITICAL", "INFO"
 results: list[tuple[str, str, str, str]] = []
@@ -49,7 +51,7 @@ def safe(sev: str, name: str):
         def inner(*a, **kw):
             try:
                 return fn(*a, **kw)
-            except Exception as exc:  # noqa: BLE001 - report, never hide
+            except Exception as exc:
                 record(sev, name, False, f"raised {type(exc).__name__}: {exc}")
                 return None
         return inner
@@ -58,7 +60,7 @@ def safe(sev: str, name: str):
 
 @safe(CRITICAL, "raw layout")
 def check_layout():
-    legacy = [p for p in (REPO_ROOT / "data" / "raw").iterdir()
+    legacy = [p for p in RAW.parent.iterdir()
               if p.is_dir() and p.name != "IO-VNBD"]
     record(CRITICAL, "raw root normalised to data/raw/IO-VNBD", RAW.is_dir() and not legacy,
            f"exists={RAW.is_dir()}, other dirs={[p.name for p in legacy]}")
@@ -183,7 +185,7 @@ def check_split(report: dict):
            f"{len(seen)} assignments, {len(set(seen))} unique, {len(all_ids)} sessions")
     grp: dict[tuple, set] = {}
     drv: dict[str, set] = {}
-    for sid, m in sp["sessions"].items():
+    for m in sp["sessions"].values():
         grp.setdefault((m["driver"], m["route_group"]), set()).add(m["split"])
         drv.setdefault(m["driver"], set()).add(m["split"])
     split_groups = [k for k, v in grp.items() if len(v) > 1]
