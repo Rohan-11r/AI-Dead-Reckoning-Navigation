@@ -3,7 +3,7 @@
 **Project:** AI-ML based Intelligent Dead Reckoning system for seamless navigation
 **Workspace:** `C:\Users\Shreeyash\OneDrive\Desktop\dead reckening`
 **Governing document:** [`AGENTS.md`](./AGENTS.md) — the core directive overrides anything here.
-**Last updated:** 2026-09-27 (Phase 3)
+**Last updated:** 2026-09-27 (Phase 4)
 
 > **Status honesty rule.** A phase is `COMPLETED` only when its exit criteria are met by
 > code in this repo that anyone can re-run. Nothing is marked done on intent. No metric
@@ -839,27 +839,148 @@ parity contract, while checkpoints stay ignored.
 
 ---
 
-## Phase 4 — Sensor Characterisation & Calibration
+## Phase 4 — Baseline Navigation Core (sensors, alignment, INS, EKF)
 
-**Status:** `NOT STARTED`
+**Status:** `COMPLETED`
+**Date:** 2026-09-27
+**Commit:** code in `13759cf`; final evaluation files and this write-up in the follow-up commit
+**Evidence:** `reports/phase4_validation.txt` — **12/12 CRITICAL checks PASS**; 179 tests pass; `ruff check .` clean
+**Scope note:** redefined by the user as "Baseline Navigation Core". It absorbs the INS
+(original Phase 6), the classical EKF core (original Phase 8) and the calibration items of
+the original Phase 4. Original Phases 5–14 keep their titles below and are re-scoped as
+they are reached.
 
-**Objective:** Know each sensor's real error behaviour before trying to correct it.
+**Re-run with:**
 
-**Planned scope**
-- Stationary-segment detection from the real data (engine idle, traffic stops).
-- Accelerometer and gyroscope bias, scale factor, and axis-misalignment estimation.
-- Allan-variance analysis for noise density and random-walk terms — these become the EKF
-  process-noise values rather than hand-tuned guesses.
-- Magnetometer hard-iron / soft-iron ellipsoid fit; magnetic-disturbance rejection.
-- Empirically establish the Gyroscope Yaw/Pitch/Roll to body-axis mapping (§0.4 hazard 6).
-- Establish the accelerometer / gravity relationship (§0.4 hazard 7).
-- Device-to-vehicle mounting-misalignment estimation.
+```
+.venv/Scripts/python.exe scripts/analysis/gyro_axis_resolution.py
+.venv/Scripts/python.exe scripts/analysis/imu_noise.py
+.venv/Scripts/python.exe scripts/analysis/mounting_alignment.py
+.venv/Scripts/python.exe scripts/evaluate/phase4_baseline.py [--all-verified]
+.venv/Scripts/python.exe scripts/phase4_validate.py
+```
 
-**Exit criteria**
-- [ ] Per-recording calibration parameters produced, with uncertainties
-- [ ] Allan-variance plots and derived noise parameters committed
-- [ ] Gyro axis mapping and gravity convention proven from data, not assumed
-- [ ] Calibration raises rather than silently defaulting when inputs are missing
+### 4.1 What was built (`navigation-core/`)
+
+| Module | Content | Tests |
+| --- | --- | --- |
+| `sensors/samples.py` | `SensorSample`, `ImuSample`, `GnssSample` (frame-tagged, validated, raise on bad input; GNSS **epoch** vs **receipt** time), `TimestampGuard`, `ImuAxisMap` + evidence-based `IOVNBD_AXIS_MAP` | 7 |
+| `alignment/mounting.py` | R_b^v: gravity levelling (pitch/roll) + mount yaw from GNSS-derived along-track/centripetal acceleration (closed-form 2-D Procrustes), with r²/scale **observability flags** | 8 |
+| `ins/mechanization.py` | ENU strapdown: q ← exp(−ω_in dt) ⊗ q ⊗ exp(ω_ib dt); Heun velocity with **Coriolis + transport rate**; **Somigliana gravity**; curvilinear position + tangent-plane cross-check form. Reads no GNSS (gate-checked) | 17 |
+| `filtering/ekf.py` | 15-state error-state EKF: `predict`, epoch-aware `update_gnss` (position + horizontal velocity, NIS-gated), `update_zupt`, `update_levelling`; Joseph form, symmetrisation, Cholesky PD guard that **raises** | 13 |
+| `recovery/gnss_reset.py` | Gate lock-out recovery: reset to GNSS after 3 consecutive rejected fixes; attitude inflation capped | 2 |
+| `calibration/allan.py` | Overlapping Allan deviation; white-noise density and bias instability | 3 |
+
+### 4.2 Findings that change the plan
+
+**1. The horizontal gyro axes are not angular rates.** Stop-to-stop test (142 pairs; the
+accelerometer at a stop measures the exact tilt, and the gyro bias is observable there). For all 8 signed
+permutations of columns 1/3, integrating them predicts the tilt change worse than
+ignoring them: **best 5.95° vs 1.49°** median, never better in more than 13 % of pairs. Three other
+references (GRAVITY rotation, ORIENTATION derivatives, road grade) were also negative.
+→ IO-VNBD is a **reduced IMU**: vertical gyro (column 2: counter-clockwise +, gain 0.9–1.0 vs VBOX heading
+rate) + 3-axis accelerometer; pitch/roll come from gravity levelling.
+
+**2. The Phase 3 "4.1 s GNSS latency" was wrong.** The phone logs a new fix only every
+**~9 s** in 64/67 moving sessions (1 Hz only in Vta1a, Vta1b, Vta2) and repeats it on
+every row. Correlating the held column against truth measured the average *age* of a
+held fix. Measured per new fix, the **reporting delay is ~0 s** (pooled median 0.0,
+IQR −0.7…0.1 s). Sync now tags each row with its held fix's epoch plus
+`ph_gnss_fix_age_s`, and clamps negative estimates (residual clock offset) at 0 so epochs stay
+causal. With fixes at their true epochs, phone-vs-truth speed error drops from **0.82 to 0.15 m/s** (33/33
+sessions). Phase 3 gate re-run: 20/20. §3.4 is annotated as superseded.
+
+**3. Spec sign error.** `docs/navigation_math.md` §8.3 printed `+[f^n]×ψ`. Under the
+spec's own truth-minus-estimate convention the finite-difference Jacobian test rejects it
+(error ≈ 2g·Δt) and confirms `−[f^n]×ψ`. Doc corrected.
+
+**4. The phone mount is not rigid.** Phone-only mount yaw is observable (r² ≥ 0.3) in
+**8/68** sessions, and there it agrees with the VBOX-referenced fit to **1.5° median
+(p90 8.7°)**. Even the 10 Hz VBOX reference is acceptable in only 28/68. The estimate differs
+between halves of a drive by a median 12.7° (n = 2), and between consecutive sessions of
+one drive by tens of degrees. Tilt is small: median 0.7°, max 6.8°. NHC (Phase 9) will need
+per-segment re-alignment.
+
+**5. Scoring requires a verified clock.** In unverified sessions a ~1 s residual phone
+clock error puts the truth lookup ~15 m off (Vtb2: phone fixes "18.6 m" vs 2.8 m in
+verified S3a). Evaluation is restricted to `alignment_verified` sessions.
+
+### 4.3 Verification of the math
+
+| Check | Result |
+| --- | --- |
+| 1 h at rest on the rotating Earth, 3 attitudes | position < 1 mm, velocity < 1e-6 m/s, attitude < 1e-9 rad |
+| Constant 30 m/s along a parallel for 18 km (Coriolis + transport) | stays on the parallel to < 1 cm |
+| Coriolis left uncompensated | deflects **right** (south) at the predicted rate, within 2 % |
+| Earth rate omitted | heading drifts 0.199°/min as §6 predicts |
+| g₀ fed instead of local γ | INS falls at ½·Δγ·t², within 1 % |
+| Curvilinear vs tangent-plane position over 1.8 km | 1 cm horizontal, < 0.3 m vertical (curvature) |
+| EKF F vs finite differences of the real propagation | agree to 5e-4 at dt = 0.01 s (all 15 × 15) |
+| GNSS / levelling H vs finite differences | exact / quadratic remainder (ratio < 0.02 per 10× step) |
+| Monte Carlo consistency (20 runs, model-consistent truth) | **mean NEES 16.5 (expected 15), mean NIS 5.00 (expected 5)** |
+
+The Monte Carlo test first failed at NEES 43.9. The cause was the test, not the filter: a 29° initial yaw prior and a ZUPT
+σ on exactly-stationary truth both broke the error-state premises. Two genuine filter
+defects were found on real data and fixed: pinning unmeasured gyro-bias states at 1e-12
+made P numerically indefinite (S3c), and there was no recovery from GNSS gate lock-out.
+
+### 4.4 Process noise — measured, not tuned (`reports/phase4/imu_noise.json`)
+
+| | At rest (Vw1, Allan) | Moving (vibration) | Used by the EKF |
+| --- | --- | --- | --- |
+| Accelerometer white noise | 0.021–0.069 m/s²·√s | **0.33** m/s²·√s | moving |
+| Vertical gyro white noise | 0.018 rad/s·√s | **0.021** rad/s·√s | moving |
+| Accel bias instability | **0.024** m/s² (τ ≈ 134 s) | — | at rest |
+| Gyro bias instability | **1.8e-3** rad/s (τ ≈ 107 s) | — | at rest |
+
+Caveat: only **one** qualifying at-rest window exists (Vw1, 34 min).
+
+### 4.5 Real-data baseline (phone-only filter, VBOX used only to score)
+
+Phone IMU + phone GNSS at fix epochs; phone-only stillness → ZUPT + levelling; lock-out
+recovery; 8-hypothesis coarse heading alignment where the mount is unobservable; GNSS
+withheld in 30 s / 60 s outages every 4 min; every continuous segment ≥ 5 min scored.
+The held-out TEST drivers were never touched.
+
+| Set | Sessions scored | Error with GNSS (median of session medians) | End of 30 s outage | End of 60 s outage |
+| --- | --- | --- | --- | --- |
+| Validation ∩ verified (`baseline_evaluation.json`) | 3/5 | **9.8 m** | **96 m** (14 outages) | **1,425 m** (12) |
+| Train+val ∩ verified (`…_all_verified.json`) | 12/23 | **7.8 m** | **291 m** (75) | **995 m** (70) |
+| — of which 1 Hz-fix sessions (Vta1a, Vta2) | 2 | 2.8 m | 235 m | 1,087 m |
+| — of which 9 s-fix sessions | 10 | 9.1 m | 344 m | 943 m |
+
+(Train sessions are legitimate here: nothing in this classical filter is fitted to them.)
+The filter's own 2σ covers its error in a median 88 % of rows (range 56–99 %). 30 s outage
+errors split evenly between along-track (170 m) and cross-track (193 m).
+
+**Verdict, stated plainly:** with GNSS the phone filter tracks to about 3–9 m. **Without GNSS
+it is not usable as a dead-reckoning solution**: ~300 m after 30 s, ~1 km after 60 s. The
+drift is roughly quadratic, the signature of acceleration errors: gravity leaking through
+unseen pitch/roll changes (no horizontal gyro), the phone's 0.33 m/s²·√s vibration, and heading error from an
+unobservable, non-rigid mount. This is the number that the learned speed (Phase 5+) and NHC must
+beat, and the reason they exist.
+
+### 4.6 Exit criteria
+
+- [x] SensorSample abstraction with frames, validation, epoch/receipt time
+- [x] Phone-to-vehicle alignment (gravity + GNSS motion), validated against a reference
+- [x] Horizontal gyro axes resolved empirically (negatively: not usable)
+- [x] INS with gravity, Coriolis, transport rate; analytic physics tests
+- [x] EKF with position/velocity/attitude/accel bias/gyro bias; predict + GNSS update;
+      F and H checked by finite differences; Monte Carlo consistency
+- [x] Real-data baseline measured on verified, non-test drives
+- [x] ruff clean; 179 tests pass; gate 12/12
+
+### 4.7 Carried forward
+
+| Item | Affects |
+| --- | --- |
+| Reduced IMU → unobservable pitch/roll during outages; the dominant drift source | Phase 5+ (learned speed), NHC |
+| Non-rigid mount: per-segment re-alignment needed before NHC | NHC phase |
+| 9 s phone fix interval in 64/67 sessions: sparse aiding | fusion |
+| Only 12/23 verified non-test sessions have a scoreable (≥ 5 min) segment | evaluation |
+| Accelerometer scale factor / misalignment, magnetometer calibration, Allan plots | calibration (deferred) |
+| One at-rest window for bias instability | noise model |
 
 ---
 
@@ -1119,3 +1240,4 @@ defensible uncertainty.
 | 2026-09-27 | Phase 1 COMPLETED: monorepo structure created from a re-runnable manifest (82 dirs, 51 packages); git repo initialised with `.gitignore`/`.gitattributes`; Python 3.14.4 chosen on wheel evidence; venv built and 22 pinned dependencies installed at exact versions; `navigation-core` mapped to the `navcore` import namespace; `docs/architecture.md`, `navigation_math.md`, `ml_pipeline.md`, `map_matching.md` written; `scripts/phase1_validate.py` run with 17/17 CRITICAL checks PASS. Roadmap renumbered (see revision note); two AI phases merged to keep the range at 0-14. |
 | 2026-09-27 | Phase 2 COMPLETED: raw layout normalised to `data/raw/IO-VNBD/`; two schemas found (S phone 24-col, V vehicle/CAN 29-col); 288 files → 72 unique sessions (V pairs byte-identical, S pairs content-identical, max diff 7.1e-15); 2,118 Excel-damaged satellite cells recovered; GRAVITY channel shown normalised to g0 in 72/72 sessions; gyro vertical axis = column 2 (gain 0.997); S/V row pairing shown misaligned by the phone clock error (up to 314 s), UTC-time join adopted (25 verified, 0 contradicted); driver-held-out split v1; `navigation_math.md` §5.2 arithmetic corrected (9.812377 → 9.812381); `scripts/phase2_validate.py` 26/26 CRITICAL PASS. |
 | 2026-09-27 | Phase 3 COMPLETED (renamed "Preprocessing Pipeline & Coordinate Systems"): Phase 2 committed (`e22997b`); ruff installed at the pinned 0.16.9, repo lint-clean; `configs/dataset.yaml` replaces hardcoded paths; single constants source; wheel speed calibrated vs VBOX (rear axle, k = 1.00019, km/h by inference, FWD); `navcore.geometry` quaternion/rotation/geodesy/frames with 78 tests (pyproj oracle, mutation check 5/5); UTC-time sync of 72 sessions with measured GNSS latency (median 4.1 s) as epoch tags; CAN-as-ground-truth enforced in code; drive-level split v2 (0 leaks; v1 had 49); train-only normalisation. **Corrections to earlier phases:** phone GPS speed is m/s not km/h (Phases 0-2 divided by 3.6); total recorded time 29.56 h not 25.08 h; xcorr lag bias fixed (Phase 2 conclusions unchanged). `scripts/phase3_validate.py` 20/20 CRITICAL PASS. |
+| 2026-09-27 | Phase 4 COMPLETED (redefined "Baseline Navigation Core"): sensors, alignment, INS, 15-state EKF, recovery, Allan; horizontal gyro columns shown unusable (reduced IMU); Phase 3 GNSS "4.1 s latency" corrected to a 9 s sample-and-hold artefact (new-fix delay ~0 s); spec sec 8.3 sign corrected; EKF consistent in Monte Carlo (NEES 16.5/15, NIS 5.00/5); real-data baseline on verified non-test drives: 7.8 m with GNSS, 291 m after 30 s and 995 m after 60 s without; `scripts/phase4_validate.py` 12/12 CRITICAL PASS. |

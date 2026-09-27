@@ -1,0 +1,26 @@
+====================================================================================================
+SIH26168 -- PHASE 4 BASELINE NAVIGATION CORE VALIDATION
+generated: 2026-09-27T20:00:00
+script:    scripts/phase4_validate.py
+====================================================================================================
+
+  CRITICAL  PASS      ruff check . is clean                                                          All checks passed!
+  CRITICAL  PASS      full test suite passes (incl. INS physics, EKF FD Jacobians, MC NEES/NIS)      179 passed in 37.81s
+  CRITICAL  PASS      EKF: F and H match finite differences; spec +[f]x psi rejected; NEES/NIS consistent 5 passed, 8 deselected in 12.43s
+  CRITICAL  PASS      INS module reads no GNSS (spec sec 7)                                          []
+  CRITICAL  PASS      navigation-core never references CAN/VBOX ground-truth channels                []
+  CRITICAL  PASS      baseline filter inputs pass the CAN-rule guard (phone channels only)           ['acc_x_mps2', 'acc_y_mps2', 'acc_z_mps2', 'gyro_x_radps', 'gyro_y_radps', 'gyro_z_radps', 'ph_gnss_lat_deg', 'ph_gnss_l
+  CRITICAL  PASS      gyro axis map in code matches the stop-to-stop evidence                        142 stop pairs; null 1.49 deg vs best permutation 5.95 deg; map gyro_valid=(False, False, True)
+  CRITICAL  PASS      EKF process noise measured (Allan / moving vibration), finite and positive     accel N 0.329 m/s^2*sqrt(s); gyro N 0.0210 rad/s*sqrt(s); accel B 0.0242; gyro B 1.76e-03
+  CRITICAL  PASS      phone-only mount yaw agrees with the VBOX-referenced yaw where both are observable 8 sessions; |diff| median 1.47 deg, p90 8.70 deg
+  INFO      OBSERVED  mount observability                                                            phone-only acceptable 8/68; reference acceptable 28/68; tilt median 0.71 deg
+  CRITICAL  PASS      Phase 3 corrected: GNSS 'latency' re-measured per NEW fix (sample-and-hold aware) pooled new-fix delay 0.0 s; sources {'pooled_median': 39, 'measured': 18, 'measured_clamped_at_0': 15}; 1 Hz sessions 3
+  CRITICAL  PASS      baseline_evaluation.json: no held-out TEST session used; >= 1 session scored   3/5 sessions scored; test overlap []
+  INFO      OBSERVED  baseline_evaluation.json pooled                                                {"outage_30s_session_p50_median_m": 95.7, "outage_30s_n_outages": 14, "outage_60s_session_p50_median_m": 1425.0, "outage_60s_n_outages": 12, "aided_p50_session_median_m": 9.8}
+  CRITICAL  PASS      baseline_evaluation_all_verified.json: no held-out TEST session used; >= 1 session scored 12/23 sessions scored; test overlap []
+  INFO      OBSERVED  baseline_evaluation_all_verified.json pooled                                   {"outage_30s_session_p50_median_m": 290.7, "outage_30s_n_outages": 75, "outage_60s_session_p50_median_m": 995.1, "outage_60s_n_outages": 70, "aided_p50_session_median_m": 7.8}
+
+----------------------------------------------------------------------------------------------------
+CRITICAL checks: 12/12 passed
+RESULT: PASS
+----------------------------------------------------------------------------------------------------
