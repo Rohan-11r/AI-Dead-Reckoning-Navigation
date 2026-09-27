@@ -88,7 +88,7 @@ def test_no_model_target_or_output_is_a_coordinate():
     # static check over the config and the training code (docs/ml_pipeline.md sec 5)
     raw = yaml.safe_load((REPO / "configs" / "training.yaml").read_text(encoding="utf-8"))
     assert_model_targets([m["target"] for m in raw["models"].values()])
-    src = (REPO / "scripts" / "train" / "train_all.py").read_text(encoding="utf-8")
+    src = (REPO / "training" / "trainers" / "run.py").read_text(encoding="utf-8")  # OUTPUTS
     names = re.findall(r'"name": "([a-z_]+)"', src)
     assert names and assert_model_targets(names)
     for p in (REPO / "training").rglob("*.py"):

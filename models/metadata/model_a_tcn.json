@@ -8,6 +8,8 @@
   "dropout": 0.1
  },
  "target": "gt_speed_mps",
+ "window_samples": 50,
+ "window_s": 5.0,
  "output": {
   "name": "forward_speed",
   "unit": "m/s",
@@ -32,6 +34,14 @@
   "f_horizontal",
   "w_vertical"
  ],
+ "input_shape": [
+  13,
+  50
+ ],
+ "feature_scaling": {
+  "accel_scale_mps2": 9.80665,
+  "gyro_scale_radps": 0.5
+ },
  "input_rule": "phone channels only (CAN rule)",
  "n_params": 51410,
  "seed": 26168,
@@ -65,19 +75,19 @@
   "stride": 50,
   "augment": false
  },
- "data_load_s": 0.7,
+ "data_load_s": 1.4,
  "baseline_constant_train_mean": {
   "value": 13.34980293265872,
   "val_mae": 7.022593577675591
  },
  "name": "model_a_tcn",
- "commit": "2536dd5",
+ "commit": "e88e4d7",
  "split_manifest_sha256": "d59e8601e41f106c5ac7ac520542638f96a3bf4685beb757be124d82ca7464a4",
- "device_final": "cpu",
+ "device_final": "cuda",
  "batch_size_final": 256,
  "fallbacks": [],
  "epochs_run": 1,
- "best_val_mae": 7.571176528930664,
- "runtime_s": 3.3,
+ "best_val_mae": 7.583925724029541,
+ "runtime_s": 6.0,
  "checkpoint": "models\\checkpoints\\model_a_tcn\\best.pt"
 }

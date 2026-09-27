@@ -53,6 +53,10 @@ models/normalization/*
 *.pkl
 # Model CARDS are documentation -- keep them tracked.
 !models/metadata/**
+# The SELECTED exported models ship to Android and are pinned by SHA-256 in their cards:
+# tracked (small, ~100 kB each). Checkpoints and other exports stay out.
+!models/exported/*.onnx
+!models/exported/*.model_card.json
 
 # ---- GENERATED OUTPUTS ----------------------------------------------------------------
 evaluation/reports/*

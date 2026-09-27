@@ -7,6 +7,8 @@
   "dropout": 0.1
  },
  "target": "gt_long_accel_from_speed_mps2",
+ "window_samples": 50,
+ "window_s": 5.0,
  "output": {
   "name": "longitudinal_acceleration",
   "unit": "m/s^2",
@@ -31,6 +33,14 @@
   "f_horizontal",
   "w_vertical"
  ],
+ "input_shape": [
+  13,
+  50
+ ],
+ "feature_scaling": {
+  "accel_scale_mps2": 9.80665,
+  "gyro_scale_radps": 0.5
+ },
  "input_rule": "phone channels only (CAN rule)",
  "n_params": 16130,
  "seed": 26168,
@@ -65,19 +75,19 @@
   "stride": 50,
   "augment": false
  },
- "data_load_s": 0.2,
+ "data_load_s": 0.6,
  "baseline_constant_train_mean": {
   "value": -0.0013451286803129227,
   "val_mae": 0.47904522837553526
  },
  "name": "model_b_gru",
- "commit": "2536dd5",
+ "commit": "e88e4d7",
  "split_manifest_sha256": "d59e8601e41f106c5ac7ac520542638f96a3bf4685beb757be124d82ca7464a4",
- "device_final": "cpu",
+ "device_final": "cuda",
  "batch_size_final": 256,
  "fallbacks": [],
  "epochs_run": 1,
- "best_val_mae": 0.4838782548904419,
- "runtime_s": 2.0,
+ "best_val_mae": 0.48291176557540894,
+ "runtime_s": 4.2,
  "checkpoint": "models\\checkpoints\\model_b_gru\\best.pt"
 }

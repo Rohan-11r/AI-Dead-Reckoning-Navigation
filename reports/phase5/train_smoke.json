@@ -1,12 +1,12 @@
 {
- "generated": "2026-09-27T20:07:03",
+ "generated": "2026-09-27T20:27:57",
  "mode": "smoke",
  "epochs_cap": 1,
  "config": "C:\\Users\\Shreeyash\\OneDrive\\Desktop\\dead reckening\\configs\\training.yaml",
  "python": "3.14.4",
- "torch": "2.14.0+cpu",
- "cuda_available": false,
- "cuda_device": null,
+ "torch": "2.14.0+cu126",
+ "cuda_available": true,
+ "cuda_device": "NVIDIA GeForce RTX 2050",
  "max_batches": 20,
  "models": {
   "model_a": {
@@ -19,6 +19,8 @@
     "dropout": 0.1
    },
    "target": "gt_speed_mps",
+   "window_samples": 50,
+   "window_s": 5.0,
    "output": {
     "name": "forward_speed",
     "unit": "m/s",
@@ -43,6 +45,14 @@
     "f_horizontal",
     "w_vertical"
    ],
+   "input_shape": [
+    13,
+    50
+   ],
+   "feature_scaling": {
+    "accel_scale_mps2": 9.80665,
+    "gyro_scale_radps": 0.5
+   },
    "input_rule": "phone channels only (CAN rule)",
    "n_params": 51410,
    "seed": 26168,
@@ -76,31 +86,31 @@
     "stride": 50,
     "augment": false
    },
-   "data_load_s": 0.7,
+   "data_load_s": 1.4,
    "baseline_constant_train_mean": {
     "value": 13.34980293265872,
     "val_mae": 7.022593577675591
    },
    "name": "model_a_tcn",
-   "commit": "2536dd5",
+   "commit": "e88e4d7",
    "split_manifest_sha256": "d59e8601e41f106c5ac7ac520542638f96a3bf4685beb757be124d82ca7464a4",
-   "device_final": "cpu",
+   "device_final": "cuda",
    "batch_size_final": 256,
    "fallbacks": [],
    "epochs_run": 1,
-   "best_val_mae": 7.571176528930664,
-   "runtime_s": 3.3,
+   "best_val_mae": 7.583925724029541,
+   "runtime_s": 6.0,
    "history": [
     {
      "epoch": 0,
-     "train_loss": 26.900628662109376,
-     "train_huber": 10.823616766929627,
-     "train_nll": 32.15402364730835,
+     "train_loss": 26.92315855026245,
+     "train_huber": 10.833168864250183,
+     "train_nll": 32.17997943162918,
      "train_batches": 20,
      "val": {
-      "mae": 7.571176528930664,
-      "rmse": 8.927825927734375,
-      "nll": 3.0987861156463623,
+      "mae": 7.583925724029541,
+      "rmse": 8.94185733795166,
+      "nll": 3.0990965366363525,
       "coverage_1sigma": 1.0,
       "coverage_2sigma": 1.0,
       "mean_sigma": 20.085538864135742,
@@ -120,6 +130,8 @@
     "dropout": 0.1
    },
    "target": "gt_long_accel_from_speed_mps2",
+   "window_samples": 50,
+   "window_s": 5.0,
    "output": {
     "name": "longitudinal_acceleration",
     "unit": "m/s^2",
@@ -144,6 +156,14 @@
     "f_horizontal",
     "w_vertical"
    ],
+   "input_shape": [
+    13,
+    50
+   ],
+   "feature_scaling": {
+    "accel_scale_mps2": 9.80665,
+    "gyro_scale_radps": 0.5
+   },
    "input_rule": "phone channels only (CAN rule)",
    "n_params": 16130,
    "seed": 26168,
@@ -178,34 +198,34 @@
     "stride": 50,
     "augment": false
    },
-   "data_load_s": 0.2,
+   "data_load_s": 0.6,
    "baseline_constant_train_mean": {
     "value": -0.0013451286803129227,
     "val_mae": 0.47904522837553526
    },
    "name": "model_b_gru",
-   "commit": "2536dd5",
+   "commit": "e88e4d7",
    "split_manifest_sha256": "d59e8601e41f106c5ac7ac520542638f96a3bf4685beb757be124d82ca7464a4",
-   "device_final": "cpu",
+   "device_final": "cuda",
    "batch_size_final": 256,
    "fallbacks": [],
    "epochs_run": 1,
-   "best_val_mae": 0.4838782548904419,
-   "runtime_s": 2.0,
+   "best_val_mae": 0.48291176557540894,
+   "runtime_s": 4.2,
    "history": [
     {
      "epoch": 0,
-     "train_loss": 0.2939127519726753,
-     "train_huber": 0.21281834691762924,
-     "train_nll": 0.16218880803789942,
+     "train_loss": 0.29953259229660034,
+     "train_huber": 0.21206103563308715,
+     "train_nll": 0.17494310904294252,
      "train_batches": 20,
      "val": {
-      "mae": 0.4838782548904419,
-      "rmse": 0.7269346714019775,
-      "nll": 0.19009557366371155,
-      "coverage_1sigma": 0.7505534887313843,
-      "coverage_2sigma": 0.9306272864341736,
-      "mean_sigma": 0.6707930564880371,
+      "mae": 0.48291176557540894,
+      "rmse": 0.7259365916252136,
+      "nll": 0.18812783062458038,
+      "coverage_1sigma": 0.7468634843826294,
+      "coverage_2sigma": 0.9247232675552368,
+      "mean_sigma": 0.6564140319824219,
       "n": 1355
      }
     }

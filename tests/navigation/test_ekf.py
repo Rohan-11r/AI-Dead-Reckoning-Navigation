@@ -290,3 +290,21 @@ def test_filter_is_consistent_monte_carlo_nees_and_nis():
     nis_sum, n_upd = sum(r[1] for r in runs), sum(r[2] for r in runs)
     lo, hi = chi2.ppf([0.005, 0.995], 5 * n_upd) / n_upd  # 5-dim GNSS pos + horiz vel
     assert lo <= nis_sum / n_upd <= hi, f"mean NIS {nis_sum / n_upd:.3f} outside [{lo:.3f}, {hi:.3f}]"
+
+
+def test_reduced_imu_stays_level_on_the_rotating_earth():
+    # Regression (Phase 7): with only the vertical gyro measured (IO-VNBD), the unmeasured
+    # horizontal rates must default to the rate that keeps the body LEVEL (R^T w_in), not to
+    # zero. Zero means "not rotating relative to inertial space": the local-level frame then
+    # turns under the body at Omega cos(phi) ~ 4.4e-5 rad/s, tilting the INS and leaking
+    # gravity (~350 m in 100 s). SYNTHETIC: a level vehicle at rest for 1 h.
+    from navcore.geometry.quaternion import q_angle
+    q = q_from_euler(0.8, 0.0, 0.0)
+    f_b = q_rotate(q_conj(q), -gravity_enu(LAT, H))
+    w_true = q_rotate(q_conj(q), earth_rate_enu(LAT))
+    ekf = ErrorStateEKF(NavState(0.0, LAT, LON, H, np.zeros(3), q), np.eye(N_STATES) * 1e-4, NOISE)
+    for k in range(3600):
+        ekf.predict(ImuSample(t_s=k * 1.0, accel_mps2=f_b, gyro_radps=[0.0, 0.0, w_true[2]],
+                              gyro_valid=(False, False, True)), 1.0)
+    assert q_angle(ekf.nominal.q_nb, q) < 1e-6  # was ~0.16 rad of tilt before the fix
+    assert np.linalg.norm(ekf.nominal.v_enu_mps) < 1e-3

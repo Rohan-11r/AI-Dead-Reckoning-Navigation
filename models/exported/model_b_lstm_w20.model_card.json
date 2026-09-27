@@ -1,0 +1,122 @@
+{
+ "name": "model_b_lstm_w20",
+ "exported": "2026-09-27T21:22:48",
+ "export_commit": "e88e4d7",
+ "training_commit": "e88e4d7",
+ "format": {
+  "onnx_opset": 17,
+  "exporter": "torch.onnx (TorchScript, dynamo=False)",
+  "torch": "2.14.0+cu126",
+  "onnx": "1.23.0",
+  "dtype": "float32"
+ },
+ "files": {
+  "onnx": "models/exported/model_b_lstm_w20.onnx",
+  "onnx_sha256": "ace1e3a5f9a529b6c50db231f61413cc7d34b8ba38b6b88f9fd040c2c1a9f834",
+  "checkpoint": "models/checkpoints/model_b_lstm_w20/best.pt",
+  "checkpoint_sha256": "715e47cdcb7439586b2676d04f30414249eda23b5e42c55188f82136c7c7125f"
+ },
+ "architecture": {
+  "arch": "lstm",
+  "hparams": {
+   "hidden": 48,
+   "layers": 1,
+   "dropout": 0.1
+  },
+  "n_params": 20834
+ },
+ "input": {
+  "name": "window",
+  "shape": [
+   "batch",
+   13,
+   20
+  ],
+  "layout": "channels x time, oldest sample first",
+  "sample_rate_hz": 10,
+  "window_s": 2.0,
+  "features": [
+   "acc_x",
+   "acc_y",
+   "acc_z",
+   "grav_x",
+   "grav_y",
+   "grav_z",
+   "gyro_x",
+   "gyro_y",
+   "gyro_z",
+   "f_norm",
+   "f_vertical",
+   "f_horizontal",
+   "w_vertical"
+  ],
+  "scaling": {
+   "accel_scale_mps2": 9.80665,
+   "gyro_scale_radps": 0.5
+  },
+  "definition": {
+   "acc_x..z": "device-frame specific force [m/s^2] / accel_scale_mps2",
+   "grav_x..z": "Android GRAVITY vector [m/s^2] / accel_scale_mps2",
+   "gyro_x..z": "[0, 0, w_z] / gyro_scale_radps; w_z = logged gyro column 2 (vertical); columns 1/3 are not angular rates (reports/phase4/gyro_axis_resolution.json)",
+   "f_norm": "|f| / accel_scale_mps2 - 1",
+   "f_vertical": "(f . g_hat) / accel_scale_mps2 - 1,  g_hat = grav / |grav|",
+   "f_horizontal": "|f x g_hat| / accel_scale_mps2",
+   "w_vertical": "(w . g_hat) / gyro_scale_radps"
+  },
+  "rule": "phone channels only -- no CAN/OBD/VBOX input (SIH26168)"
+ },
+ "outputs": {
+  "mean": {
+   "quantity": "longitudinal_acceleration",
+   "unit": "m/s^2",
+   "physical_range": [
+    -10.0,
+    10.0
+   ],
+   "note": "unconstrained"
+  },
+  "logvar": {
+   "quantity": "log variance of longitudinal_acceleration",
+   "unit": "log((m/s^2)^2)",
+   "note": "clamp to [-8, 6] before use, as in training"
+  }
+ },
+ "target": "gt_long_accel_from_speed_mps2",
+ "training_data": {
+  "train_data": {
+   "sessions": 18,
+   "windows": 31193,
+   "excluded": {
+    "target_low_vbox_sats": 22,
+    "target_not_finite": 7,
+    "spans_gap_or_segment": 6,
+    "ground_truth_unmatched": 358
+   },
+   "target": "gt_long_accel_from_speed_mps2",
+   "target_mean": -0.0011287856883353618,
+   "target_std": 0.7045685518046341,
+   "window_samples": 20,
+   "stride": 10,
+   "augment": true
+  },
+  "val_data": {
+   "sessions": 5,
+   "windows": 3405,
+   "excluded": {
+    "ground_truth_unmatched": 9,
+    "target_not_finite": 2,
+    "spans_gap_or_segment": 1,
+    "target_low_vbox_sats": 44
+   },
+   "target": "gt_long_accel_from_speed_mps2",
+   "target_mean": -0.0003886668961234685,
+   "target_std": 0.7187114765152264,
+   "window_samples": 20,
+   "stride": 20,
+   "augment": false
+  }
+ },
+ "split_manifest_sha256": "d59e8601e41f106c5ac7ac520542638f96a3bf4685beb757be124d82ca7464a4",
+ "seed": 26168,
+ "best_val_mae": 0.4403015375137329
+}

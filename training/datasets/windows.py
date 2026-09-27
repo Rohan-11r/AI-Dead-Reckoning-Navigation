@@ -34,12 +34,12 @@ import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
+from navcore.fusion.features import FEATURE_NAMES
+from navcore.fusion.features import make_features as _make_features
 from training.preprocessing.columns import assert_model_inputs, assert_model_targets
 from training.preprocessing.config import load_dataset_config
 
 DERIVED_TARGETS = {"gt_long_accel_from_speed_mps2"}
-FEATURE_NAMES = ["acc_x", "acc_y", "acc_z", "grav_x", "grav_y", "grav_z", "gyro_x", "gyro_y",
-                 "gyro_z", "f_norm", "f_vertical", "f_horizontal", "w_vertical"]
 ACCEL_DIFF_HALF_SAMPLES = 5  # central difference over +-0.5 s for the acceleration target
 
 
@@ -64,18 +64,9 @@ def random_rotation(rng: np.random.Generator, mode: str, max_tilt_deg: float) ->
 
 
 def make_features(acc: np.ndarray, grav: np.ndarray, gyro_vec: np.ndarray, fcfg: dict) -> np.ndarray:
-    """(W, 3) x3 -> (C, W) float32 feature tensor."""
-    g_s, w_s = fcfg["accel_scale_mps2"], fcfg["gyro_scale_radps"]
-    parts = [acc / g_s, grav / g_s, gyro_vec / w_s]
-    if fcfg["invariant"]:
-        gn = np.linalg.norm(grav, axis=1, keepdims=True)
-        g_hat = grav / np.where(gn > 0, gn, 1.0)
-        f_norm = np.linalg.norm(acc, axis=1, keepdims=True)
-        f_vert = np.sum(acc * g_hat, axis=1, keepdims=True)
-        f_horiz = np.linalg.norm(np.cross(acc, g_hat), axis=1, keepdims=True)
-        w_vert = np.sum(gyro_vec * g_hat, axis=1, keepdims=True)
-        parts += [f_norm / g_s - 1.0, f_vert / g_s - 1.0, f_horiz / g_s, w_vert / w_s]
-    return np.concatenate(parts, axis=1).T.astype(np.float32)
+    """Training-side adapter over the ONE feature implementation in navcore.fusion.features."""
+    return _make_features(acc, grav, gyro_vec, fcfg["accel_scale_mps2"], fcfg["gyro_scale_radps"],
+                          fcfg["invariant"])
 
 
 class IovnbdWindows(Dataset):

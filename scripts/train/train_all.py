@@ -24,7 +24,6 @@ import argparse
 import json
 import platform
 import sys
-import time
 from datetime import datetime
 from pathlib import Path
 
@@ -34,16 +33,8 @@ sys.path.insert(0, str(REPO_ROOT))
 import torch  # noqa: E402
 
 from training.configs.loader import load_training_config  # noqa: E402
-from training.datasets.windows import FEATURE_NAMES, IovnbdWindows  # noqa: E402
-from training.models.registry import build, n_params  # noqa: E402
-from training.preprocessing.columns import assert_model_targets  # noqa: E402
-from training.trainers.trainer import fit, model_card, seed_everything  # noqa: E402
-
-OUTPUTS = {
-    "model_a": {"name": "forward_speed", "unit": "m/s", "range": [0.0, 60.0], "positive": True},
-    "model_b": {"name": "longitudinal_acceleration", "unit": "m/s^2", "range": [-10.0, 10.0],
-                "positive": False},
-}
+from training.trainers.run import train_one  # noqa: E402
+from training.trainers.trainer import model_card, seed_everything  # noqa: E402
 
 
 def main() -> int:
@@ -71,36 +62,13 @@ def main() -> int:
               "max_batches": max_batches, "models": {}}
 
     for key in [f"model_{m.strip()}" for m in args.models.split(",")]:
-        mc = dict(cfg["models"][key])
-        out = OUTPUTS[key]
-        assert_model_targets([mc["target"], out["name"]])  # never a coordinate
-        verified = cfg["data"]["verified_only"][key]
-        t0 = time.time()
-        train_ds = IovnbdWindows("train", mc["target"], cfg, augment=True, verified_only=verified,
-                                 seed=cfg["seed"])
-        val_ds = IovnbdWindows("val", mc["target"], cfg, augment=False, verified_only=verified)
-        load_s = round(time.time() - t0, 1)
-        kw = {k: v for k, v in mc.items() if k not in ("arch", "target")}
-        model = build(mc["arch"], in_channels=train_ds.n_channels, positive=out["positive"], **kw)
-        meta = {"model": key, "arch": mc["arch"], "hparams": kw, "target": mc["target"],
-                "output": out, "inputs": FEATURE_NAMES, "input_rule": "phone channels only (CAN rule)",
-                "n_params": n_params(model), "seed": cfg["seed"],
-                "train_data": train_ds.summary(), "val_data": val_ds.summary(), "data_load_s": load_s}
-        print(f"[{key}] {mc['arch']} {meta['n_params']:,} params | train {len(train_ds):,} windows "
-              f"({len(train_ds.sessions)} sessions) | val {len(val_ds):,} ({len(val_ds.sessions)}) | load {load_s}s")
-        # trivial reference: always predict the TRAIN target mean -- a model must beat this
-        import numpy as np
-        y_val = np.array([val_ds.arrays[si]["y"][e] for si, e in val_ds.index])
-        meta["baseline_constant_train_mean"] = {
-            "value": train_ds.summary()["target_mean"],
-            "val_mae": float(np.mean(np.abs(y_val - train_ds.summary()["target_mean"]))) if y_val.size else None}
-        res = fit(model, train_ds, val_ds, cfg["train"], f"{key}_{mc['arch']}", meta,
-                  epochs=epochs, max_batches=max_batches)
+        res = train_one(cfg, key, epochs=epochs, max_batches=max_batches)
+        res.pop("_model")
         last = res["history"][-1] if res["history"] else {}
         print(f"[{key}] device {res['device_final']} batch {res['batch_size_final']} epochs {res['epochs_run']} "
               f"train_loss {last.get('train_loss')} val {json.dumps(last.get('val'))} fallbacks {res['fallbacks']}")
-        print(f"[{key}] reference (constant train mean) val MAE {meta['baseline_constant_train_mean']['val_mae']}")
-        card = model_card(f"{key}_{mc['arch']}", {k: v for k, v in res.items() if k != "history"},
+        print(f"[{key}] reference (constant train mean) val MAE {res['baseline_constant_train_mean']['val_mae']}")
+        card = model_card(res["name"], {k: v for k, v in res.items() if k != "history"},
                           REPO_ROOT / "models" / "metadata")
         report["models"][key] = {**res, "model_card": str(card.relative_to(REPO_ROOT))}
 

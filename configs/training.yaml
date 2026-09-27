@@ -70,3 +70,19 @@ train:
   early_stopping_patience: 4
   num_workers: 0           # Windows: in-process loading
   device: auto             # auto | cuda | cpu
+
+sweep:                       # Phase 6 -- deliberately small, not exhaustive
+  archs: [tcn, cnn1d, gru, lstm]
+  windows: [20, 50]          # 2 s and 5 s (docs/ml_pipeline.md sec 4: 1-5 s)
+  epochs: 12
+  batches_per_epoch: 150     # a fresh random subset of the train windows each epoch
+  arch_hparams:
+    tcn:   {hidden: 48, levels: 4, kernel: 3, dropout: 0.1}
+    cnn1d: {hidden: 48, layers: 3, kernel: 5, dropout: 0.1}
+    gru:   {hidden: 48, layers: 1, dropout: 0.1}
+    lstm:  {hidden: 48, layers: 1, dropout: 0.1}
+  selection:
+    metric: val_mae          # on the VAL split only; TEST is evaluated once, after selection
+    tie_tolerance: 0.03      # candidates within 3 % of the best MAE compete on CPU latency
+    latency_tolerance: 0.10  # latencies within 10 % of the fastest are a tie (measured run-to-run
+                             # noise on this laptop); ties break on params, then val MAE

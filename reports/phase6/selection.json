@@ -1,0 +1,36 @@
+{
+ "model_a": {
+  "selected": "model_a_cnn1d_w50",
+  "best_val_mae": 3.3096938133239746,
+  "tie_tolerance": 0.03,
+  "latency_tolerance": 0.1,
+  "within_tolerance": [
+   "model_a_cnn1d_w50"
+  ],
+  "latency_tied": [
+   "model_a_cnn1d_w50"
+  ],
+  "reason": "lowest val MAE 3.3097; 1 candidate(s) within 3%; 1 within 10% of the fastest CPU latency (0.315 ms/window); chose model_a_cnn1d_w50 (0.315 ms, 26,690 params, val MAE 3.3097)"
+ },
+ "model_b": {
+  "selected": "model_b_lstm_w20",
+  "best_val_mae": 0.4336920380592346,
+  "tie_tolerance": 0.03,
+  "latency_tolerance": 0.1,
+  "within_tolerance": [
+   "model_b_tcn_w20",
+   "model_b_cnn1d_w20",
+   "model_b_gru_w20",
+   "model_b_lstm_w20",
+   "model_b_tcn_w50",
+   "model_b_cnn1d_w50",
+   "model_b_gru_w50",
+   "model_b_lstm_w50"
+  ],
+  "latency_tied": [
+   "model_b_cnn1d_w20",
+   "model_b_lstm_w20"
+  ],
+  "reason": "lowest val MAE 0.4337; 8 candidate(s) within 3%; 2 within 10% of the fastest CPU latency (0.266 ms/window); chose model_b_lstm_w20 (0.266 ms, 20,834 params, val MAE 0.4403)"
+ }
+}

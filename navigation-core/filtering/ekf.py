@@ -173,7 +173,15 @@ class ErrorStateEKF:
         at the START of the interval), bias-corrected on the measured axes only."""
         valid = np.asarray(imu.gyro_valid, dtype=bool)
         f_b = imu.accel_mps2 - self.b_a
-        w_b = np.where(valid, imu.gyro_radps - self.b_g, 0.0)
+        # Unmeasured axes (reduced IMU): assume the body does not rotate RELATIVE TO THE
+        # LOCAL-LEVEL FRAME about them, i.e. use R^T w_in (Earth rate + transport rate), not
+        # zero. Zero would mean "no rotation relative to inertial space" and tilt the INS at
+        # Omega cos(phi) ~ 4.4e-5 rad/s (Phase 7 finding; ~350 m in 100 s of leaked gravity).
+        # The vehicle's real, unmodelled pitch/roll rate stays in Q (unmeasured_rate PSD).
+        s = self.nominal
+        w_in_b = q_to_dcm(s.q_nb).T @ (earth_rate_enu(s.lat_rad)
+                                       + transport_rate_enu(s.lat_rad, s.h_m, s.v_enu_mps))
+        w_b = np.where(valid, imu.gyro_radps - self.b_g, w_in_b)
         F = self.jacobian_F(f_b, imu.gyro_valid)
         Fd = F * dt_s
         Phi = np.eye(N_STATES) + Fd + 0.5 * Fd @ Fd
@@ -196,6 +204,18 @@ class ErrorStateEKF:
         self._check_P("predict")
 
     # ---- generic correction ---------------------------------------------------------
+    def update(self, kind: str, t_s: float, nu: np.ndarray, H: np.ndarray, Rm: np.ndarray,
+               gate: bool = True) -> bool:
+        """Public generic measurement update (used by navcore.nhc and navcore.fusion):
+        innovation ``nu`` = z - h(x_hat) = H dx under the truth-minus-estimate convention.
+        NIS-gated, Joseph form, PD-checked, logged -- exactly like the built-in updates."""
+        nu = np.atleast_1d(np.asarray(nu, dtype=np.float64))
+        H = np.atleast_2d(np.asarray(H, dtype=np.float64))
+        Rm = np.atleast_2d(np.asarray(Rm, dtype=np.float64))
+        if H.shape != (nu.size, N_STATES) or Rm.shape != (nu.size, nu.size):
+            raise ValueError(f"update {kind!r}: inconsistent shapes nu {nu.shape}, H {H.shape}, R {Rm.shape}")
+        return self._update(kind, t_s, nu, H, Rm, gate)
+
     def _update(self, kind: str, t_s: float, nu: np.ndarray, H: np.ndarray, Rm: np.ndarray,
                 gate: bool = True) -> bool:
         S = H @ self.P @ H.T + Rm

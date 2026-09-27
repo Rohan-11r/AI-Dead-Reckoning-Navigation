@@ -92,8 +92,15 @@ def evaluate(model, ds, device, batch_size: int, logvar_clamp, max_batches: int 
 
 def fit(model: torch.nn.Module, train_ds, val_ds, tcfg: dict, name: str, meta: dict,
         epochs: int | None = None, max_batches: int | None = None,
-        on_batch: Callable[[int], None] | None = None) -> dict:
-    """Train ``model``; returns a result dict (history, best metrics, fallbacks, paths)."""
+        on_batch: Callable[[int], None] | None = None, val_max_batches: int | None = -1) -> dict:
+    """Train ``model``; returns a result dict (history, best metrics, fallbacks, paths).
+
+    ``max_batches`` caps TRAIN batches per epoch (each epoch sees a fresh random subset).
+    ``val_max_batches`` caps validation; the default (-1) means "same as max_batches"
+    (smoke tests); pass None to always validate on the FULL split (model selection).
+    """
+    if val_max_batches == -1:
+        val_max_batches = max_batches
     device = select_device(tcfg["device"])
     batch = int(tcfg["batch_size"])
     epochs = int(epochs or tcfg["epochs"])
@@ -135,7 +142,7 @@ def fit(model: torch.nn.Module, train_ds, val_ds, tcfg: dict, name: str, meta: d
                 model.to(device)
                 opt = torch.optim.AdamW(model.parameters(), lr=tcfg["lr"], weight_decay=tcfg["weight_decay"])
             continue  # retry the same epoch
-        val = evaluate(model, val_ds, device, batch, clamp, max_batches)
+        val = evaluate(model, val_ds, device, max(batch, 256), clamp, val_max_batches)
         history.append({"epoch": epoch, "train_loss": float(np.mean(losses)) if losses else None,
                         "train_huber": float(np.mean([p["huber"] for p in parts])) if parts else None,
                         "train_nll": float(np.mean([p["nll"] for p in parts])) if parts else None,
@@ -150,6 +157,8 @@ def fit(model: torch.nn.Module, train_ds, val_ds, tcfg: dict, name: str, meta: d
                 break
         epoch += 1
 
+    if best_state is not None:  # hand the caller the SELECTED (best-validation) weights
+        model.load_state_dict(best_state)
     ckpt_dir = REPO_ROOT / "models" / "checkpoints" / name
     ckpt_dir.mkdir(parents=True, exist_ok=True)
     manifest = load_dataset_config().split_manifest

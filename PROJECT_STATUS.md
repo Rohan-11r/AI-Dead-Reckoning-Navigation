@@ -3,7 +3,7 @@
 **Project:** AI-ML based Intelligent Dead Reckoning system for seamless navigation
 **Workspace:** `C:\Users\Shreeyash\OneDrive\Desktop\dead reckening`
 **Governing document:** [`AGENTS.md`](./AGENTS.md) — the core directive overrides anything here.
-**Last updated:** 2026-09-27 (Phase 5)
+**Last updated:** 2026-09-27 (Phase 7)
 
 > **Status honesty rule.** A phase is `COMPLETED` only when its exit criteria are met by
 > code in this repo that anyone can re-run. Nothing is marked done on intent. No metric
@@ -32,8 +32,8 @@
 | 3 | Preprocessing Pipeline & Coordinate Systems | **COMPLETED** |
 | 4 | Baseline Navigation Core (sensors, alignment, INS, EKF) | **COMPLETED** |
 | 5 | ML Training Pipeline (pipeline + smoke test; full training not yet run) | **COMPLETED** |
-| 6 | Strapdown INS Mechanization | `NOT STARTED` |
-| 7 | AI Signal Processing (denoising/bias + context/speed) | `NOT STARTED` |
+| 6 | ML Evaluation & Export (sweep, selection, evaluation, ONNX + parity gate) | **COMPLETED** |
+| 7 | Sensor Fusion & NHC (AI-assisted EKF, NHC, GNSS state machine) | `IN PROGRESS` |
 | 8 | Fusion Engine (Error-State EKF) | `NOT STARTED` |
 | 9 | Non-Holonomic Constraints (NHC) | `NOT STARTED` |
 | 10 | Map Matching | `NOT STARTED` |
@@ -1065,23 +1065,162 @@ random rotation; TEST split refused; windows never cross gaps or segments and in
 
 ---
 
-## Phase 6 — Strapdown INS Mechanization
+## Phase 6 — ML Evaluation & Export
 
-**Status:** `NOT STARTED`
+**Status:** `COMPLETED`
+**Date:** 2026-09-27
+**Evidence:** `reports/phase6/sweep.json`, `selection.json`, `evaluation.json`, `onnx_validation.json`;
+`models/exported/*.onnx` + `*.model_card.json`; `ruff check .` clean; 222 tests pass
+**Scope note:** redefined by the user as "ML Evaluation & Export", replacing the original
+"Strapdown INS Mechanization", which Phase 4 already delivered (`navcore.ins`).
 
-**Objective:** The physics core. Attitude → velocity → position by integration, nothing else.
+**Run:**
 
-**Planned scope**
-- Strapdown equations in the local tangent frame with real non-uniform `dt`.
-- Gravity model; Coriolis and transport-rate terms evaluated for relevance at vehicle speeds.
-- Comparison of integration schemes (trapezoidal, RK, coning/sculling compensation).
-- Pure-INS drift characterisation over 10 s / 30 s / 60 s / 300 s GNSS outages — the
-  honest baseline every later phase must beat.
+```
+.venv/Scripts/python.exe scripts/train/sweep.py               # 16 trainings, GPU, ~37 min
+.venv/Scripts/python.exe scripts/train/sweep.py --reselect    # re-time latency, re-apply the rule
+.venv/Scripts/python.exe scripts/evaluate/evaluate_models.py  # VAL, then TEST once
+.venv/Scripts/python.exe scripts/export/export_models.py      # ONNX opset 17 + model cards
+.venv/Scripts/python.exe scripts/validate/validate_models.py  # PyTorch vs ONNX gate; non-zero exit = blocker
+```
 
-**Exit criteria**
-- [ ] Open-loop INS drift curves from real IO-VNBD recordings
-- [ ] Integration verified against analytically-known synthetic motion (clearly labelled fixtures)
-- [ ] No GNSS field read anywhere in the INS code path
+### 6.1 GPU
+
+`torch 2.14.0+cu126`; `torch.cuda.is_available()` → **True**, NVIDIA GeForce RTX 2050 (4 GB).
+All 16 sweep runs trained on CUDA; the OOM fallback (halve batch → CPU) never triggered.
+
+### 6.2 Sweep: 4 architectures × 2 windows × 2 models
+
+12 epochs × 150 batches each, hidden width 48, same seed; scored on the **full** VAL split
+(non-overlapping windows). Latency = batch-1, single-thread CPU (a phone proxy),
+re-measured after training in 7 interleaved rounds (min of round medians).
+
+| Candidate | Params | Model A val MAE (m/s) | Model B val MAE (m/s²) | CPU ms (A / B) |
+| --- | --- | --- | --- | --- |
+| TCN, 2 s | 51,410 | 5.18 | 0.4366 | 1.17 / 1.16 |
+| 1D-CNN, 2 s | 26,690 | 4.12 | 0.4407 | 0.29 / 0.29 |
+| GRU, 2 s | 16,130 | 4.09 | 0.4391 | 0.60 / 0.59 |
+| LSTM, 2 s | 20,834 | 4.99 | 0.4403 | 0.27 / **0.27** |
+| TCN, 5 s | 51,410 | 4.34 | 0.4376 | 1.31 / 1.25 |
+| 1D-CNN, 5 s | 26,690 | **3.31** | 0.4424 | **0.32** / 0.32 |
+| GRU, 5 s | 16,130 | 3.49 | **0.4337** | 1.22 / 1.24 |
+| LSTM, 5 s | 20,834 | 5.11 | 0.4396 | 0.33 / 0.32 |
+| *constant train mean* | — | *7.02* | *0.478* | — |
+
+**Selection rule** (`configs/training.yaml` `sweep.selection`): lowest val MAE; candidates
+within 3 % of it compete on CPU latency; latencies within 10 % of the fastest are a tie,
+broken on parameter count, then val MAE.
+
+- **Model A → `model_a_cnn1d_w50`**: the only candidate within 3 % (next best GRU-5 s is 5 % worse).
+- **Model B → `model_b_lstm_w20`**: all 8 candidates lie within 3 % (0.434–0.442), i.e.
+  architecture does not matter for this target; LSTM-2 s and 1D-CNN-2 s tie on latency and
+  the LSTM has fewer parameters.
+
+**Two corrections made during selection, both disclosed:**
+1. The sweep's own latency numbers were taken while other programs loaded the CPU and moved
+   by up to 3.5× between measurements (e.g. A-TCN-5 s 1.13 → 3.89 ms). A single re-measure
+   flipped Model B's pick on noise. Latency is now measured interleaved over 7 rounds, where
+   each model's rounds agree within ~15 %.
+2. The 10 % latency tie rule was added **after** seeing that noise, not after seeing which
+   model it picks. Without it Model B would be the LSTM anyway (fastest at 0.266 ms).
+
+Most runs had their best epoch at 10–11 of 12: the models are **not trained to convergence**.
+Longer training is the obvious next lever (`scripts/train/train_all.py` full mode).
+
+### 6.3 Evaluation (`reports/phase6/evaluation.json`)
+
+Selection used VAL only. TEST (held-out drivers B and D) was evaluated **once**, after selection.
+
+| | Model A val | Model A **test** | Model B val | Model B **test** |
+| --- | --- | --- | --- | --- |
+| Windows | 2,956 | 3,484 | 3,405 | 8,718 |
+| MAE | 3.31 m/s | **3.91 m/s** | 0.440 m/s² | **0.455 m/s²** |
+| RMSE | 4.54 | 5.14 | 0.663 | 0.728 |
+| Bias | −0.00 | **+2.81** | −0.01 | +0.01 |
+| Abs. error p50 / p90 / p95 / p99 | 2.44 / 7.42 / 9.58 / 14.5 | 3.17 / 8.74 / 10.4 / 13.4 | 0.29 / 1.04 / 1.29 / 2.23 | 0.27 / 1.12 / 1.47 / 2.52 |
+| Constant-mean reference | 7.02 | 5.47 | 0.478 | 0.474 |
+| Coverage 1σ / 2σ / 3σ (ideal .68/.95/.997) | .68 / .93 / .98 | .57 / .90 / .98 | .72 / .95 / .99 | .68 / .88 / .94 |
+| z std (ideal 1) / ENCE | 1.16 / 0.21 | 1.14 / 0.31 | 1.12 / 0.18 | **1.52** / 0.52 |
+
+Read plainly:
+- **Model A generalises to new drivers, but with a bias.** Test MAE is 29 % below the constant
+  reference (val: 53 %). On test it over-reads speed by +2.8 m/s: +3.8 m/s at 2–10 m/s,
+  +3.0 m/s at 10–20 m/s. On val it reads high at low speed (+2.9 m/s at 2–5 m/s) and low at
+  high speed (−12.3 m/s above 30 m/s, 52 windows): the classic shrink-toward-the-mean of an
+  under-trained regressor. Its variance head stays near-calibrated (z std 1.14).
+- **Model B is weak.** It beats "predict the mean" by 8 % on val and **4 % on test**. Per
+  target bin, its bias equals its MAE in every tail (e.g. −1.97 m/s² when the truth is above
+  1.5 m/s²), i.e. it mostly predicts ≈ 0 and **under-reports every real acceleration**. On
+  test it is also over-confident (z std 1.52, 2σ coverage 0.88). Phase 7 uses it only through
+  its own variance (§7) and measures whether it helps.
+
+### 6.4 ONNX export and the parity gate (`reports/phase6/onnx_validation.json`)
+
+Opset 17, TorchScript exporter, input `window` [batch, 13, W], outputs `mean`, `logvar`,
+dynamic batch axis; `onnx.checker` passes. Each model card records the SHA-256, the ordered
+feature list, fixed scaling, output unit and range, and the training commit.
+
+| Model | ONNX | Worst \|torch − onnx\| | Gate usage (≤ 1 passes) | SHA-256 = card |
+| --- | --- | --- | --- | --- |
+| `model_a_cnn1d_w50` | 107 kB | 4.6e-05 (stress set); 8.6e-06 on real windows | 0.47 | ✓ |
+| `model_b_lstm_w20` | 85 kB | 2.9e-06 | 0.19 | ✓ |
+
+**The gate was changed from a flat 1e-5, and why (both changes agreed with the project owner):**
+- At first Model A **failed** the flat 1e-5: 1.1e-5 on random batches, 4.6e-5 on the 10×
+  stress set. Those inputs drive it to 59–283 m/s, where one float32 step is already
+  ≈ 1.5e-5. PyTorch float32 itself differs from exact float64 by 3.7e-5 there, and turning
+  off every onnxruntime graph optimisation changes nothing. It is float32 rounding, not an
+  export fault.
+- **Real and random inputs:** every element must satisfy \|torch − onnx\| ≤ 1e-5 + 1e-6·\|torch\|.
+- **10× stress set:** its hidden activations reach ~300, giving logvar up to 33, and a
+  logvar gap of 1.24e-5 at small \|logvar\| is not covered by the relative term. There ONNX
+  must be as accurate as float32 PyTorch against a float64 PyTorch reference, per output:
+  max\|onnx − fp64\| ≤ 2·max\|torch32 − fp64\| + 1e-5. Model A: logvar 1.25e-5 vs torch32 8.3e-6.
+- Both models pass with margin; the raw worst absolute gap is still reported.
+
+### 6.5 Tests added
+
+`tests/ml/test_onnx_export.py` (8): every architecture exports and matches onnxruntime,
+with and without the positive head. `tests/navigation/test_nhc_state_fusion.py` includes the
+runtime tamper check: a byte appended to the `.onnx` file is refused by its card's SHA-256.
+
+### 6.6 Phase 4 baseline, re-run after an EKF fix found in Phase 7
+
+Phase 7 found that the EKF fed **zero** for the unmeasured horizontal gyro axes, while a level
+vehicle actually sees the Earth-rate and transport-rate components there. At rest, that tilts
+the attitude at Ω cos φ (0.26 rad after 1 h). Fixed in `ErrorStateEKF.predict`: unmeasured
+axes now take R_nbᵀ(ω_ie + ω_en). Regression test:
+`test_reduced_imu_stays_level_on_the_rotating_earth`. Phase 4 re-run
+(`reports/phase4/baseline_evaluation*.json`):
+
+| Set | With GNSS | End of 30 s outage | End of 60 s outage |
+| --- | --- | --- | --- |
+| Train+val ∩ verified (was) | 7.8 m | 291 m | 995 m |
+| Train+val ∩ verified (**now**) | 7.8 m | **290 m** | **1,009 m** |
+| Validation ∩ verified (was) | 9.8 m | 96 m | 1,425 m |
+| Validation ∩ verified (**now**) | 9.9 m | **100 m** | **1,226 m** |
+
+The real-data effect is small. Over 30–60 s the Earth-rate tilt error is too small to matter;
+my earlier estimate of a ~50 m improvement was wrong. The fix matters for long runs and for
+the synthetic tests (INS-only dropout drift 369 → 293 m).
+
+### 6.7 Exit criteria
+
+- [x] CUDA torch installed; `cuda.is_available()` True
+- [x] Sweep over TCN / 1D-CNN / GRU / LSTM × 2 s / 5 s; selection by a stated rule on VAL
+- [x] MAE, RMSE, error percentiles, error by target range, 1/2/3σ coverage, ENCE, reliability table
+- [x] TEST evaluated once, after selection
+- [x] ONNX export with model cards; PyTorch-vs-ONNX gate passes; SHA-256 verified at load
+- [x] Parameter count, CPU latency and size recorded per model
+
+### 6.8 Carried forward
+
+| Item | Note |
+| --- | --- |
+| Models under-trained (best epoch 10–11 of 12) | full-length training run |
+| Model A +2.8 m/s bias on test drivers; shrinks toward the mean at high speed | more epochs; per-driver analysis |
+| Model B ≈ constant; over-confident on test | reconsider the target (timing-sensitive d/dt on 18 sessions) |
+| On-device (Android) ONNX parity | Phase 12, needs the Android toolchain |
 
 ---
 
