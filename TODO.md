@@ -14,7 +14,7 @@ Phase 0   Environment                         [COMPLETED]
 Phase 1   Architecture & repo                  [COMPLETED]
 Phase 2   Data                                [COMPLETED]
 Phase 3   Preprocessing & frames          [COMPLETED]
-Phase 4   Calibration                              |
+Phase 4   Baseline nav core                [COMPLETED]
               |
 Phase 5   AHRS          ------------------\
 Phase 6   INS           ------------------ +-- physics core
@@ -164,22 +164,27 @@ Not done (deliberately):
 
 ---
 
-## Phase 4 — Sensor Characterisation & Calibration
+## Phase 4 — Baseline Navigation Core (sensors, alignment, INS, EKF)
 
-**Goal: know each sensor's real error behaviour before correcting it.**
+**Status: COMPLETED 2026-09-27** — `reports/phase4_validation.txt`. Redefined by the user:
+absorbs the INS (orig. Phase 6) and classical EKF (orig. Phase 8 core) plus the
+calibration items below.
 
-- [ ] Stationary-segment extraction from real recordings
-- [ ] Accelerometer bias, scale factor, axis misalignment
-- [ ] Gyroscope bias and bias stability
-- [ ] **Allan variance** analysis → noise density and random-walk parameters
-- [ ] Feed those parameters into the Phase 8 process noise (no hand-tuning)
-- [ ] Magnetometer hard-iron / soft-iron ellipsoid fit
-- [ ] Magnetic-disturbance detection and rejection
-- [ ] **Empirically determine the Gyroscope Yaw/Pitch/Roll → body-axis mapping**
-- [ ] **Empirically confirm whether ACCELEROMETER includes gravity**
-- [ ] Device-to-vehicle mounting misalignment estimation
-- [ ] Calibration raises on missing inputs — no zero-filled fallbacks
-- [ ] Allan-variance plots and a calibration report committed
+- [x] `SensorSample` / `ImuSample` / `GnssSample` with frames, validation, epoch vs receipt time
+- [x] Gyro axis question settled empirically: columns 1/3 are NOT angular rates -> reduced IMU
+- [x] Accelerometer gravity inclusion confirmed (Phase 2)
+- [x] Allan variance (stationary Vw1) + moving vibration level -> EKF process noise
+- [x] Phone-to-vehicle alignment (gravity levelling + GNSS-motion yaw), with observability flags
+- [x] Strapdown INS (Earth rate, transport rate, Coriolis, Somigliana gravity), 17 analytic tests
+- [x] 15-state error-state EKF: predict, GNSS (epoch-aware), ZUPT, levelling; Joseph; PD guards
+- [x] F and H validated by finite differences; Monte Carlo NEES/NIS consistency
+- [x] GNSS lock-out recovery (navcore/recovery)
+- [x] Real-data baseline on verified validation drives (+ all verified non-test drives)
+- [x] Phase 3 GNSS-timing error found and corrected (9 s sample-and-hold, not 4.1 s latency)
+- [ ] Accelerometer scale factor / axis misalignment calibration -> carried
+- [ ] Magnetometer hard/soft-iron fit and disturbance rejection -> carried
+- [ ] Allan-variance PLOTS (numbers exist; figures not produced) -> carried
+- [ ] Per-segment re-alignment for a non-rigid phone mount -> Phase 9 (NHC depends on it)
 
 ---
 

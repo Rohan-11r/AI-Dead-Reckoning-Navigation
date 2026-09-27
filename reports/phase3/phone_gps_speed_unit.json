@@ -1,13 +1,13 @@
 {
- "generated": "2026-09-27T18:20:24",
+ "generated": "2026-09-27T19:07:46",
  "script": "training/preprocessing/pipeline.py",
  "question": "unit of the phone 'GPS SPEED (Kmh)' column",
- "method": "median(logged phone speed / VBOX Doppler speed [m/s]) at the fix epoch, VBOX speed > 5 m/s, sessions with a measured GNSS latency",
- "n_sessions": 40,
- "ratio_median": 0.9974768470097473,
+ "method": "median(logged phone speed / VBOX Doppler speed [m/s]) at each NEW fix's epoch, VBOX speed > 5 m/s, sessions with a measured fix delay",
+ "n_sessions": 33,
+ "ratio_median": 0.9985903580490556,
  "ratio_iqr": [
-  0.9929157184443829,
-  0.9996403937537733
+  0.9976491188216644,
+  0.9997866687353334
  ],
  "expected_if_mps": 1.0,
  "expected_if_kmh": 3.6,

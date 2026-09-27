@@ -29,7 +29,7 @@ ORIENTATION_COLUMNS = ["orient_azimuth_deg", "orient_pitch_deg", "orient_roll_de
 PHONE_GNSS_COLUMNS = [
     "ph_gnss_lat_deg", "ph_gnss_lon_deg", "ph_gnss_alt_m", "ph_gnss_speed_mps",
     "ph_gnss_accuracy_m", "ph_gnss_bearing_deg", "ph_gnss_sats_used", "ph_gnss_sats_visible",
-    "ph_gnss_new_fix", "ph_gnss_epoch_utc",
+    "ph_gnss_new_fix", "ph_gnss_epoch_utc", "ph_gnss_fix_age_s",
 ]
 INPUT_COLUMNS = IMU_COLUMNS + ORIENTATION_COLUMNS + PHONE_GNSS_COLUMNS
 

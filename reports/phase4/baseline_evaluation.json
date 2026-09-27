@@ -1,0 +1,306 @@
+{
+ "generated": "2026-09-27T19:45:05",
+ "script": "scripts/evaluate/phase4_baseline.py",
+ "session_set": "val verified",
+ "sessions_used": [
+  "S3a",
+  "S3b",
+  "S3c",
+  "Vtb10",
+  "Vtb12"
+ ],
+ "noise": {
+  "accel_white_mps2_rtHz": 0.3289591482826011,
+  "gyro_white_radps_rtHz": 0.02100939474697901,
+  "accel_bias_sigma_mps2": 0.024231099481525062,
+  "accel_bias_tau_s": 134.20000000000002,
+  "gyro_bias_sigma_radps": 0.0017574324468107349,
+  "gyro_bias_tau_s": 107.2,
+  "unmeasured_rate_radps_rtHz": 0.02
+ },
+ "outages_s": [
+  30.0,
+  60.0
+ ],
+ "outage_every_s": 240.0,
+ "pooled": {
+  "outage_30s_session_p50_median_m": 95.73095126285433,
+  "outage_30s_n_outages": 14,
+  "outage_60s_session_p50_median_m": 1425.0463283373665,
+  "outage_60s_n_outages": 12,
+  "aided_p50_session_median_m": 9.838507854969176
+ },
+ "sessions": [
+  {
+   "session_id": "S3a",
+   "segments": [
+    {
+     "phone_fix_interval_s": 9.0,
+     "mount": {
+      "yaw_deg": -24.98244377489033,
+      "acceptable": false,
+      "r2": 0.17995292481089953
+     },
+     "aided_horizontal_err_m": {
+      "p50": 7.24490674254609,
+      "p95": 306.3402589310801,
+      "n": 18833
+     },
+     "aided_err_within_2sigma_fraction": 0.8954494769818935,
+     "outage_end_horizontal_err_m": {
+      "30": {
+       "p50": 95.73095126285433,
+       "p90": 268.3117094017932,
+       "n": 5
+      },
+      "60": {
+       "p50": 964.9339228627913,
+       "p90": 4937.798667732801,
+       "n": 5
+      }
+     },
+     "gnss_updates": {
+      "accepted": 174,
+      "rejected": 30,
+      "mean_nis_accepted": 2.6556683527081297
+     },
+     "zupt_updates": 97,
+     "final_yaw_deg": -6.970275081106014,
+     "n_outages": 10,
+     "gnss_lockout_resets": 7,
+     "outage_end_along_cross_abs_median_m": {
+      "30": [
+       56.47655981270132,
+       50.236628065115866
+      ],
+      "60": [
+       524.9705767561803,
+       854.4345544439605
+      ]
+     },
+     "fixes_with_invalid_velocity": 0,
+     "coarse_alignment_yaw_offset_deg": 315.0,
+     "n_gnss_updates_attempted": 204,
+     "session_id": "S3a",
+     "runtime_s": 23.8,
+     "segment_id": 0
+    }
+   ],
+   "n_segments_scored": 1,
+   "aided_horizontal_err_m": {
+    "p50": 7.24490674254609,
+    "p95": 306.3402589310801,
+    "n": 18833
+   },
+   "aided_err_within_2sigma_fraction": 0.8954494769818935,
+   "outage_end_horizontal_err_m": {
+    "30": {
+     "p50": 95.73095126285433,
+     "p90": 268.3117094017932,
+     "n": 5
+    },
+    "60": {
+     "p50": 964.9339228627913,
+     "p90": 4937.798667732801,
+     "n": 5
+    }
+   },
+   "outage_end_along_cross_abs_median_m": {
+    "30": [
+     56.47655981270132,
+     50.236628065115866
+    ],
+    "60": [
+     524.9705767561803,
+     854.4345544439605
+    ]
+   },
+   "gnss_lockout_resets": 7,
+   "runtime_s": 23.8
+  },
+  {
+   "session_id": "S3b",
+   "segments": [
+    {
+     "segment_id": 0,
+     "skipped": "shorter than 300 s"
+    },
+    {
+     "phone_fix_interval_s": 9.0,
+     "mount": {
+      "yaw_deg": 121.83756368129782,
+      "acceptable": false,
+      "r2": 0.02135358514899044
+     },
+     "aided_horizontal_err_m": {
+      "p50": 9.838507854969176,
+      "p95": 275.6058126276989,
+      "n": 2400
+     },
+     "aided_err_within_2sigma_fraction": 0.8404166666666667,
+     "outage_end_horizontal_err_m": {
+      "30": {
+       "p50": 64.93601132956191,
+       "p90": 64.93601132956191,
+       "n": 1
+      },
+      "60": null
+     },
+     "gnss_updates": {
+      "accepted": 34,
+      "rejected": 5,
+      "mean_nis_accepted": 6.927878743839163
+     },
+     "zupt_updates": 16,
+     "final_yaw_deg": 157.45279302847138,
+     "n_outages": 2,
+     "gnss_lockout_resets": 1,
+     "outage_end_along_cross_abs_median_m": {
+      "30": [
+       41.601227755862375,
+       49.86003827312869
+      ],
+      "60": null
+     },
+     "fixes_with_invalid_velocity": 0,
+     "coarse_alignment_yaw_offset_deg": 45.0,
+     "n_gnss_updates_attempted": 39,
+     "session_id": "S3b",
+     "runtime_s": 8.7,
+     "segment_id": 1
+    }
+   ],
+   "n_segments_scored": 1,
+   "aided_horizontal_err_m": {
+    "p50": 9.838507854969176,
+    "p95": 275.6058126276989,
+    "n": 2400
+   },
+   "aided_err_within_2sigma_fraction": 0.8404166666666667,
+   "outage_end_horizontal_err_m": {
+    "30": {
+     "p50": 64.93601132956191,
+     "p90": 64.93601132956191,
+     "n": 1
+    },
+    "60": null
+   },
+   "outage_end_along_cross_abs_median_m": {
+    "30": [
+     41.601227755862375,
+     49.86003827312869
+    ],
+    "60": null
+   },
+   "gnss_lockout_resets": 1,
+   "runtime_s": 8.7
+  },
+  {
+   "session_id": "S3c",
+   "segments": [
+    {
+     "phone_fix_interval_s": 9.0,
+     "mount": {
+      "yaw_deg": 70.94897410977846,
+      "acceptable": false,
+      "r2": 0.00011623537603278056
+     },
+     "aided_horizontal_err_m": {
+      "p50": 84.44068621721445,
+      "p95": 1213.3218824819887,
+      "n": 29380
+     },
+     "aided_err_within_2sigma_fraction": 0.9699455411844793,
+     "outage_end_horizontal_err_m": {
+      "30": {
+       "p50": 468.31194275316625,
+       "p90": 836.1186111685897,
+       "n": 8
+      },
+      "60": {
+       "p50": 1885.1587338119416,
+       "p90": 4926.249879255097,
+       "n": 7
+      }
+     },
+     "gnss_updates": {
+      "accepted": 34,
+      "rejected": 291,
+      "mean_nis_accepted": 4.051441255544676
+     },
+     "zupt_updates": 1987,
+     "final_yaw_deg": -136.1696289585076,
+     "n_outages": 15,
+     "gnss_lockout_resets": 96,
+     "outage_end_along_cross_abs_median_m": {
+      "30": [
+       154.81204870363467,
+       299.303359564284
+      ],
+      "60": [
+       1476.806702384325,
+       1008.2767289079329
+      ]
+     },
+     "fixes_with_invalid_velocity": 0,
+     "coarse_alignment_yaw_offset_deg": 315.0,
+     "n_gnss_updates_attempted": 325,
+     "session_id": "S3c",
+     "runtime_s": 36.9,
+     "segment_id": 0
+    }
+   ],
+   "n_segments_scored": 1,
+   "aided_horizontal_err_m": {
+    "p50": 84.44068621721445,
+    "p95": 1213.3218824819887,
+    "n": 29380
+   },
+   "aided_err_within_2sigma_fraction": 0.9699455411844793,
+   "outage_end_horizontal_err_m": {
+    "30": {
+     "p50": 468.31194275316625,
+     "p90": 836.1186111685897,
+     "n": 8
+    },
+    "60": {
+     "p50": 1885.1587338119416,
+     "p90": 4926.249879255097,
+     "n": 7
+    }
+   },
+   "outage_end_along_cross_abs_median_m": {
+    "30": [
+     154.81204870363467,
+     299.303359564284
+    ],
+    "60": [
+     1476.806702384325,
+     1008.2767289079329
+    ]
+   },
+   "gnss_lockout_resets": 96,
+   "runtime_s": 36.9
+  },
+  {
+   "session_id": "Vtb10",
+   "skipped": "no scoreable segment",
+   "segments": [
+    {
+     "segment_id": 0,
+     "skipped": "shorter than 300 s"
+    }
+   ]
+  },
+  {
+   "session_id": "Vtb12",
+   "skipped": "no scoreable segment",
+   "segments": [
+    {
+     "segment_id": 0,
+     "skipped": "shorter than 300 s"
+    }
+   ]
+  }
+ ]
+}

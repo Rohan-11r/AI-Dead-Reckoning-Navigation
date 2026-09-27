@@ -1,0 +1,1703 @@
+{
+ "generated": "2026-09-27T19:06:09",
+ "script": "scripts/analysis/mounting_alignment.py",
+ "summary": {
+  "sessions_evaluated": 68,
+  "phone_only_acceptable": 8,
+  "reference_acceptable": 28,
+  "both_acceptable": 8,
+  "yaw_phone_vs_reference_abs_deg": {
+   "median": 1.4709629120813048,
+   "p90": 8.696159038314127,
+   "max": 11.275025104791297
+  },
+  "yaw_first_vs_second_half_abs_deg": {
+   "n": 2,
+   "median": 12.667384477525772,
+   "p90": 20.8894189206139
+  },
+  "tilt_deg": {
+   "median": 0.7082858327310647,
+   "max": 6.790393406099114
+  },
+  "acceptance_rule": "n >= 30 fix epochs, r2 >= 0.3, scale in [0.5, 1.5]"
+ },
+ "sessions": [
+  {
+   "session_id": "M",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": -81.80150887526099,
+    "tilt_deg": 1.0898244086302988,
+    "r2": 0.0012751222731665068,
+    "scale": 0.10428817946519894,
+    "n": 882,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    -122.53807285368632,
+    -35.506682673211294
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -33.17698825680538,
+    "tilt_deg": 1.0898244086302988,
+    "r2": 0.3688263520771796,
+    "scale": 0.6336868097469072,
+    "n": 8828,
+    "acceptable": true
+   },
+   "phone_minus_reference_deg": -48.62452061845562,
+   "half_difference_deg": -87.03139018047503
+  },
+  {
+   "session_id": "S1",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": -50.07456067215875,
+    "tilt_deg": 0.4377591350590437,
+    "r2": 0.05177338136460019,
+    "scale": 0.3060632791395962,
+    "n": 354,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    -59.10953557912942,
+    -32.65681450221947
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -46.98375324051683,
+    "tilt_deg": 0.4377591350590437,
+    "r2": 0.2591200846932984,
+    "scale": 0.575297307358934,
+    "n": 3922,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": -3.090807431641906,
+   "half_difference_deg": -26.45272107690994
+  },
+  {
+   "session_id": "S2",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": 6.2739313398714405,
+    "tilt_deg": 0.19490193873608322,
+    "r2": 0.0599852450682693,
+    "scale": 0.2425222331871525,
+    "n": 666,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    -10.07973036650778,
+    21.077834062850567
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -11.764040418196767,
+    "tilt_deg": 0.19490193873608322,
+    "r2": 0.13586477024669508,
+    "scale": 0.4031586997560264,
+    "n": 6996,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": 18.03797175806821,
+   "half_difference_deg": -31.15756442935833
+  },
+  {
+   "session_id": "S3a",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": -24.98244377489033,
+    "tilt_deg": 0.1142369059985513,
+    "r2": 0.17995292481089953,
+    "scale": 0.37580525695256334,
+    "n": 211,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    -22.258448129318953,
+    -44.28960602442312
+   ],
+   "halves_acceptable": [
+    true,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -28.718975195236478,
+    "tilt_deg": 0.1142369059985513,
+    "r2": 0.23572108697850613,
+    "scale": 0.5253644873637234,
+    "n": 2105,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": 3.7365314203461537,
+   "half_difference_deg": 22.031157895104172
+  },
+  {
+   "session_id": "S3b",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": 99.44587261248377,
+    "tilt_deg": 0.46835441448277754,
+    "r2": 0.0021338677284533647,
+    "scale": 0.09416053842402623,
+    "n": 48,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    12.185987956125196,
+    127.37042504993234
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -33.79819406690312,
+    "tilt_deg": 0.46835441448277754,
+    "r2": -0.002008525525706517,
+    "scale": 0.029229374599622972,
+    "n": 495,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": 133.2440666793869,
+   "half_difference_deg": -115.18443709380713
+  },
+  {
+   "session_id": "S3c",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": 70.94897410977846,
+    "tilt_deg": 0.07839129125274556,
+    "r2": 0.00011623537603278056,
+    "scale": 0.011239007005863208,
+    "n": 323,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    47.14602930778259,
+    -139.3607712118851
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -48.135193357478364,
+    "tilt_deg": 0.07839129125274556,
+    "r2": 0.002171979594887241,
+    "scale": 0.04921782243563149,
+    "n": 3161,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": 119.08416746725686,
+   "half_difference_deg": -173.49319948033235
+  },
+  {
+   "session_id": "S4",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": -39.499334770295945,
+    "tilt_deg": 0.0626295797251102,
+    "r2": 0.04108691273211351,
+    "scale": 0.19185665417352663,
+    "n": 718,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    -60.06785897564043,
+    -26.451328138479823
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -49.732062284433674,
+    "tilt_deg": 0.0626295797251102,
+    "r2": 0.10590394403504533,
+    "scale": 0.34970074084735586,
+    "n": 7042,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": 10.232727514137736,
+   "half_difference_deg": -33.61653083716061
+  },
+  {
+   "session_id": "Vfa01",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": -62.41815021496092,
+    "tilt_deg": 1.4475990593105754,
+    "r2": 0.4086138693041761,
+    "scale": 0.7192366370133799,
+    "n": 109,
+    "acceptable": true
+   },
+   "halves_yaw_deg": [
+    -61.86160083123811,
+    -61.96532451010139
+   ],
+   "halves_acceptable": [
+    true,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -62.70237250470821,
+    "tilt_deg": 1.4475990593105754,
+    "r2": 0.6401302241761071,
+    "scale": 0.9395922296710874,
+    "n": 1040,
+    "acceptable": true
+   },
+   "phone_minus_reference_deg": 0.2842222897472766,
+   "half_difference_deg": 0.10372367886327538
+  },
+  {
+   "session_id": "Vfa02",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": -77.07018426766291,
+    "tilt_deg": 0.637684770759442,
+    "r2": 0.22768894567096132,
+    "scale": 0.5400841378433466,
+    "n": 715,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    -75.99142735798178,
+    -77.44368913071962
+   ],
+   "halves_acceptable": [
+    false,
+    true
+   ],
+   "reference": {
+    "yaw_deg": -71.58909062066223,
+    "tilt_deg": 0.637684770759442,
+    "r2": 0.2941416015700463,
+    "scale": 0.657939482843157,
+    "n": 6564,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": -5.481093647000677,
+   "half_difference_deg": 1.4522617727378417
+  },
+  {
+   "session_id": "Vta10",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": -59.58882860686157,
+    "tilt_deg": 0.6694075606407168,
+    "r2": 0.4592110287640603,
+    "scale": 0.5077112461651749,
+    "n": 15,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    -99.93034247285061,
+    -55.60785695202996
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -79.78247145514081,
+    "tilt_deg": 0.6694075606407168,
+    "r2": 0.5621230619878266,
+    "scale": 0.8353415527404227,
+    "n": 148,
+    "acceptable": true
+   },
+   "phone_minus_reference_deg": 20.19364284827924,
+   "half_difference_deg": -44.322485520820635
+  },
+  {
+   "session_id": "Vta11",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": -28.573261650445648,
+    "tilt_deg": 2.238963212861172,
+    "r2": 0.5295955834433084,
+    "scale": 0.7649758876001491,
+    "n": 49,
+    "acceptable": true
+   }
+  },
+  {
+   "session_id": "Vta12",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": 8.31063903450528,
+    "tilt_deg": 0.9246261967096321,
+    "r2": 0.7738058759616382,
+    "scale": 0.9959726247153686,
+    "n": 59,
+    "acceptable": true
+   }
+  },
+  {
+   "session_id": "Vta13",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": 4.344935723411231,
+    "tilt_deg": 0.9878197345161304,
+    "r2": 0.8712053839891266,
+    "scale": 1.0045696169362706,
+    "n": 38,
+    "acceptable": true
+   }
+  },
+  {
+   "session_id": "Vta14",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": 38.854103124791095,
+    "tilt_deg": 0.8085763973367903,
+    "r2": 0.3893540702084344,
+    "scale": 0.8134752328758759,
+    "n": 31,
+    "acceptable": true
+   },
+   "halves_yaw_deg": [
+    10.970933529598428,
+    74.39208874744618
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": 43.7270398191751,
+    "tilt_deg": 0.8085763973367903,
+    "r2": 0.4238133572443864,
+    "scale": 0.8516098380506649,
+    "n": 286,
+    "acceptable": true
+   },
+   "phone_minus_reference_deg": -4.872936694384009,
+   "half_difference_deg": -63.421155217847755
+  },
+  {
+   "session_id": "Vta15",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": 70.18535038610611,
+    "tilt_deg": 0.6441905745363647,
+    "r2": 0.1812179612497683,
+    "scale": 0.6808560189156933,
+    "n": 8,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    42.20876157210354,
+    84.61950665053226
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": 77.51278243441669,
+    "tilt_deg": 0.6441905745363647,
+    "r2": 0.5601342623059729,
+    "scale": 0.9042006169341664,
+    "n": 79,
+    "acceptable": true
+   },
+   "phone_minus_reference_deg": -7.327432048310584,
+   "half_difference_deg": -42.410745078428704
+  },
+  {
+   "session_id": "Vta16",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": 136.66299500199156,
+    "tilt_deg": 0.23919862101643463,
+    "r2": 0.09518416351868475,
+    "scale": 0.3749502889713361,
+    "n": 97,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    57.73561560625854,
+    165.38121360164683
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": 126.42742166929324,
+    "tilt_deg": 0.23919862101643463,
+    "r2": 0.19276434945216459,
+    "scale": 0.5100654444723581,
+    "n": 1004,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": 10.235573332698323,
+   "half_difference_deg": -107.6455979953883
+  },
+  {
+   "session_id": "Vta17",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": -130.45281043015038,
+    "tilt_deg": 1.2089588748921714,
+    "r2": 0.049748526207417654,
+    "scale": 0.3414940120121003,
+    "n": 27,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    179.00248213349334,
+    -126.2795725932783
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -131.72243210998906,
+    "tilt_deg": 1.2089588748921714,
+    "r2": 0.2316755429581684,
+    "scale": 0.5552582497097202,
+    "n": 374,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": 1.2696216798386786,
+   "half_difference_deg": -54.71794527322834
+  },
+  {
+   "session_id": "Vta19",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": -133.50401798982773,
+    "tilt_deg": 1.8815164019018276,
+    "r2": 0.7153321891224063,
+    "scale": 0.8698259046391433,
+    "n": 20,
+    "acceptable": false
+   }
+  },
+  {
+   "session_id": "Vta1a",
+   "phone_fix_interval_s": 1.0,
+   "phone": {
+    "yaw_deg": -24.875898274785314,
+    "tilt_deg": 2.4343067110891163,
+    "r2": 0.36771061060377197,
+    "scale": 0.8139385057755453,
+    "n": 2481,
+    "acceptable": true
+   },
+   "halves_yaw_deg": [
+    -11.857162842360896,
+    -34.80209037374683
+   ],
+   "halves_acceptable": [
+    true,
+    true
+   ],
+   "reference": {
+    "yaw_deg": -24.400327679199528,
+    "tilt_deg": 2.4343067110891163,
+    "r2": 0.37239711101360196,
+    "scale": 0.8034990794343334,
+    "n": 2483,
+    "acceptable": true
+   },
+   "phone_minus_reference_deg": -0.4755705955857934,
+   "half_difference_deg": 22.94492753138593
+  },
+  {
+   "session_id": "Vta1b",
+   "phone_fix_interval_s": 1.0,
+   "phone": {
+    "yaw_deg": 8.64414079350351,
+    "tilt_deg": 6.0888797870478175,
+    "r2": 0.6572731712252656,
+    "scale": 1.0080474646168303,
+    "n": 88,
+    "acceptable": true
+   },
+   "halves_yaw_deg": [
+    7.384327878353306,
+    9.77416930201891
+   ],
+   "halves_acceptable": [
+    true,
+    true
+   ],
+   "reference": {
+    "yaw_deg": 8.715967372181249,
+    "tilt_deg": 6.0888797870478175,
+    "r2": 0.6485317605135928,
+    "scale": 0.9226222031399344,
+    "n": 87,
+    "acceptable": true
+   },
+   "phone_minus_reference_deg": -0.07182657867772946,
+   "half_difference_deg": -2.389841423665615
+  },
+  {
+   "session_id": "Vta2",
+   "phone_fix_interval_s": 1.0,
+   "phone": {
+    "yaw_deg": -14.935589744220666,
+    "tilt_deg": 3.4713651018815646,
+    "r2": 0.34016380530266443,
+    "scale": 0.8296359463436388,
+    "n": 957,
+    "acceptable": true
+   },
+   "halves_yaw_deg": [
+    -4.140914235847628,
+    -31.357775215476476
+   ],
+   "halves_acceptable": [
+    true,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -12.797022518859901,
+    "tilt_deg": 3.4713651018815646,
+    "r2": 0.34490095357021344,
+    "scale": 0.8061696210551393,
+    "n": 961,
+    "acceptable": true
+   },
+   "phone_minus_reference_deg": -2.1385672253607595,
+   "half_difference_deg": 27.216860979628848
+  },
+  {
+   "session_id": "Vta20",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": -135.9003432196993,
+    "tilt_deg": 0.13854963174839593,
+    "r2": 0.35851602914387926,
+    "scale": 0.8630032800051166,
+    "n": 39,
+    "acceptable": true
+   }
+  },
+  {
+   "session_id": "Vta21",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": -23.315364177375457,
+    "tilt_deg": 0.7471641048214126,
+    "r2": -0.00011253602935101803,
+    "scale": 0.06032447685458582,
+    "n": 22,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    -18.51958073121627,
+    174.23152444271088
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": 57.777370251447834,
+    "tilt_deg": 0.7471641048214126,
+    "r2": 0.15924485163990587,
+    "scale": 0.45932386606738,
+    "n": 182,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": -81.09273442882329,
+   "half_difference_deg": 167.24889482607284
+  },
+  {
+   "session_id": "Vta22",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": 19.171460208809975,
+    "tilt_deg": 0.9046796749182052,
+    "r2": 0.16103463599995615,
+    "scale": 0.31104523592298716,
+    "n": 16,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    35.59779471236748,
+    -58.437484337982426
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": 32.8222630622411,
+    "tilt_deg": 0.9046796749182052,
+    "r2": 0.20006874044696044,
+    "scale": 0.5502365187697,
+    "n": 150,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": -13.650802853431117,
+   "half_difference_deg": 94.03527905034991
+  },
+  {
+   "session_id": "Vta23",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": -35.060874394310744,
+    "tilt_deg": 1.9501218984557829,
+    "r2": 0.3494309529387808,
+    "scale": 0.6755752730536994,
+    "n": 100,
+    "acceptable": true
+   }
+  },
+  {
+   "session_id": "Vta24",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": -12.508333825533345,
+    "tilt_deg": 1.3323265561905115,
+    "r2": 0.5718940242748729,
+    "scale": 0.7999337202621735,
+    "n": 51,
+    "acceptable": true
+   }
+  },
+  {
+   "session_id": "Vta25",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": -1.357955166151272,
+    "tilt_deg": 0.9553090183160587,
+    "r2": 0.3080063480207057,
+    "scale": 0.5766742371020251,
+    "n": 12,
+    "acceptable": false
+   }
+  },
+  {
+   "session_id": "Vta26",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": 107.072736739956,
+    "tilt_deg": 0.3795110511466397,
+    "r2": 0.24722227351583226,
+    "scale": 0.7364867189595856,
+    "n": 91,
+    "acceptable": false
+   }
+  },
+  {
+   "session_id": "Vta27",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": 93.38478191384216,
+    "tilt_deg": 0.999663626613408,
+    "r2": 0.3267361508931169,
+    "scale": 0.9039984356535001,
+    "n": 21,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    100.41498428547295,
+    81.20014543473934
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": 99.61828702951814,
+    "tilt_deg": 0.999663626613408,
+    "r2": 0.2806691353811388,
+    "scale": 0.7964356606963188,
+    "n": 202,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": -6.233505115675996,
+   "half_difference_deg": 19.2148388507336
+  },
+  {
+   "session_id": "Vta28",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": 104.9498950458131,
+    "tilt_deg": 0.3126217323222254,
+    "r2": 0.13996858550905955,
+    "scale": 0.4433506874084277,
+    "n": 33,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    63.87324413279598,
+    -176.13683871979563
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": 152.71064923104646,
+    "tilt_deg": 0.3126217323222254,
+    "r2": 0.13158865387794094,
+    "scale": 0.43196649326196457,
+    "n": 334,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": -47.76075418523337,
+   "half_difference_deg": -119.98991714740839
+  },
+  {
+   "session_id": "Vta29",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": 1.2676345802400393,
+    "tilt_deg": 2.140716665046737,
+    "r2": 0.10756652732957739,
+    "scale": 0.5631356571358583,
+    "n": 200,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    -68.71324041314045,
+    8.637085810798228
+   ],
+   "halves_acceptable": [
+    false,
+    true
+   ],
+   "reference": {
+    "yaw_deg": -5.188306055447053,
+    "tilt_deg": 2.140716665046737,
+    "r2": 0.12223946232811234,
+    "scale": 0.4629550628096448,
+    "n": 1967,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": 6.455940635687085,
+   "half_difference_deg": -77.35032622393868
+  },
+  {
+   "session_id": "Vta3",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": -82.30394557898005,
+    "tilt_deg": 2.9342233848030577,
+    "r2": 0.8144429941555039,
+    "scale": 0.8911713047229547,
+    "n": 15,
+    "acceptable": false
+   }
+  },
+  {
+   "session_id": "Vta30",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": -19.438164429136442,
+    "tilt_deg": 0.6599444593538757,
+    "r2": 0.04892538748561981,
+    "scale": 0.2985815151650758,
+    "n": 82,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    14.125135659324386,
+    -67.22429631453193
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -8.913219395806209,
+    "tilt_deg": 0.6599444593538757,
+    "r2": 0.0953310836249468,
+    "scale": 0.39226308856565123,
+    "n": 1009,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": -10.524945033330226,
+   "half_difference_deg": 81.34943197385633
+  },
+  {
+   "session_id": "Vta4",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": -28.319235230573565,
+    "tilt_deg": 4.6451314237098895,
+    "r2": 0.033758343455961515,
+    "scale": 0.3424665035102152,
+    "n": 19,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    50.59386052668444,
+    -36.8105642407576
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -9.431765998984295,
+    "tilt_deg": 4.6451314237098895,
+    "r2": 0.22985399620767255,
+    "scale": 0.7033758950125205,
+    "n": 167,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": -18.88746923158928,
+   "half_difference_deg": 87.40442476744204
+  },
+  {
+   "session_id": "Vta5",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": 0.8651143139407329,
+    "tilt_deg": 6.128981869651628,
+    "r2": 0.8742757020772982,
+    "scale": 1.055671873529614,
+    "n": 29,
+    "acceptable": false
+   }
+  },
+  {
+   "session_id": "Vta6",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": -7.189551990967834,
+    "tilt_deg": 6.790393406099114,
+    "r2": 0.22185515387690435,
+    "scale": 0.8904690042912753,
+    "n": 14,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    -45.43308005470738,
+    50.37073678879747
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -22.31164403656508,
+    "tilt_deg": 6.790393406099114,
+    "r2": 0.3204937889207867,
+    "scale": 0.9084882040774964,
+    "n": 134,
+    "acceptable": true
+   },
+   "phone_minus_reference_deg": 15.122092045597242,
+   "half_difference_deg": -95.80381684350485
+  },
+  {
+   "session_id": "Vta7",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": 28.31473103877946,
+    "tilt_deg": 3.5072244820648204,
+    "r2": 0.6959186688732794,
+    "scale": 1.0251441284415137,
+    "n": 8,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    14.1873409657416,
+    33.94292098600684
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": 8.541693640598815,
+    "tilt_deg": 3.5072244820648204,
+    "r2": 0.6202869948735221,
+    "scale": 0.9862521694903181,
+    "n": 81,
+    "acceptable": true
+   },
+   "phone_minus_reference_deg": 19.773037398180634,
+   "half_difference_deg": -19.755580020265256
+  },
+  {
+   "session_id": "Vta8",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": -45.802902128298875,
+    "tilt_deg": 0.6275238160066455,
+    "r2": 0.05394380662273823,
+    "scale": 0.3677536767305732,
+    "n": 26,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    154.44702432128204,
+    -44.416794180444306
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -23.394936439190936,
+    "tilt_deg": 0.6275238160066455,
+    "r2": 0.38071977488231123,
+    "scale": 0.7070827461374485,
+    "n": 268,
+    "acceptable": true
+   },
+   "phone_minus_reference_deg": -22.407965689107925,
+   "half_difference_deg": -161.1361814982737
+  },
+  {
+   "session_id": "Vta9",
+   "phone_fix_interval_s": 8.999,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": -100.02390094979876,
+    "tilt_deg": 3.1179584193165137,
+    "r2": 0.030524659245445118,
+    "scale": 0.12458711811473672,
+    "n": 14,
+    "acceptable": false
+   }
+  },
+  {
+   "session_id": "Vtb1",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": -45.59291850738261,
+    "tilt_deg": 0.5096874450628519,
+    "r2": 0.2712949243975279,
+    "scale": 0.6086507938932031,
+    "n": 249,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    -38.938872366628665,
+    -55.60127143861315
+   ],
+   "halves_acceptable": [
+    true,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -55.50287077670022,
+    "tilt_deg": 0.5096874450628519,
+    "r2": 0.029795266596234438,
+    "scale": 0.08960450656016117,
+    "n": 2463,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": 9.909952269317614,
+   "half_difference_deg": 16.66239907198448
+  },
+  {
+   "session_id": "Vtb10",
+   "phone_fix_interval_s": 5.5,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": -42.41692812816114,
+    "tilt_deg": 4.976118367371056,
+    "r2": 0.7912189505007838,
+    "scale": 1.0383247791463466,
+    "n": 16,
+    "acceptable": false
+   }
+  },
+  {
+   "session_id": "Vtb11",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": -61.82155748481681,
+    "tilt_deg": 1.8275817959274092,
+    "r2": 0.08477845387253358,
+    "scale": 0.3893627923916872,
+    "n": 33,
+    "acceptable": false
+   }
+  },
+  {
+   "session_id": "Vtb12",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": -25.344888994764105,
+    "tilt_deg": 0.40074746846081494,
+    "r2": 0.797360344235528,
+    "scale": 0.9534397705065393,
+    "n": 43,
+    "acceptable": true
+   }
+  },
+  {
+   "session_id": "Vtb2",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": -84.70218417713888,
+    "tilt_deg": 0.9550047579411798,
+    "r2": 0.17801220034432585,
+    "scale": 0.5346231171874098,
+    "n": 37,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    -95.6099423054197,
+    -34.84794831115383
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -70.51075076974941,
+    "tilt_deg": 0.9550047579411798,
+    "r2": 0.12276758489065598,
+    "scale": 0.42207957439108945,
+    "n": 399,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": -14.191433407389468,
+   "half_difference_deg": -60.761993994265865
+  },
+  {
+   "session_id": "Vtb3",
+   "phone_fix_interval_s": 13.00100000000009,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": -56.852577408627205,
+    "tilt_deg": 0.9602601550507623,
+    "r2": -0.2060578330519447,
+    "scale": 0.35887973819942376,
+    "n": 42,
+    "acceptable": false
+   }
+  },
+  {
+   "session_id": "Vtb4",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": -178.0603429608319,
+    "tilt_deg": 1.749437501162484,
+    "r2": 0.053651329229246425,
+    "scale": 0.29927137676512766,
+    "n": 36,
+    "acceptable": false
+   }
+  },
+  {
+   "session_id": "Vtb5",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": -44.12473404826401,
+    "tilt_deg": 0.22751016771987334,
+    "r2": 0.21879419692737456,
+    "scale": 0.5078552458269053,
+    "n": 651,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    -28.93622593166091,
+    -82.51013639689735
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -42.190776288907,
+    "tilt_deg": 0.22751016771987334,
+    "r2": 0.09934701203733531,
+    "scale": 0.33259604042519686,
+    "n": 6047,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": -1.933957759357014,
+   "half_difference_deg": 53.57391046523645
+  },
+  {
+   "session_id": "Vtb6",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": -45.61185660560815,
+    "tilt_deg": 1.081296203021133,
+    "r2": 0.22678331612438152,
+    "scale": 0.6747797429780419,
+    "n": 47,
+    "acceptable": false
+   }
+  },
+  {
+   "session_id": "Vtb7",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": -63.31918918062103,
+    "tilt_deg": 0.6873249090231957,
+    "r2": 0.4371975656487179,
+    "scale": 0.7609515156487976,
+    "n": 43,
+    "acceptable": true
+   }
+  },
+  {
+   "session_id": "Vtb8",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": -6.560919649581404,
+    "tilt_deg": 0.8562858170313621,
+    "r2": 0.012244631958946095,
+    "scale": 0.163077728604133,
+    "n": 64,
+    "acceptable": false
+   }
+  },
+  {
+   "session_id": "Vtb9",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": -60.69191386660638,
+    "tilt_deg": 0.20532150381878572,
+    "r2": 0.1442979389281931,
+    "scale": 0.5560842590957099,
+    "n": 42,
+    "acceptable": false
+   }
+  },
+  {
+   "session_id": "Vw10",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": 11.98461998571989,
+    "tilt_deg": 0.6272301078244512,
+    "r2": 0.6822900002134519,
+    "scale": 1.0345717386158952,
+    "n": 63,
+    "acceptable": true
+   }
+  },
+  {
+   "session_id": "Vw11",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": 28.485978615160356,
+    "tilt_deg": 0.4442926134105145,
+    "r2": 0.4224486250403977,
+    "scale": 0.6644989904075485,
+    "n": 35,
+    "acceptable": true
+   },
+   "halves_yaw_deg": [
+    5.510887548407428,
+    34.85554754825489
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": 17.21095351036905,
+    "tilt_deg": 0.4442926134105145,
+    "r2": 0.44848705096815467,
+    "scale": 0.7448583745226123,
+    "n": 376,
+    "acceptable": true
+   },
+   "phone_minus_reference_deg": 11.275025104791297,
+   "half_difference_deg": -29.344659999847465
+  },
+  {
+   "session_id": "Vw12",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": 91.933080887597,
+    "tilt_deg": 2.201309954655584,
+    "r2": 0.008941387751407182,
+    "scale": 0.09398031431182251,
+    "n": 9,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    -150.53584501507146,
+    24.25672899074714
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": 55.73621267798599,
+    "tilt_deg": 2.201309954655584,
+    "r2": 0.12634126678419277,
+    "scale": 0.5344839813869512,
+    "n": 86,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": 36.19686820961101,
+   "half_difference_deg": -174.7925740058186
+  },
+  {
+   "session_id": "Vw13",
+   "phone_fix_interval_s": 8.901,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": 37.324500555876455,
+    "tilt_deg": 1.9476844679434917,
+    "r2": 0.38828500590760673,
+    "scale": 0.9401199690231805,
+    "n": 26,
+    "acceptable": false
+   }
+  },
+  {
+   "session_id": "Vw14a",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": 74.61763621747505,
+    "tilt_deg": 1.2268805444674762,
+    "r2": 0.5296321484288735,
+    "scale": 0.7297768138973053,
+    "n": 34,
+    "acceptable": true
+   },
+   "halves_yaw_deg": [
+    106.07559471251538,
+    49.85609719338104
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": 67.02670549336543,
+    "tilt_deg": 1.2268805444674762,
+    "r2": 0.4936987879160235,
+    "scale": 0.8356353054202822,
+    "n": 307,
+    "acceptable": true
+   },
+   "phone_minus_reference_deg": 7.590930724109626,
+   "half_difference_deg": 56.219497519134336
+  },
+  {
+   "session_id": "Vw14b",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": 35.766121609995494,
+    "tilt_deg": 1.5863732113534768,
+    "r2": 0.11434201855861481,
+    "scale": 0.3777351408348383,
+    "n": 217,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    -3.0715008239310047,
+    73.8603145836562
+   ],
+   "halves_acceptable": [
+    false,
+    true
+   ],
+   "reference": {
+    "yaw_deg": 47.10245198549898,
+    "tilt_deg": 1.5863732113534768,
+    "r2": 0.210656622126133,
+    "scale": 0.5824889785572455,
+    "n": 1953,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": -11.33633037550348,
+   "half_difference_deg": -76.93181540758721
+  },
+  {
+   "session_id": "Vw14c",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": 24.44455895972098,
+    "tilt_deg": 0.5988387493343317,
+    "r2": 0.16077744944361194,
+    "scale": 0.4069084096537546,
+    "n": 104,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    43.42274455194999,
+    -0.3306637740896388
+   ],
+   "halves_acceptable": [
+    false,
+    true
+   ],
+   "reference": {
+    "yaw_deg": 20.611650206189356,
+    "tilt_deg": 0.5988387493343317,
+    "r2": 0.12701862980298917,
+    "scale": 0.3977073435780708,
+    "n": 1097,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": 3.832908753531626,
+   "half_difference_deg": 43.75340832603962
+  },
+  {
+   "session_id": "Vw16a",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": -36.12578063126875,
+    "tilt_deg": 0.09934498379818806,
+    "r2": 0.6063785422343966,
+    "scale": 0.9593226918354456,
+    "n": 55,
+    "acceptable": true
+   },
+   "halves_yaw_deg": [
+    -28.252957441356052,
+    -38.28069109445776
+   ],
+   "halves_acceptable": [
+    false,
+    true
+   ],
+   "reference": {
+    "yaw_deg": -35.322422032466896,
+    "tilt_deg": 0.09934498379818806,
+    "r2": 0.6393442897522875,
+    "scale": 0.9298164696179518,
+    "n": 506,
+    "acceptable": true
+   },
+   "phone_minus_reference_deg": -0.8033585988018501,
+   "half_difference_deg": 10.027733653101706
+  },
+  {
+   "session_id": "Vw16b",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": -47.751657030822614,
+    "tilt_deg": 0.5006273313221447,
+    "r2": 0.4148611632193038,
+    "scale": 0.9054466244409503,
+    "n": 8,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    -126.70300078460622,
+    -9.62369987105652
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -35.33023277861679,
+    "tilt_deg": 0.5006273313221447,
+    "r2": 0.7243892121029638,
+    "scale": 0.9754452689225246,
+    "n": 105,
+    "acceptable": true
+   },
+   "phone_minus_reference_deg": -12.421424252205838,
+   "half_difference_deg": -117.0793009135497
+  },
+  {
+   "session_id": "Vw17",
+   "phone_fix_interval_s": 8.901,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": -35.66667481023057,
+    "tilt_deg": 1.8994780426048639,
+    "r2": 0.7756407468274414,
+    "scale": 0.8997506728795082,
+    "n": 30,
+    "acceptable": true
+   }
+  },
+  {
+   "session_id": "Vw2",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": -74.69076094017963,
+    "tilt_deg": 0.2007243534937859,
+    "r2": 0.22613490192561436,
+    "scale": 0.5250752104425446,
+    "n": 517,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    -56.71158432947386,
+    -99.0083709377073
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -66.00073432479772,
+    "tilt_deg": 0.2007243534937859,
+    "r2": 0.3792834139760597,
+    "scale": 0.712966987268338,
+    "n": 4823,
+    "acceptable": true
+   },
+   "phone_minus_reference_deg": -8.690026615381896,
+   "half_difference_deg": 42.29678660823345
+  },
+  {
+   "session_id": "Vw3",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": -80.79765685054856,
+    "tilt_deg": 0.9269245358995126,
+    "r2": 0.06414611786246571,
+    "scale": 0.2758674476102146,
+    "n": 35,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    -10.576623973329182,
+    -166.33081177055755
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -56.31217891877499,
+    "tilt_deg": 0.9269245358995126,
+    "r2": 0.08585273826861761,
+    "scale": 0.31256048893310684,
+    "n": 332,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": -24.485477931773573,
+   "half_difference_deg": 155.75418779722838
+  },
+  {
+   "session_id": "Vw4",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": -126.17935289037587,
+    "tilt_deg": 1.3420347059870166,
+    "r2": 0.010645673587584836,
+    "scale": 0.17487829704665744,
+    "n": 1192,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    -141.7128292137434,
+    -90.71276941023105
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -90.43583583940128,
+    "tilt_deg": 1.3420347059870166,
+    "r2": 0.024865617643728077,
+    "scale": 0.1989705648965405,
+    "n": 11254,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": -35.74351705097459,
+   "half_difference_deg": -51.00005980351233
+  },
+  {
+   "session_id": "Vw5",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": 74.54535863085309,
+    "tilt_deg": 0.20287383734160808,
+    "r2": 0.3494415437409505,
+    "scale": 0.6911272657733257,
+    "n": 82,
+    "acceptable": true
+   }
+  },
+  {
+   "session_id": "Vw6",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": 124.67237399784489,
+    "tilt_deg": 0.8099487881976808,
+    "r2": 0.04674039705613431,
+    "scale": 0.225835639069493,
+    "n": 12,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    81.15690204348554,
+    -118.65679852908355
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": 165.77506369885896,
+    "tilt_deg": 0.8099487881976808,
+    "r2": 0.02136955861943368,
+    "scale": 0.1588028755553099,
+    "n": 122,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": -41.10268970101407,
+   "half_difference_deg": -160.18629942743092
+  },
+  {
+   "session_id": "Vw9",
+   "phone_fix_interval_s": 8.951,
+   "phone": {
+    "error": "need >= 3 paired acceleration samples to fit the mount yaw",
+    "acceptable": false
+   },
+   "reference": {
+    "yaw_deg": -144.7032670193678,
+    "tilt_deg": 2.66236619653271,
+    "r2": 0.546172567701308,
+    "scale": 0.9283926596407424,
+    "n": 48,
+    "acceptable": true
+   }
+  },
+  {
+   "session_id": "Y1",
+   "phone_fix_interval_s": 9.0,
+   "phone": {
+    "yaw_deg": -131.60120257263878,
+    "tilt_deg": 0.28289844852925694,
+    "r2": 0.0771465915230205,
+    "scale": 0.06574969924120744,
+    "n": 526,
+    "acceptable": false
+   },
+   "halves_yaw_deg": [
+    -146.9951597853189,
+    -118.7213561033244
+   ],
+   "halves_acceptable": [
+    false,
+    false
+   ],
+   "reference": {
+    "yaw_deg": -136.71240973242965,
+    "tilt_deg": 0.28289844852925694,
+    "r2": 0.03773978670630784,
+    "scale": 0.06129785928288757,
+    "n": 5380,
+    "acceptable": false
+   },
+   "phone_minus_reference_deg": 5.111207159790865,
+   "half_difference_deg": -28.27380368199448
+  }
+ ]
+}

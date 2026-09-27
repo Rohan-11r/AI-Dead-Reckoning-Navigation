@@ -15,9 +15,9 @@
   "grav_z_mps2": 9.806480491417926
  },
  "norm_version": 1,
- "generated": "2026-09-27T18:20:25",
+ "generated": "2026-09-27T19:07:48",
  "script": "training/preprocessing/pipeline.py",
- "commit": "e22997b",
+ "commit": "f21bcd4",
  "channels": [
   "acc_x_mps2",
   "acc_y_mps2",
@@ -134,6 +134,6 @@
  ],
  "split": "train",
  "split_manifest": "data/splits/iovnbd_split_v2.json",
- "split_manifest_sha256": "3ff0c58993bfd98d5ead6667c75a537ef3ec510bdb517a166142d9de237d93d2",
+ "split_manifest_sha256": "d59e8601e41f106c5ac7ac520542638f96a3bf4685beb757be124d82ca7464a4",
  "statistic": "mean and population std (ddof=0), float64 two-pass"
 }

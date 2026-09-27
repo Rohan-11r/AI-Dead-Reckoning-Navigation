@@ -926,7 +926,7 @@
    "duration_s": 7027.995
   }
  },
- "generated": "2026-09-27T18:20:24",
+ "generated": "2026-09-27T19:07:46",
  "script": "training/preprocessing/pipeline.py",
  "supersedes": "iovnbd_split_v1.json (Phase 2; violates the drive-adjacency rule)"
 }

@@ -1,4 +1,4 @@
-"""Reusable estimator primitives and numerical guards.
+"""Estimator core: the classical 15-state error-state EKF (ekf.py) and its numerical guards.
 
 Part of SIH26168 -- AI-ML based Intelligent Dead Reckoning.
 Governed by AGENTS.md: physical units and frames explicit; no coordinate outputs

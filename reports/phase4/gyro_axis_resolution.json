@@ -1,0 +1,76 @@
+{
+ "generated": "2026-09-27T18:35:13",
+ "script": "scripts/analysis/gyro_axis_resolution.py",
+ "known": "column 2 (gyro_y) = device z (vertical), sign +, gain 0.997 vs CAN yaw rate (Phase 2)",
+ "test": "stop-to-stop gravity prediction, bias-corrected 3-axis integration",
+ "n_stop_pairs": 142,
+ "sessions_with_pairs": 20,
+ "measured_tilt_change_deg": {
+  "median": 1.3816167340006433,
+  "p90": 3.8693286400326437
+ },
+ "hypotheses": {
+  "x=+c1,y=+c3": {
+   "median_err_deg": 6.9165804920811365,
+   "mean_err_deg": 10.478884811410213,
+   "p90_err_deg": 24.793472195934687,
+   "fraction_pairs_beating_null": 0.07746478873239436
+  },
+  "x=+c1,y=-c3": {
+   "median_err_deg": 6.727778690168824,
+   "mean_err_deg": 10.073047251107873,
+   "p90_err_deg": 19.14269092761193,
+   "fraction_pairs_beating_null": 0.11971830985915492
+  },
+  "x=-c1,y=+c3": {
+   "median_err_deg": 6.032257268135146,
+   "mean_err_deg": 9.875342568794272,
+   "p90_err_deg": 19.5865821105689,
+   "fraction_pairs_beating_null": 0.07746478873239436
+  },
+  "x=-c1,y=-c3": {
+   "median_err_deg": 7.01021033542459,
+   "mean_err_deg": 10.778954230659831,
+   "p90_err_deg": 23.25766886657903,
+   "fraction_pairs_beating_null": 0.13380281690140844
+  },
+  "x=+c3,y=+c1": {
+   "median_err_deg": 6.584817304175681,
+   "mean_err_deg": 10.124771915492051,
+   "p90_err_deg": 20.205818870934696,
+   "fraction_pairs_beating_null": 0.1056338028169014
+  },
+  "x=+c3,y=-c1": {
+   "median_err_deg": 7.149568337277982,
+   "mean_err_deg": 10.843753715039277,
+   "p90_err_deg": 22.762525367108086,
+   "fraction_pairs_beating_null": 0.06338028169014084
+  },
+  "x=-c3,y=+c1": {
+   "median_err_deg": 6.676313326348579,
+   "mean_err_deg": 10.476612062366453,
+   "p90_err_deg": 22.854800269950086,
+   "fraction_pairs_beating_null": 0.11267605633802817
+  },
+  "x=-c3,y=-c1": {
+   "median_err_deg": 5.948237707127748,
+   "mean_err_deg": 9.79047671141924,
+   "p90_err_deg": 18.940392076181606,
+   "fraction_pairs_beating_null": 0.07746478873239436
+  },
+  "null (horizontal = 0)": {
+   "median_err_deg": 1.4877786745764936,
+   "mean_err_deg": 2.065031660713036,
+   "p90_err_deg": 4.765041909339952,
+   "fraction_pairs_beating_null": 0.0
+  }
+ },
+ "best_permutation": "x=-c3,y=-c1",
+ "any_permutation_beats_null": false,
+ "conclusion": "UNRESOLVABLE AS ANGULAR RATES: every signed permutation of the logged horizontal columns predicts the stop-to-stop tilt change WORSE than ignoring them (best 5.95 deg vs null 1.49 deg median). Integrating them injects several degrees of spurious tilt within a minute. Consistent with aliased vibration at 10 Hz sampling. Decision: IO-VNBD uses the vertical gyro only; pitch and roll come from gravity/levelling (reduced-IMU mechanization).",
+ "screening_references_also_negative": [
+  "GRAVITY-vector rotation vs columns 1/3 at 1/2/5/10 s: median |r| < 0.04",
+  "Android ORIENTATION pitch/roll derivatives: median |r| < 0.09, signs inconsistent",
+  "integrated lateral-axis rate vs VBOX road grade, 8 hypotheses: best median r 0.11"
+ ]
+}

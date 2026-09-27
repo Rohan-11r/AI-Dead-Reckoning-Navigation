@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-27T18:20:12",
+ "generated": "2026-09-27T19:07:34",
  "script": "scripts/preprocess/calibrate_wheel_speed.py",
  "reference": "VBOX GNSS Doppler speed (V-file), same logger as the CAN channels",
  "gate": {

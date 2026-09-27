@@ -325,7 +325,9 @@ of them. Cheap, and it catches whole classes of frame errors.
 
 ## 8. Error-State EKF
 
-`navigation-core/fusion`. The filter estimates *errors* in the INS solution, which keeps
+`navigation-core/filtering/ekf.py` (the classical 15-state core, Phase 4);
+`navigation-core/fusion` adds the AI / NHC measurements on top (Phases 7–9). The filter
+estimates *errors* in the INS solution, which keeps
 the linearisation valid because the errors stay small — an INS that must be linearised
 about a bad state is already lost.
 
@@ -349,14 +351,23 @@ is why it is declared here and enforced in §11.
 
 ```
 δṗ^n  =  δv^n
-δv̇^n  =  [f^n]× ψ  −  R_b^n δb_a  −  (2ω_ie^n + ω_en^n) × δv^n  +  w_a
+δv̇^n  =  −[f^n]× ψ  −  R_b^n δb_a  −  (2ω_ie^n + ω_en^n) × δv^n  +  (∂g_U/∂h) δh ê_U  +  w_a
 ψ̇     =  −[ω_in^n]× ψ  −  R_b^n δb_g  +  w_g
 δḃ_a  =  −(1/τ_a) δb_a  +  w_ba
 δḃ_g  =  −(1/τ_g) δb_g  +  w_bg
 ```
 
-with `f^n = R_b^n f^b`. Biases are first-order Gauss-Markov; `τ` and the driving noise
-come from the Phase 4 **Allan variance**, not from tuning.
+with `f^n = R_b^n f^b`, all errors **truth minus estimate** (the convention §8.5's
+`H = [I 0 …]` and §8.6's correction `R ← (I + [ψ]×) R̂` already imply), and
+`∂g_U/∂h = +3.086e-6 s⁻²` (free-air gradient). Biases are first-order Gauss-Markov; `τ`
+and the driving noise come from the Phase 4 **Allan variance**, not from tuning.
+
+> **Correction (Phase 4, 2026-09-27).** The Phase 1 text printed `+[f^n]× ψ`. That sign
+> belongs to the opposite (estimate-minus-truth) convention and contradicts §8.5/§8.6.
+> The finite-difference Jacobian test (§11) rejects it
+> (`tests/navigation/test_ekf.py::test_the_documented_plus_sign_on_f_cross_psi_is_wrong_for_this_convention`,
+> discrepancy ≈ 2g·Δt) and confirms `−[f^n]× ψ`, which `navigation-core/filtering/ekf.py`
+> implements. This is exactly the failure the blockquote below warned about.
 
 > **These signs are not taken on trust.** §11 requires `F` to be validated against a
 > finite-difference Jacobian of the actual propagation function. A sign error in a
@@ -517,8 +528,14 @@ phase — not by picking the conventional answer now:
    **second** gyro column (`gyro_y`, sign +, gain 0.997, 21 of 22 strongly-correlated
    sessions), while accelerometer/gravity **Z** is vertical in all 72 sessions. The gyro
    columns are therefore not in the accelerometer's axis order, and the label "Yaw" on
-   column 1 is wrong. The two horizontal gyro axes are unresolved (the smoothed GRAVITY
-   channel is too quiet to identify them). → Phase 4.
+   column 1 is wrong. **Settled in Phase 4 — negatively:** the two horizontal columns are
+   not usable as angular rates at all. In a stop-to-stop gravity-prediction test (142
+   pairs), every one of the 8 signed permutations predicts the tilt change *worse* than
+   ignoring them (best 5.95° vs 1.49° median). IO-VNBD therefore runs a **reduced IMU**:
+   vertical gyro + 3-axis accelerometer, pitch/roll from gravity/levelling
+   (`reports/phase4/gyro_axis_resolution.json`, `navcore.sensors.samples.IOVNBD_AXIS_MAP`).
+   Consequence: unseen pitch changes (road grade) leak gravity into horizontal
+   acceleration during outages; NHC and learned speed (Phases 7–9) must bound it.
 2. **Accelerometer gravity inclusion.** *Settled in Phase 2:* gravity-inclusive
    (stationary norm 9.863 m/s² over 103,449 rows). See §5.2.
 3. **ECEF → geodetic method.** Bowring vs Ferrari, chosen on measured on-device cost

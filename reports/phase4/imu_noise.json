@@ -1,0 +1,81 @@
+{
+ "generated": "2026-09-27T18:41:23",
+ "script": "scripts/analysis/imu_noise.py",
+ "dt_s": 0.1,
+ "stationary_sessions": [
+  "Vw1",
+  "Vw15"
+ ],
+ "channels": {
+  "acc_x_mps2": {
+   "unit": "m/s^2",
+   "rest_white_noise_density": 0.05787979877713963,
+   "rest_bias_instability": 0.024231099481525062,
+   "rest_bias_instability_tau_s": 54.5,
+   "moving_white_noise_density_median": 0.3261537168242197,
+   "moving_white_noise_density_p90": 0.9101780136739211,
+   "n_rest_windows": 1,
+   "n_moving_windows": 167
+  },
+  "acc_y_mps2": {
+   "unit": "m/s^2",
+   "rest_white_noise_density": 0.06853860865546889,
+   "rest_bias_instability": 0.01624638608315674,
+   "rest_bias_instability_tau_s": 330.3,
+   "moving_white_noise_density_median": 0.3289591482826011,
+   "moving_white_noise_density_p90": 0.8270590864061229,
+   "n_rest_windows": 1,
+   "n_moving_windows": 167
+  },
+  "acc_z_mps2": {
+   "unit": "m/s^2",
+   "rest_white_noise_density": 0.020595609483814645,
+   "rest_bias_instability": 0.005432848587818634,
+   "rest_bias_instability_tau_s": 134.20000000000002,
+   "moving_white_noise_density_median": 0.217100380995319,
+   "moving_white_noise_density_p90": 0.4062025379949073,
+   "n_rest_windows": 1,
+   "n_moving_windows": 167
+  },
+  "gyro_y_radps": {
+   "unit": "rad/s (logged col 2 = vertical)",
+   "rest_white_noise_density": 0.017476495855427807,
+   "rest_bias_instability": 0.0017574324468107349,
+   "rest_bias_instability_tau_s": 107.2,
+   "moving_white_noise_density_median": 0.02100939474697901,
+   "moving_white_noise_density_p90": 0.10416629600390757,
+   "n_rest_windows": 1,
+   "n_moving_windows": 167
+  },
+  "gyro_x_radps": {
+   "unit": "rad/s (col 1, NOT an angular rate -- record only)",
+   "rest_white_noise_density": 0.007701465938203832,
+   "rest_bias_instability": 0.0011534793624948985,
+   "rest_bias_instability_tau_s": 107.2,
+   "moving_white_noise_density_median": 0.03105331427966648,
+   "moving_white_noise_density_p90": 0.05153906780388431,
+   "n_rest_windows": 1,
+   "n_moving_windows": 167
+  },
+  "gyro_z_radps": {
+   "unit": "rad/s (col 3, NOT an angular rate -- record only)",
+   "rest_white_noise_density": 0.013262867528573181,
+   "rest_bias_instability": 0.0013795867493851532,
+   "rest_bias_instability_tau_s": 107.2,
+   "moving_white_noise_density_median": 0.021923079687919168,
+   "moving_white_noise_density_p90": 0.06861292880980409,
+   "n_rest_windows": 1,
+   "n_moving_windows": 167
+  }
+ },
+ "filter_parameters": {
+  "accel_white_noise_density": 0.3289591482826011,
+  "gyro_white_noise_density": 0.02100939474697901,
+  "accel_bias_sigma": 0.024231099481525062,
+  "accel_bias_tau_s": 134.20000000000002,
+  "gyro_bias_sigma": 0.0017574324468107349,
+  "gyro_bias_tau_s": 107.2,
+  "units": "density: [unit]*sqrt(s); bias sigma: [unit]; tau: s",
+  "rule": "white noise = MOVING density (vibration the filter actually sees; max over accel axes); bias = AT-REST bias instability, Gauss-Markov with tau at the Allan floor"
+ }
+}

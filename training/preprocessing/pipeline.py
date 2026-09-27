@@ -4,7 +4,7 @@
 
 Steps (inputs: the Phase 2 Parquet in data/processed/iovnbd/v1):
   1. Wheel-speed calibration      -> reports/phase3/wheel_speed_calibration.json
-  2. Phone GNSS latency, pass 1   (per session; pooled median of reliable estimates)
+  2. Phone GNSS fix delay, pass 1 (new-fix rows only; pooled median of reliable sessions)
   3. UTC-time sync, pass 2        -> data/processed/iovnbd/v1/synced/<session>.parquet
   4. Drive-level split v2         -> data/splits/iovnbd_split_v2.json (+ leak audit)
   5. Train-only IMU normalisation -> models/normalization/imu_{mean,std}.json
@@ -52,15 +52,15 @@ def _load(cfg: DatasetConfig, sid: str) -> tuple[pd.DataFrame, pd.DataFrame]:
             pd.read_parquet(cfg.processed_root / "vehicle" / f"{sid}.parquet"))
 
 
-def _measure_worker(args) -> tuple[str, float | None, float | None]:
+def _measure_worker(args) -> tuple[str, float | None, float | None, float | None]:
     cfg, sid, align = args
     p, v = _load(cfg, sid)
     info = sync.SyncInfo(session_id=sid)
     p = sync.prepare_phone(p, info)
     verified = align.get("alignment_status") == "time_join_verified"
     c = float(align["phone_clock_correction_s"]) if verified else 0.0
-    lat, corr = sync.measure_gnss_latency(p, p["t_utc"] + pd.Timedelta(seconds=c), v)
-    return sid, lat, corr
+    delay, err, interval, _ = sync.measure_fix_delay(p, p["t_utc"] + pd.Timedelta(seconds=c), v)
+    return sid, delay, err, interval
 
 
 def _sync_worker(args) -> dict:
@@ -110,22 +110,28 @@ def verify_phone_gps_speed_unit(cfg: DatasetConfig, infos: list[dict]) -> dict:
     """
     ratios = []
     for i in infos:
-        if i["gnss_latency_source"] != "measured":
+        if not i["gnss_fix_delay_source"].startswith("measured"):
             continue
         d = pd.read_parquet(cfg.synced_root / f"{i['session_id']}.parquet",
-                            columns=["ph_gnss_speed_mps", "gt_speed_mps"])
-        L = round(i["gnss_latency_s"] * 10)
-        ph, gt = d["ph_gnss_speed_mps"].to_numpy(), d["gt_speed_mps"].to_numpy()
-        a, b = (ph[L:], gt[: gt.size - L]) if L else (ph, gt)
+                            columns=["t_utc", "ph_gnss_new_fix", "ph_gnss_epoch_utc",
+                                     "ph_gnss_speed_mps", "gt_speed_mps"])
+        t0 = d["t_utc"].iloc[0]
+        tt = (d["t_utc"] - t0).dt.total_seconds().to_numpy()
+        gt = d["gt_speed_mps"].to_numpy()
+        ok_gt = np.isfinite(gt)
+        f = d[d["ph_gnss_new_fix"]]
+        te = (f["ph_gnss_epoch_utc"] - t0).dt.total_seconds().to_numpy()
+        a = f["ph_gnss_speed_mps"].to_numpy()
+        b = np.interp(te, tt[ok_gt], gt[ok_gt])
         m = np.isfinite(a) & np.isfinite(b) & (b > 5.0)
-        if m.sum() > 300:
+        if m.sum() > 20:
             ratios.append(float(np.median(a[m] / b[m])))
     r = np.array(ratios)
     out = {
         "generated": datetime.now().isoformat(timespec="seconds"), "script": SCRIPT,
         "question": "unit of the phone 'GPS SPEED (Kmh)' column",
-        "method": "median(logged phone speed / VBOX Doppler speed [m/s]) at the fix epoch, "
-                  "VBOX speed > 5 m/s, sessions with a measured GNSS latency",
+        "method": "median(logged phone speed / VBOX Doppler speed [m/s]) at each NEW fix's "
+                  "epoch, VBOX speed > 5 m/s, sessions with a measured fix delay",
         "n_sessions": int(r.size),
         "ratio_median": float(np.median(r)),
         "ratio_iqr": [float(np.percentile(r, 25)), float(np.percentile(r, 75))],
@@ -148,15 +154,15 @@ def run(workers: int = 8) -> dict:
     wheel = calibrate(cfg, verbose=False)
     k = wheel["calibration"]["k_rear_raw_per_kmh"]
 
-    print("[2/6] phone GNSS latency (pass 1)")
+    print("[2/6] phone GNSS fix delay (pass 1)")
     with ProcessPoolExecutor(max_workers=workers) as ex:
         lat = list(ex.map(_measure_worker, [(cfg, s, p2[s]) for s in sids]))
     reliable = [x[1] for x in lat if x[1] is not None]
     pooled = float(np.median(reliable)) if reliable else None
 
-    print(f"[3/6] sync {len(sids)} sessions (pooled GNSS latency {pooled} s from "
+    print(f"[3/6] sync {len(sids)} sessions (pooled fix delay {pooled} s from "
           f"{len(reliable)} sessions)")
-    meta = {"wheel_k_raw_per_kmh": k, "pooled_gnss_latency_s": pooled,
+    meta = {"wheel_k_raw_per_kmh": k, "pooled_gnss_fix_delay_s": pooled,
             "script": SCRIPT, "commit": git_commit()}
     with ProcessPoolExecutor(max_workers=workers) as ex:
         infos = list(ex.map(_sync_worker, [(cfg, s, p2[s], k, pooled, meta) for s in sids]))
@@ -195,14 +201,18 @@ def run(workers: int = 8) -> dict:
         "runtime_s": round(time.time() - t0, 1),
         "wheel_speed": {k2: wheel[k2] for k2 in ("n_sessions", "n_clean_samples", "driven_axle",
                                                   "calibration", "unit_decision")},
-        "gnss_latency": {
-            "reliable_sessions": len(reliable), "pooled_median_s": pooled,
-            "measured_range_s": [min(reliable), max(reliable)] if reliable else None,
-            "measured_iqr_s": [float(np.percentile(reliable, 25)),
-                               float(np.percentile(reliable, 75))] if reliable else None,
-            "source_counts": sess_df["gnss_latency_source"].value_counts().to_dict(),
-            "rule": f"accepted if corr >= {sync.GNSS_LATENCY_MIN_CORR} and within "
-                    f"{list(sync.GNSS_LATENCY_RANGE_S)} s",
+        "gnss_fix_timing": {
+            "reliable_sessions": len(reliable), "pooled_median_delay_s": pooled,
+            "measured_delay_range_s": [min(reliable), max(reliable)] if reliable else None,
+            "measured_delay_iqr_s": [float(np.percentile(reliable, 25)),
+                                     float(np.percentile(reliable, 75))] if reliable else None,
+            "source_counts": sess_df["gnss_fix_delay_source"].value_counts().to_dict(),
+            "fix_interval_median_s_by_session": {
+                r.session_id: r.gnss_fix_interval_median_s for r in sess_df.itertuples()},
+            "sessions_fix_interval_le_2s": int((sess_df["gnss_fix_interval_median_s"] <= 2).sum()),
+            "rule": "delay of a NEW fix vs VBOX speed, grid "
+                    f"{list(sync.FIX_DELAY_GRID_S)} s, accepted if median |speed err| <= "
+                    f"{sync.FIX_DELAY_MAX_MEDIAN_ERR_MPS} m/s over >= {sync.FIX_DELAY_MIN_FIXES} fixes",
         },
         "phone_gps_speed_unit": gps_unit,
         "sync_totals": {
@@ -236,7 +246,7 @@ def run(workers: int = 8) -> dict:
     out = cfg.reports_dir / "phase3" / "preprocessing_report.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, indent=1, default=str) + "\n", encoding="utf-8")
-    print(json.dumps({k2: report[k2] for k2 in ("gnss_latency", "sync_totals", "split",
+    print(json.dumps({k2: report[k2] for k2 in ("gnss_fix_timing", "sync_totals", "split",
                                                   "split_n_drives")}, indent=1, default=str))
     print(f"v1 leaks under the drive rule: {len(v1_leaks)}; v2 leaks: {len(leaks)}; "
           f"runtime {report['runtime_s']} s")

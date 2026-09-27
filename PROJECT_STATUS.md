@@ -30,7 +30,7 @@
 | 1 | Architecture & Repository Creation | **COMPLETED** |
 | 2 | Dataset Ingestion, Schema Normalisation & Integrity Audit | **COMPLETED** |
 | 3 | Preprocessing Pipeline & Coordinate Systems | **COMPLETED** |
-| 4 | Sensor Characterisation & Calibration | `NOT STARTED` |
+| 4 | Baseline Navigation Core (sensors, alignment, INS, EKF) | **COMPLETED** |
 | 5 | Attitude Estimation (AHRS) | `NOT STARTED` |
 | 6 | Strapdown INS Mechanization | `NOT STARTED` |
 | 7 | AI Signal Processing (denoising/bias + context/speed) | `NOT STARTED` |
@@ -650,7 +650,7 @@ ever be in train; val is therefore all driver E.
 | 45 of 72 sessions have unverified S/V alignment | Phase 7 targets from V | Medium |
 | Horizontal gyro axes unresolved | Phases 4–6 | Medium |
 | Wheel-speed unit (km/h vs rad/s label) | Phase 4 odometry | Low — calibrated against VBOX anyway |
-| Phone GNSS ~4.1 s latency | Phase 8 | Medium |
+| ~~Phone GNSS ~4.1 s latency~~ -- WRONG, a 9 s sample-and-hold artefact (Phase 4 §4.2) | -- | resolved |
 | Stationary rows are audit-only; not exported as reusable segments | Phases 4, 8 | Low |
 | No single dataset-path config module yet (path is a constant per script + `.env.example`) | hygiene | Low |
 | WGS84/gravity constants duplicated in `iovnbd_audit.py` (test-asserted equal to the doc) until Phase 3 generates them | Phase 3 | Low |
@@ -739,6 +739,14 @@ One frame per session on the phone timeline, joined to ground truth by **UTC tim
 | Segments | 83 (break where real `dt` > 1 s) |
 | Stationary rows (`gt_stationary`) | 103,447 — the Phase 2 carry-over, now exported for Phases 4 and 8 |
 
+> **⚠ SUPERSEDED — this paragraph is WRONG; corrected in Phase 4 (§4.2).** The phone
+> logs a new GNSS fix only every ~9 s in 64 of the 67 moving sessions and repeats it on
+> every row in between (sample-and-hold). The "4.1 s latency" below was measured by
+> correlating that *held* column with truth, so it measured the average *age* of a held
+> fix, not a delay. The true reporting delay of a new fix is ~0 s. The pipeline now tags
+> every row with the epoch of the fix it holds plus `ph_gnss_fix_age_s`. The text is kept
+> as a record of the error.
+
 **Phone GNSS latency (the "4.1 s").** The fix is kept **exactly as received** — shifting it
 earlier would feed future information to a real-time filter — and every row carries
 `ph_gnss_epoch_utc = t_utc − latency`, the instant the fix actually describes (the
@@ -826,7 +834,7 @@ parity contract, while checkpoints stay ignored.
 | Horizontal gyro axes still unresolved; `BODY` mapping of raw gyro columns is a Phase 4 output | Phases 4–6 |
 | 47 sessions keep unverified S/V alignment (flagged per row) | Phase 7 labels |
 | Wheel-speed GT has a −0.19 m/s bias above 30 m/s | Phase 11 |
-| GNSS latency varies 0.1–8.3 s between sessions; 31 sessions use the pooled value | Phase 8 |
+| ~~GNSS latency varies 0.1–8.3 s~~ -- superseded: new-fix delay ~0 s; the real constraint is the 9 s fix interval (Phase 4 §4.2) | Phase 8 |
 | mypy not run (not requested; not installed) | hygiene |
 
 ---

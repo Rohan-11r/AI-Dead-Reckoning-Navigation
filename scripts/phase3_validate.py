@@ -36,6 +36,8 @@ PY = sys.executable
 OUT = CFG.reports_dir / "phase3_validation.txt"
 REPORT = CFG.reports_dir / "phase3" / "preprocessing_report.json"
 WHEEL = CFG.reports_dir / "phase3" / "wheel_speed_calibration.json"
+# the Phase 3 geometry suite (the INS/EKF suites added in Phase 4 are slow and gated there)
+GEOMETRY_TESTS = [f"tests/navigation/test_{m}.py" for m in ("constants", "quaternion", "rotation", "geodesy", "frames")]
 
 CRITICAL, INFO = "CRITICAL", "INFO"
 results: list[tuple[str, str, str, str]] = []
@@ -108,7 +110,7 @@ def check_mutations():
         import os
         for m in ("jpl_product", "passive_rotation", "enu_transposed", "no_small_angle_branch",
                   "height_ignored"):
-            r = subprocess.run([PY, "-m", "pytest", "tests/navigation", "-q", "-p", "sih_mutplug",
+            r = subprocess.run([PY, "-m", "pytest", *GEOMETRY_TESTS, "-q", "-p", "sih_mutplug",
                                 "-p", "no:cacheprovider"], cwd=REPO_ROOT, capture_output=True, text=True,
                                env={**os.environ, "MUT": m, "PYTHONPATH": td, "PYTHONUTF8": "1"})
             caught[m] = r.returncode != 0
@@ -162,34 +164,40 @@ def check_synced(rep: dict):
         if not (s["rows_out"] == pf.metadata.num_rows == s["rows_in"] - s["dropped_no_time"]
                 - s["dropped_exact_duplicates"]):
             bad_rows.append(f.stem)
-        d = pf.read(columns=["dt_s", "t_utc", "ph_gnss_epoch_utc", "gyro_y_radps", "gt_yaw_rate_radps",
+        d = pf.read(columns=["dt_s", "t_utc", "ph_gnss_epoch_utc", "ph_gnss_new_fix",
+                             "ph_gnss_fix_age_s", "gyro_y_radps", "gt_yaw_rate_radps",
                              "gt_can_speed_mps", "ph_gnss_speed_mps", "gt_speed_mps"]).to_pandas()
         dt = d["dt_s"].dropna()
         if len(dt) and (dt.min() < 0 or dt.max() > 1.0):
             bad_dt.append(f.stem)
-        if s["gnss_latency_s"] is not None and not np.allclose(
-                (d["t_utc"] - d["ph_gnss_epoch_utc"]).dt.total_seconds(), s["gnss_latency_s"]):
-            bad_dt.append(f"{f.stem}:epoch")
+        if s["gnss_fix_delay_s"] is not None:
+            age = d["ph_gnss_fix_age_s"].to_numpy()
+            new = d["ph_gnss_new_fix"].to_numpy()
+            # a new fix's age equals the delay; held rows age by exactly dt until the next fix
+            if not (np.allclose(age[new], s["gnss_fix_delay_s"]) and np.nanmin(age) >= s["gnss_fix_delay_s"] - 1e-9):
+                bad_dt.append(f"{f.stem}:epoch")
         mv = np.nan_to_num(d["gt_can_speed_mps"].to_numpy()) > 3.0
         if s["alignment_verified"] and mv.sum() > 200:
             yaw_corr.append(np.corrcoef(smooth(d["gyro_y_radps"].to_numpy())[mv],
                                         smooth(np.nan_to_num(d["gt_yaw_rate_radps"].to_numpy()))[mv])[0, 1])
-        if s["gnss_latency_source"] == "measured":
-            # epoch tagging must IMPROVE agreement with truth: compare the fix against
-            # gt at its own time vs gt at its epoch (t - latency)
-            L = round(s["gnss_latency_s"] * 10)
+        if s["gnss_fix_delay_source"].startswith("measured"):
+            # epoch tagging must IMPROVE agreement with truth: every row's held fix vs truth
+            # at the row's own time (what naive use would assume) vs truth at the fix epoch
+            t0 = d["t_utc"].iloc[0]
+            tt = (d["t_utc"] - t0).dt.total_seconds().to_numpy()
+            te = (d["ph_gnss_epoch_utc"] - t0).dt.total_seconds().to_numpy()
             ph, gt = d["ph_gnss_speed_mps"].to_numpy(), d["gt_speed_mps"].to_numpy()
-            ok = np.isfinite(ph) & np.isfinite(gt)
-            if L > 0 and ok.sum() > 600:
-                same = np.nanmedian(np.abs(ph - gt)[ok])
-                epoch = np.nanmedian(np.abs(ph[L:] - gt[:-L])[ok[L:] & ok[:-L]])
-                gnss_gain.append((same, epoch))
+            ok = np.isfinite(ph) & np.isfinite(gt) & np.isfinite(te)
+            if ok.sum() > 600:
+                same = np.median(np.abs(ph - gt)[ok])
+                at_epoch = np.median(np.abs(ph[ok] - np.interp(te[ok], tt[ok], gt[ok])))
+                gnss_gain.append((same, at_epoch))
     record(CRITICAL, "synced columns are exactly META + INPUT + GT", not bad_cols, str(bad_cols[:5]))
     record(CRITICAL, "input/ground-truth roles in file metadata obey the CAN rule", not bad_roles,
            str(bad_roles[:5]))
     record(CRITICAL, "row accounting: out = in - no-time - exact duplicates (and = parquet rows)",
            not bad_rows, str(bad_rows[:5]))
-    record(CRITICAL, "real dt inside segments in (0, 1] s; GNSS epoch = t - latency", not bad_dt,
+    record(CRITICAL, "real dt inside segments in (0, 1] s; fix age = delay at a new fix, grows while held", not bad_dt,
            str(bad_dt[:5]))
     t = rep["sync_totals"]
     record(CRITICAL, "ground truth matched for >= 95 % of phone rows", t["gt_match_fraction"] >= 0.95,
@@ -199,7 +207,7 @@ def check_synced(rep: dict):
            len(yaw_corr) >= 20 and ymed >= 0.5, f"median r {ymed:.3f} over {len(yaw_corr)} sessions")
     g = np.array(gnss_gain)
     improved = int((g[:, 1] < g[:, 0]).sum()) if g.size else 0
-    record(CRITICAL, "GNSS latency handling improves phone-vs-truth speed agreement",
+    record(CRITICAL, "fix-epoch tagging improves phone-vs-truth speed agreement",
            g.size > 0 and improved >= 0.9 * len(g),
            f"{improved}/{len(g)} sessions; median |err| {np.median(g[:, 0]):.3f} -> {np.median(g[:, 1]):.3f} m/s"
            if g.size else "no measured sessions")
@@ -256,10 +264,11 @@ def main() -> int:
     check_synced(rep)
     check_split()
     check_norm()
-    gl = rep["gnss_latency"]
-    record(INFO, "phone GNSS latency", None,
-           f"pooled median {gl['pooled_median_s']} s, IQR {gl['measured_iqr_s']}, range "
-           f"{gl['measured_range_s']}, sources {gl['source_counts']}")
+    gl = rep["gnss_fix_timing"]
+    record(INFO, "phone GNSS fix timing", None,
+           f"new-fix delay pooled median {gl['pooled_median_delay_s']} s, IQR {gl['measured_delay_iqr_s']}; "
+           f"sources {gl['source_counts']}; sessions with <= 2 s fix interval: "
+           f"{gl['sessions_fix_interval_le_2s']}")
     record(INFO, "split v1 (Phase 2) under the drive rule", None,
            f"{len(rep['split_v1_leaks_under_drive_rule'])} violations -> superseded by v2")
     crit = [r for r in results if r[0] == CRITICAL]

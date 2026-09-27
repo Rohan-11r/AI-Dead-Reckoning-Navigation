@@ -106,25 +106,43 @@ def test_clock_correction_applied_only_when_verified():
     assert info2.clock_correction_s == 0.0 and not out2["alignment_verified"].any()
 
 
-def test_gnss_latency_is_measured_and_epoch_tagged_not_shifted():
-    p, v, _ = synthetic_logs(gnss_lag_s=3.0)
+def hold(values: np.ndarray, every: int, delay_rows: int) -> np.ndarray:
+    """SYNTHETIC phone behaviour: a new fix every ``every`` rows, reported ``delay_rows``
+    late, and REPEATED (sample-and-hold) on the rows in between."""
+    out = np.empty_like(values)
+    for i in range(len(values)):
+        k = max(((i - delay_rows) // every) * every, 0)
+        out[i] = values[k]
+    return out
+
+
+def test_sample_and_hold_is_not_mistaken_for_latency():
+    # Regression (Phase 4): fixes every 9 s, reported 0.3 s late, held in between. The
+    # HELD column lags truth by ~4.8 s on average -- the Phase 3 v1 "latency" trap. The
+    # correct answer is: delay 0.3 s, and each row carries the epoch of the fix it holds.
+    p, v, _ = synthetic_logs(gnss_lag_s=0.0)
+    p["gps_speed_mps"] = hold(p["gps_speed_mps"].to_numpy(), every=90, delay_rows=3)
     align = {"alignment_status": "time_join_verified", "phone_clock_correction_s": 0.0}
     out, info = sync.sync_session("SYN", p, v, align, 1.0, None)
-    assert info.gnss_latency_source == "measured"
-    assert info.gnss_latency_s == pytest.approx(3.0, abs=0.1)
-    # the fix is kept exactly as received (causal) ...
+    assert info.gnss_fix_delay_source == "measured"
+    assert info.gnss_fix_delay_s == pytest.approx(0.3, abs=0.11)
+    assert info.gnss_fix_interval_median_s == pytest.approx(9.0, abs=0.01)
+    new = out["ph_gnss_new_fix"].to_numpy()
+    np.testing.assert_allclose(out["ph_gnss_fix_age_s"].to_numpy()[new], info.gnss_fix_delay_s)
+    # after the first block, a fix is held 9.0 s: ages run delay .. delay + 8.9 s
+    age = out["ph_gnss_fix_age_s"].to_numpy()[200:]
+    assert age.max() == pytest.approx(8.9 + info.gnss_fix_delay_s, abs=1e-6)
+    assert age.min() == pytest.approx(info.gnss_fix_delay_s, abs=1e-6)
+    # the fix values themselves are kept exactly as received (causal)
     np.testing.assert_array_equal(out["ph_gnss_speed_mps"], p["gps_speed_mps"])
-    # ... and tagged with the instant it describes
-    lag = (out["t_utc"] - out["ph_gnss_epoch_utc"]).dt.total_seconds()
-    np.testing.assert_allclose(lag, info.gnss_latency_s)
 
 
-def test_unreliable_latency_falls_back_to_pooled_value_and_says_so():
+def test_unreliable_fix_delay_falls_back_to_pooled_value_and_says_so():
     p, v, _ = synthetic_logs()
     p["gps_speed_mps"] = 0.0  # no usable signal
     align = {"alignment_status": "time_join_verified", "phone_clock_correction_s": 0.0}
-    _, info = sync.sync_session("SYN", p, v, align, 1.0, 4.2)
-    assert info.gnss_latency_source == "pooled_median" and info.gnss_latency_s == 4.2
+    _, info = sync.sync_session("SYN", p, v, align, 1.0, 0.2)
+    assert info.gnss_fix_delay_source == "pooled_median" and info.gnss_fix_delay_s == 0.2
 
 
 def test_duplicates_dropped_and_counted_segments_break_on_gaps():
@@ -243,3 +261,16 @@ def test_normalisation_uses_train_only_and_refuses_leaks(tmp_path):
         normalization.compute_imu_stats(mp, tmp_path, sessions=["x1"])
     with pytest.raises(columns.ColumnRoleError):
         normalization.compute_imu_stats(mp, tmp_path, channels=["gt_speed_mps"])
+
+
+def test_negative_fix_delay_is_clamped_so_epochs_stay_causal():
+    # SYNTHETIC: the phone clock runs 0.5 s BEHIND truth (residual clock offset), so the
+    # raw delay estimate comes out negative; the applied delay must be 0, never negative.
+    p, v, _ = synthetic_logs(gnss_lag_s=0.0)
+    p["gps_speed_mps"] = hold(p["gps_speed_mps"].to_numpy(), every=10, delay_rows=0)
+    p["t_utc"] = p["t_utc"] - pd.Timedelta(milliseconds=500)
+    align = {"alignment_status": "unverified_weak_signal", "phone_clock_correction_s": 0.0}
+    out, info = sync.sync_session("SYN", p, v, align, 1.0, None)
+    assert info.gnss_fix_delay_measured_s < 0
+    assert info.gnss_fix_delay_s == 0.0 and info.gnss_fix_delay_source == "measured_clamped_at_0"
+    assert (out["ph_gnss_epoch_utc"] <= out["t_utc"]).all()

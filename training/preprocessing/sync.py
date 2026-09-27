@@ -9,12 +9,17 @@ per session, ONE frame on the phone's timeline:
 2. Clock: ``t_utc = t_utc_phone_raw + c``. ``c`` is the per-session phone-clock
    correction measured in Phase 2 (gyro vs CAN yaw rate); it is applied ONLY where that
    measurement was verified, else ``c = 0`` and ``alignment_verified`` is False.
-3. Phone GNSS latency: the phone's GNSS fields lag the true motion (Phase 2 median 4.1 s).
-   The fix is kept exactly as received -- shifting it earlier would feed future data to
-   a real-time filter -- and each row carries ``ph_gnss_epoch_utc = t_utc - latency``, the
-   instant the fix actually describes (delayed-measurement form). ``latency`` is measured
-   per session (phone GNSS speed vs VBOX speed) or, if that estimate is unreliable, the
-   pooled median of the reliable sessions; the source is recorded.
+3. Phone GNSS fix timing. The phone logs a new fix only every ~9 s in 64 of the 67
+   moving sessions (1 s in 3) and REPEATS it on every 10 Hz row in between
+   (sample-and-hold). Each row therefore carries the epoch of the fix it holds:
+   ``ph_gnss_epoch_utc = (time the fix first appeared) - delay`` and
+   ``ph_gnss_fix_age_s = t_utc - ph_gnss_epoch_utc``. ``delay`` (reporting delay of a
+   NEW fix) is measured per session on new-fix rows only (phone speed vs VBOX speed at
+   candidate epochs) -- measured at ~0.1 s -- else the pooled median; the source is
+   recorded. The fix values are kept exactly as received (causal).
+   Phase 3 v1 of this module correlated the HELD column against truth and reported a
+   "4.1 s latency": that was the average age of a held 9 s fix, not a delay. Fixed in
+   Phase 4 (PROJECT_STATUS.md 4.x).
 4. Ground truth: VBOX/CAN columns joined by nearest UTC time (<= 60 ms) as ``gt_*``.
    ``gt_wheel_speed_mps`` uses the Phase 3 empirical calibration (rear, non-driven axle).
 5. Segments: a new ``segment_id`` wherever the real ``dt`` exceeds 1 s.
@@ -27,12 +32,13 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
-from training.preprocessing.iovnbd_audit import BREAK_S, fft_xcorr_lag
+from training.preprocessing.iovnbd_audit import BREAK_S
 
 JOIN_TOLERANCE_S = 0.06
-GNSS_LATENCY_SEARCH_S = 10.0
-GNSS_LATENCY_MIN_CORR = 0.9
-GNSS_LATENCY_RANGE_S = (0.0, 10.0)
+FIX_DELAY_GRID_S = (-2.0, 5.0, 0.1)  # candidate reporting delays of a new fix
+FIX_DELAY_MIN_FIXES = 20
+FIX_DELAY_MAX_MEDIAN_ERR_MPS = 1.0  # accept the estimate only if the fix matches truth this well
+FIX_DELAY_MIN_SPEED_MPS = 3.0
 STATIONARY_VBOX_MPS = 0.3
 STATIONARY_CAN_MPS = 0.05
 SCHEMA_VERSION = "iovnbd-synced-v1"
@@ -59,7 +65,8 @@ SYNCED_UNITS = {
     "ph_gnss_speed_mps": "m/s", "ph_gnss_accuracy_m": "m", "ph_gnss_bearing_deg": "deg",
     "ph_gnss_sats_used": "count", "ph_gnss_sats_visible": "count",
     "ph_gnss_new_fix": "bool (row where the logged fix changed)",
-    "ph_gnss_epoch_utc": "UTC instant the logged fix describes (t_utc - latency)",
+    "ph_gnss_epoch_utc": "UTC instant the HELD fix describes (first appearance - delay)",
+    "ph_gnss_fix_age_s": "s since the held fix's epoch (0..~9 s: sample-and-hold)",
     "gt_lat_deg": "deg WGS84 (VBOX)", "gt_lon_deg": "deg WGS84 (VBOX)",
     "gt_height_msl_m": "m above MSL (VBOX; file label 'km' is wrong)",
     "gt_speed_mps": "m/s (VBOX Doppler)", "gt_heading_deg": "deg (VBOX)",
@@ -83,10 +90,12 @@ class SyncInfo:
     clock_correction_s: float = 0.0
     alignment_status: str = ""
     alignment_verified: bool = False
-    gnss_latency_s: float | None = None
-    gnss_latency_source: str = ""
-    gnss_latency_measured_s: float | None = None
-    gnss_latency_measured_corr: float | None = None
+    gnss_fix_delay_s: float | None = None
+    gnss_fix_delay_source: str = ""
+    gnss_fix_delay_measured_s: float | None = None
+    gnss_fix_delay_measured_err_mps: float | None = None
+    gnss_fix_interval_median_s: float | None = None
+    gnss_n_fixes: int = 0
     rows_out: int = 0
     gt_matched: int = 0
     n_segments: int = 0
@@ -120,29 +129,47 @@ def _join_vehicle(t: pd.Series, v: pd.DataFrame) -> pd.DataFrame:
     return out.sort_values("_i").reset_index(drop=True)
 
 
-def measure_gnss_latency(p: pd.DataFrame, t_aligned: pd.Series, v: pd.DataFrame
-                         ) -> tuple[float | None, float | None]:
-    """Latency [s] of phone GNSS speed behind VBOX speed on the aligned phone timeline.
+def fix_changes(p: pd.DataFrame) -> np.ndarray:
+    """Rows where the logged phone fix CHANGED (a new fix appeared)."""
+    g = p[list(_PHONE_GNSS)[:6]]
+    if not len(g):
+        return np.array([], dtype=bool)
+    return np.r_[True, (g.iloc[1:].to_numpy() != g.iloc[:-1].to_numpy()).any(axis=1)]
 
-    Returns (latency, corr); latency is None when the estimate is not trustworthy.
+
+def measure_fix_delay(p: pd.DataFrame, t_aligned: pd.Series, v: pd.DataFrame
+                      ) -> tuple[float | None, float | None, float | None, int]:
+    """Reporting delay of a NEW phone fix vs VBOX truth, from new-fix rows only.
+
+    Grid search over FIX_DELAY_GRID_S for the delay L minimising the median
+    |phone speed at first appearance - VBOX speed at (appearance - L)|.
+    Returns (delay or None if unreliable, median error, median fix interval, n fixes).
     """
-    j = _join_vehicle(t_aligned, v[["t_utc", "vbox_speed_mps"]])
-    ph = p["gps_speed_mps"].to_numpy()
-    vb = j["vbox_speed_mps"].to_numpy()
-    ok = np.isfinite(ph) & np.isfinite(vb)
-    if ok.sum() < 600 or np.nanmax(vb) < 2.0:
-        return None, None
-    lag, c = fft_xcorr_lag(np.where(ok, ph, np.nan), np.where(ok, vb, np.nan),
-                           int(GNSS_LATENCY_SEARCH_S * 10))
-    lat = lag / 10.0
-    if c is None or c < GNSS_LATENCY_MIN_CORR or not (
-            GNSS_LATENCY_RANGE_S[0] <= lat <= GNSS_LATENCY_RANGE_S[1]):
-        return None, c
-    return lat, c
+    new = fix_changes(p) & p["gps_speed_mps"].notna().to_numpy()
+    tf = t_aligned[new]
+    if new.sum() < 2:
+        return None, None, None, int(new.sum())
+    t0 = t_aligned.iloc[0]
+    tf_s = (tf - t0).dt.total_seconds().to_numpy()
+    interval = float(np.median(np.diff(tf_s)))
+    vt = v[["t_utc", "vbox_speed_mps"]].dropna().sort_values("t_utc")
+    tv = (vt["t_utc"].astype("datetime64[us, UTC]") - t0).dt.total_seconds().to_numpy()
+    vs = vt["vbox_speed_mps"].to_numpy()
+    ph = p["gps_speed_mps"].to_numpy()[new]
+    inside = (tf_s > tv[0] + 6) & (tf_s < tv[-1])
+    moving = inside & (np.interp(tf_s, tv, vs) > FIX_DELAY_MIN_SPEED_MPS)
+    if moving.sum() < FIX_DELAY_MIN_FIXES:
+        return None, None, interval, int(new.sum())
+    grid = np.round(np.arange(*FIX_DELAY_GRID_S), 3)
+    err = [float(np.median(np.abs(ph[moving] - np.interp(tf_s[moving] - L, tv, vs)))) for L in grid]
+    k = int(np.argmin(err))
+    if err[k] > FIX_DELAY_MAX_MEDIAN_ERR_MPS:
+        return None, err[k], interval, int(new.sum())
+    return float(grid[k]), err[k], interval, int(new.sum())
 
 
 def sync_session(sid: str, p_raw: pd.DataFrame, v: pd.DataFrame, align: dict,
-                 wheel_k_raw_per_kmh: float, default_gnss_latency_s: float | None
+                 wheel_k_raw_per_kmh: float, default_fix_delay_s: float | None
                  ) -> tuple[pd.DataFrame, SyncInfo]:
     info = SyncInfo(session_id=sid)
     p = prepare_phone(p_raw, info)
@@ -153,13 +180,20 @@ def sync_session(sid: str, p_raw: pd.DataFrame, v: pd.DataFrame, align: dict,
     t_raw = p["t_utc"]
     t = t_raw + pd.Timedelta(seconds=info.clock_correction_s)
 
-    info.gnss_latency_measured_s, info.gnss_latency_measured_corr = measure_gnss_latency(p, t, v)
-    if info.gnss_latency_measured_s is not None:
-        info.gnss_latency_s, info.gnss_latency_source = info.gnss_latency_measured_s, "measured"
-    elif default_gnss_latency_s is not None:
-        info.gnss_latency_s, info.gnss_latency_source = default_gnss_latency_s, "pooled_median"
+    (info.gnss_fix_delay_measured_s, info.gnss_fix_delay_measured_err_mps,
+     info.gnss_fix_interval_median_s, info.gnss_n_fixes) = measure_fix_delay(p, t, v)
+    if info.gnss_fix_delay_measured_s is not None:
+        # A reporting delay cannot be negative: a negative estimate is residual phone-vs-VBOX
+        # CLOCK offset (all seen in clock-unverified sessions), not GNSS timing. Clamp so every
+        # epoch stays causal (epoch <= time received); the raw value stays in the record.
+        d = info.gnss_fix_delay_measured_s
+        info.gnss_fix_delay_s = max(d, 0.0)
+        info.gnss_fix_delay_source = "measured" if d >= 0 else "measured_clamped_at_0"
+    elif default_fix_delay_s is not None:
+        info.gnss_fix_delay_s = max(default_fix_delay_s, 0.0)
+        info.gnss_fix_delay_source = "pooled_median"
     else:
-        info.gnss_latency_source = "unavailable"
+        info.gnss_fix_delay_source = "unavailable"
 
     out = pd.DataFrame({"session_id": sid, "t_utc": t, "t_utc_phone_raw": t_raw})
     for c in ("acc_x_mps2", "acc_y_mps2", "acc_z_mps2", "gyro_x_radps", "gyro_y_radps",
@@ -168,11 +202,16 @@ def sync_session(sid: str, p_raw: pd.DataFrame, v: pd.DataFrame, align: dict,
         out[c] = p[c].to_numpy()
     for src, dst in _PHONE_GNSS.items():
         out[dst] = p[src].to_numpy()
-    g = p[list(_PHONE_GNSS)[:6]]
-    out["ph_gnss_new_fix"] = np.r_[True, (g.iloc[1:].to_numpy() != g.iloc[:-1].to_numpy()).any(axis=1)] \
-        if len(g) else np.array([], dtype=bool)
-    lat_s = info.gnss_latency_s
-    out["ph_gnss_epoch_utc"] = t - pd.Timedelta(seconds=lat_s) if lat_s is not None else pd.NaT
+    new = fix_changes(p)
+    out["ph_gnss_new_fix"] = new
+    # each row holds the most recent fix: its epoch = that fix's first appearance - delay
+    appeared = t.where(pd.Series(new, index=t.index)).ffill()
+    if info.gnss_fix_delay_s is not None:
+        out["ph_gnss_epoch_utc"] = appeared - pd.Timedelta(seconds=info.gnss_fix_delay_s)
+        out["ph_gnss_fix_age_s"] = (t - out["ph_gnss_epoch_utc"]).dt.total_seconds()
+    else:
+        out["ph_gnss_epoch_utc"] = pd.NaT
+        out["ph_gnss_fix_age_s"] = np.nan
 
     j = _join_vehicle(t, v)
     matched = j["row_idx_veh"].notna().to_numpy()
