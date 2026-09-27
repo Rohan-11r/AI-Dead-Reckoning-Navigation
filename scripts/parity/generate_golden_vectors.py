@@ -13,6 +13,8 @@ Vectors:
                             plus a seeded random stretch; the expected state after each event
   sample_validation.json    GnssSample inputs and whether the reference accepts them
   wgs84_radii.json          meridian / prime-vertical radii at fixed latitudes
+  nav_*.json, mm_*.bin      Phase 11: geometry, INS, EKF ops, features, Model A, fused
+                            navigator, streaming engine, map matcher (scripts/parity/nav_golden.py)
 """
 
 from __future__ import annotations
@@ -126,8 +128,18 @@ VECTORS = {"gnss_state_machine.json": gnss_state_machine, "sample_validation.jso
            "wgs84_radii.json": wgs84_radii}
 
 
-def render(fn) -> str:
-    return json.dumps(fn(), indent=1, sort_keys=True) + "\n"
+def render(obj: dict, compact: bool = False) -> str:
+    if compact:  # the large Phase 11 vectors: one line, still exact (repr floats)
+        return json.dumps(obj, sort_keys=True, separators=(",", ":")) + "\n"
+    return json.dumps(obj, indent=1, sort_keys=True) + "\n"
+
+
+def build(bin_dir: Path) -> dict[str, str]:
+    from scripts.parity.nav_golden import all_vectors  # heavier imports (onnxruntime, engine)
+
+    out = {name: render(fn()) for name, fn in VECTORS.items()}
+    out |= {name: render(obj, compact=True) for name, obj in all_vectors(REPO_ROOT, bin_dir).items()}
+    return out
 
 
 def main() -> int:
@@ -135,17 +147,26 @@ def main() -> int:
     ap.add_argument("--check", action="store_true")
     args = ap.parse_args()
     bad = 0
-    for name, fn in VECTORS.items():
-        text, path = render(fn), OUT / name
-        if args.check:
-            # a Windows checkout may turn LF into CRLF: compare content, not line endings
-            same = path.exists() and path.read_text(encoding="utf-8").replace("\r\n", "\n") == text
-            print(f"{'OK  ' if same else 'DIFF'} {path.relative_to(REPO_ROOT)}")
-            bad += not same
-        else:
-            OUT.mkdir(parents=True, exist_ok=True)
-            path.write_text(text, encoding="utf-8", newline="\n")
-            print(f"wrote {path.relative_to(REPO_ROOT)}")
+    if args.check:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            for name, text in build(tmp).items():
+                path = OUT / name
+                # a Windows checkout may turn LF into CRLF: compare content, not line endings
+                same = path.exists() and path.read_text(encoding="utf-8").replace("\r\n", "\n") == text
+                print(f"{'OK  ' if same else 'DIFF'} {path.relative_to(REPO_ROOT)}")
+                bad += not same
+            for b in sorted(tmp.glob("*.bin")):
+                same = (OUT / b.name).exists() and (OUT / b.name).read_bytes() == b.read_bytes()
+                print(f"{'OK  ' if same else 'DIFF'} {(OUT / b.name).relative_to(REPO_ROOT)}")
+                bad += not same
+    else:
+        OUT.mkdir(parents=True, exist_ok=True)
+        for name, text in build(OUT).items():
+            (OUT / name).write_text(text, encoding="utf-8", newline="\n")
+            print(f"wrote {(OUT / name).relative_to(REPO_ROOT)}")
     return 1 if bad else 0
 
 

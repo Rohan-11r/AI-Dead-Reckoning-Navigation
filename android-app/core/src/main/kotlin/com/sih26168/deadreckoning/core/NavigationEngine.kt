@@ -12,15 +12,20 @@ data class NavSnapshot(
     val speedMps: Double?,
     val sigmaHm: Double?,
     val confidence: Double?,            // positionConfidence(sigmaHm)
-    val roadName: String?,              // map matcher: not on device yet -> null
-    val covarianceDiag: DoubleArray?,   // 15-state EKF P diagonal: not on device yet -> null
+    val roadName: String?,              // from a confident map match; null otherwise
+    val covarianceDiag: DoubleArray?,   // 15-state EKF P diagonal (null for the GNSS-only engine)
     val aiLatencyMs: Double?,           // measured model inference time, when the model runs
     val engineName: String,
     val note: String? = null,
+    val matchedLatRad: Double? = null,      // map-matched (road-constrained) position, if matched
+    val matchedLonRad: Double? = null,
+    val mapMatchConfidence: Double? = null, // map_match_confidence of that match
+    val mode: String? = null,               // engine lifecycle: WAITING | ALIGNING | NAVIGATING
 )
 
-/** The on-device navigation engine contract. The streaming Python reference is
- * `navcore.fusion.engine.NavigationEngine`; its port is the edge-engine phase. */
+/** The on-device navigation engine contract. The dead-reckoning implementation is
+ * [com.sih26168.deadreckoning.core.nav.DeadReckoningNavigation] (Phase 11, a port of
+ * `navcore.fusion.engine.NavigationEngine`); [GnssOnlyEngine] is the Phase 10 fallback. */
 interface NavigationEngine {
     val name: String
     fun onImu(sample: ImuSample)

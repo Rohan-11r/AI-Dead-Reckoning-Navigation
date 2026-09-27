@@ -117,3 +117,7 @@ secrets.yaml
 # Normalisation statistics are small, reviewable, and part of the parity contract
 # (AGENTS.md 4, docs/ml_pipeline.md 3) -- keep them tracked.
 !models/normalization/*.json
+
+# Phase 11 road bundles: derived from ODbL OSM data and regenerable
+# (scripts/export/export_road_bundle.py); only the small manifests are tracked.
+models/roads/*.roads.bin

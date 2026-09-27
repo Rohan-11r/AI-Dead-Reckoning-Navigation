@@ -14,6 +14,8 @@ import androidx.core.app.ServiceCompat
 import com.sih26168.deadreckoning.core.Channel
 import com.sih26168.deadreckoning.core.ChannelSample
 import com.sih26168.deadreckoning.core.GnssOnlyEngine
+import com.sih26168.deadreckoning.core.GnssStateMachine
+import com.sih26168.deadreckoning.core.mapmatch.RoadNetwork
 import com.sih26168.deadreckoning.core.ImuAssembler
 import com.sih26168.deadreckoning.core.NavigationEngine
 import com.sih26168.deadreckoning.core.RateMeter
@@ -41,11 +43,16 @@ import kotlinx.coroutines.channels.Channel as KChannel
 /**
  * Foreground service (type "location") that owns acquisition for the whole session.
  *
+ * Engine (Phase 11): EngineFactory builds the on-device dead-reckoning engine from the APK
+ * assets (INS + EKF + Model A speed + NHC + GNSS state machine; map matching once the road
+ * bundle has loaded), falling back -- visibly -- when a resource is missing or refused.
+ *
  * Coroutine layout (all on Dispatchers.Default -- never the main thread):
  *   sensors  : SensorSource.samples()        -> inputs   (callbacks on their own HandlerThread)
  *   gnss     : LocationManagerGnssSource      -> inputs   (callbacks on their own HandlerThread)
  *   outage   : repository.outageRequested    -> inputs   (UI toggle, as a command)
  *   probe    : OnnxLatencyProbe, once
+ *   roads    : EngineFactory.loadRoads, once; handed to the processor as a message
  *   process  : the ONLY consumer of `inputs`; it alone touches the engine, the logger, the
  *              assembler, the outage switch and the rate meters -> no locks, ordered events.
  * The UI never sees raw rates: the processor publishes conflated StateFlow snapshots at
@@ -58,6 +65,7 @@ class AcquisitionService : Service() {
         data class Sensor(val s: ChannelSample) : Input
         data class Gnss(val e: GnssEvent) : Input
         data class Outage(val on: Boolean) : Input
+        data class Roads(val net: RoadNetwork?, val note: String) : Input
     }
 
     private var scope: CoroutineScope? = null
@@ -85,12 +93,14 @@ class AcquisitionService : Service() {
         val dir = File(getExternalFilesDir(null) ?: filesDir, "sessions/$stamp")
         val sensors = SensorSource(this, startNs)
         val gnss = LocationManagerGnssSource(this, startNs)
+        val built = EngineFactory.build(assets)
         val logger = SessionLogger(dir, mapOf(
             "session_start_utc_ms" to startUtcMs, "session_start_elapsed_ns" to startNs,
             "device_manufacturer" to Build.MANUFACTURER, "device_model" to Build.MODEL,
             "android_sdk" to Build.VERSION.SDK_INT, "app_version" to BuildConfigInfo.VERSION,
             "gnss_source" to gnss.name, "sensors_available" to sensors.available,
-            "engine" to "gnss-only placeholder (DR engine not yet on device)",
+            "engine" to built.engine.name, "engine_notes" to built.notes,
+            "display" to "filter position (owner decision after Phase 9)",
         ))
         val s = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         scope = s
@@ -106,6 +116,16 @@ class AcquisitionService : Service() {
             }
         }
         s.launch { repo.outageRequested.collect { inputs.send(Input.Outage(it)) } }
+        if (built.dr != null) {
+            s.launch { // seconds for a city graph: load off the processing coroutine, hand over by message
+                val (net, note) = try {
+                    EngineFactory.loadRoads(assets)
+                } catch (x: Exception) {
+                    null to "road bundle failed to load: ${x.message}"
+                }
+                inputs.send(Input.Roads(net, note))
+            }
+        }
         val latency = AtomicReference<AiLatency?>(null) // written by the probe, read by process
         s.launch {
             latency.set(
@@ -116,15 +136,22 @@ class AcquisitionService : Service() {
                 },
             )
         }
-        s.launch { process(inputs, startNs, dir, logger, sensors) { latency.get() } }
+        s.launch { process(inputs, startNs, dir, logger, sensors, built) { latency.get() } }
     }
 
     private suspend fun process(
         inputs: KChannel<Input>, startNs: Long, dir: File, logger: SessionLogger, sensors: SensorSource,
-        latency: () -> AiLatency?,
+        built: EngineFactory.Built, latency: () -> AiLatency?,
     ) {
-        val engine: NavigationEngine = GnssOnlyEngine()
-        val sm = (engine as GnssOnlyEngine).sm
+        val engine: NavigationEngine = built.engine
+        val dr = built.dr
+        val notes = built.notes.toMutableList()
+        fun stateMachine(): GnssStateMachine? = when {
+            dr != null -> dr.engine.nav?.sm // one navigator once the heading is chosen
+            engine is GnssOnlyEngine -> engine.sm
+            else -> null
+        }
+        var loggedSm: GnssStateMachine? = null
         val assembler = ImuAssembler()
         val outage = SimulatedOutage()
         val rates = Channel.entries.associateWith { RateMeter() }
@@ -155,16 +182,18 @@ class AcquisitionService : Service() {
                             gnssRate.record(e.fix.tReceivedS)
                             val withheld = outage.withholds(e.fix)
                             logger.fix(e.fix, e.provider, withheld)
-                            if (!withheld) {
-                                engine.onFix(e.fix)
-                                engine.snapshot().let { s -> if (s.latRad != null && s.lonRad != null) track.add(s.latRad!!, s.lonRad!!) }
-                            }
+                            if (!withheld) engine.onFix(e.fix)
                         }
                         is GnssEvent.Rejected -> {
                             fixesBad++
                             lastFixRejection = e.reason
                             logger.event(now, "fix_rejected", "${e.provider}: ${e.reason}")
                         }
+                    }
+                    is Input.Roads -> {
+                        notes += input.note
+                        logger.event(now, "roads", input.note)
+                        input.net?.let { dr?.attachRoads(it) }
                     }
                     is Input.Outage -> {
                         val t = nsToS(SystemClock.elapsedRealtimeNanos(), startNs)
@@ -174,15 +203,29 @@ class AcquisitionService : Service() {
                         }
                     }
                 }
-                while (nTransitions < sm.transitions.size) {
-                    val tr = sm.transitions[nTransitions++]
-                    logger.event(tr.tS, "gnss_state", "${tr.from} -> ${tr.to}: ${tr.why}")
+                val sm = stateMachine()
+                if (sm != null && sm !== loggedSm) { // after the heading choice, the kept navigator's history counts
+                    loggedSm = sm
+                    nTransitions = 0
+                }
+                if (sm != null) {
+                    while (nTransitions < sm.transitions.size) {
+                        val tr = sm.transitions[nTransitions++]
+                        logger.event(tr.tS, "gnss_state", "${tr.from} -> ${tr.to}: ${tr.why}")
+                    }
                 }
                 if (now - lastPublish >= PUBLISH_EVERY_S) {
                     lastPublish = now
                     val st = sensors.stats
+                    val snap = engine.snapshot()
+                    val la = snap.latRad
+                    val lo = snap.lonRad
+                    if (la != null && lo != null) track.add(la, lo)
+                    val mla = snap.matchedLatRad
+                    val mlo = snap.matchedLonRad
+                    if (mla != null && mlo != null) track.addMatched(mla, mlo)
                     repo.publish(
-                        engine.snapshot().copy(aiLatencyMs = latency()?.medianMs),
+                        snap,
                         repo.diagnostics.value.copy(
                             ratesHz = rates.mapValues { it.value.rateHz }, latest = HashMap(latest),
                             gnssRateHz = gnssRate.rateHz, sensorsAvailable = sensors.available,
@@ -191,9 +234,12 @@ class AcquisitionService : Service() {
                             fixesAccepted = fixesOk, fixesRejected = fixesBad, lastFixRejection = lastFixRejection,
                             fixesWithheldBySim = outage.nWithheld, loggerSensorLines = logger.nSensorLines,
                             loggerGnssLines = logger.nGnssLines, sessionDir = dir.absolutePath,
-                            covarianceDiag = engine.snapshot().covarianceDiag, aiLatency = latency(),
+                            covarianceDiag = snap.covarianceDiag, aiLatency = latency(), liveAiLatencyMs = snap.aiLatencyMs,
+                            engineNotes = notes.toList(), resamplerSkipped = dr?.resampler?.nSkippedIncomplete ?: 0L,
+                            hasMap = dr?.hasMap ?: false,
                         ),
                         track.points,
+                        track.matchedPoints,
                     )
                 }
             }

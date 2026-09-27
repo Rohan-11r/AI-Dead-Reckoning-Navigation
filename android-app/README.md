@@ -35,17 +35,25 @@ monorepo checkout.
 
 ## What is on the device, and what is not (yet)
 
-| Item | Status |
+| Item | Status (all source-only until the first build) |
 | --- | --- |
-| Sensor + GNSS acquisition, one session clock (`elapsedRealtimeNanos`) | implemented |
-| Schema validation identical to the Python reference | implemented; parity-tested (golden vectors) |
-| GNSS state machine (GOOD / DEGRADED / DEAD_RECKONING / RECOVERING) | implemented; parity-tested (421-event golden sequence) |
-| Session logging (CSV + JSON manifest) for dataset expansion | implemented |
-| Simulated outage toggle (withholds fixes; logged `withheld_by_sim`) | implemented |
-| **Dead reckoning** (INS + EKF + AI speed + NHC) | **not on the device**: `GnssOnlyEngine` reports **no position** while GNSS is lost rather than a stale one. The port is the edge-engine phase, gated by golden-vector parity (AGENTS.md §4) |
-| Model A on-device inference | latency probe only (all-zero input); the feature pipeline is not ported |
-| Map matching / road name | not on the device (shown as "—" with the reason) |
-| Map tiles | placeholder canvas draws the reported track only |
+| Sensor + GNSS acquisition, one session clock (`elapsedRealtimeNanos`) | Phase 10 |
+| Schema validation, GNSS state machine | Phase 10; golden-vector parity |
+| **Dead reckoning**: INS + 15-state EKF + Model A speed + NHC + state machine + 8 heading hypotheses (`core/nav/`) | **Phase 11**: a port of the Python reference with golden-vector parity per layer; the marker keeps moving when GNSS is lost |
+| Model A on-device inference (ONNX Runtime, SHA-256 + feature-order checked) | Phase 11 |
+| 10 Hz resampling of the phone's faster sensor stream | Phase 11 (device-only; averaging: to be checked on recordings) |
+| Map matching from an offline road bundle (`core/mapmatch/`) | Phase 11; needs `models/roads/*.roads.bin` (see below) before the build |
+| Displayed position | the **filter's** (owner decision after Phase 9); map-matched positions shown alongside |
+| Map tiles | not yet (track canvas) |
+| Satellites used | not collected (needs a `GnssStatus` callback) |
+
+### Assets bundled by `copyExportedModels`
+
+- `models/`: the Phase 6 exports + model cards (`../models/exported`);
+- `config/imu_noise.json`: measured process noise (`../reports/phase4`); without it the app
+  falls back to the GNSS-only engine rather than run on invented noise;
+- `roads/`: the offline road bundle, if exported beforehand:
+  `python scripts/export/export_road_bundle.py` (Coventry: 13.2 MB; gitignored, ODbL).
 
 ## Recorded session format (`files/sessions/<UTC stamp>/`)
 

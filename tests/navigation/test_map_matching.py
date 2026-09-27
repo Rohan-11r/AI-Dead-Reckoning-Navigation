@@ -280,3 +280,26 @@ def test_course_sigma_matches_monte_carlo():
     mc = np.arctan2(samp[:, 1], samp[:, 0])
     assert h == pytest.approx(math.atan2(6, 8)) and sp == pytest.approx(10.0)
     assert sh == pytest.approx(float(np.std(mc)), rel=0.03)
+
+
+def test_road_bundle_round_trip_is_lossless_and_guarded(tmp_path):
+    """The phone's offline format (navcore.map_matching.bundle): same arrays, same matches."""
+    from navcore.map_matching.bundle import read_bundle, write_bundle
+
+    net = crossroads()
+    write_bundle(net, tmp_path / "x.roads.bin")
+    back = read_bundle(tmp_path / "x.roads.bin")
+    assert np.array_equal(back.node_xy, net.node_xy) and np.array_equal(back.seg_from, net.seg_from)
+    assert np.array_equal(back.seg_to, net.seg_to) and np.array_equal(back.seg_way, net.seg_way)
+    assert back.way_tags == net.way_tags and back.cell_m == net.cell_m
+    obs = [(x, 12.0) for x in np.arange(-150.0, 151.0, 15.0)]
+    a = [(r.segment, r.x_m, r.y_m, r.map_match_confidence) for r in run(net, obs, EAST)[1]]
+    b = [(r.segment, r.x_m, r.y_m, r.map_match_confidence) for r in run(back, obs, EAST)[1]]
+    assert a == b
+    raw = (tmp_path / "x.roads.bin").read_bytes()
+    (tmp_path / "bad.bin").write_bytes(b"NOTROADS" + raw[8:])
+    with pytest.raises(ValueError, match="not a road bundle"):
+        read_bundle(tmp_path / "bad.bin")
+    (tmp_path / "long.bin").write_bytes(raw + b"\0")
+    with pytest.raises(ValueError, match="trailing"):
+        read_bundle(tmp_path / "long.bin")

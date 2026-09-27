@@ -1,0 +1,15 @@
+{
+ "file": "coventry.roads.bin",
+ "bytes": 13164220,
+ "sha256": "4726b9750682576e88827be7ef9e0d9a309b2f38ac1e1fbe6ca8e0f7a2f62948",
+ "nodes": 231943,
+ "directed_segments": 450775,
+ "ways": 46301,
+ "origin_lat_rad": 0.9151120038087309,
+ "origin_lon_rad": -0.025617895636882965,
+ "source": "data/raw/osm/coventry_drivable.osm",
+ "source_manifest": "reports/phase8/osm_manifest.json",
+ "licence": "Map data (c) OpenStreetMap contributors, ODbL 1.0",
+ "generated": "2026-09-28T01:17:16",
+ "script": "scripts/export/export_road_bundle.py"
+}

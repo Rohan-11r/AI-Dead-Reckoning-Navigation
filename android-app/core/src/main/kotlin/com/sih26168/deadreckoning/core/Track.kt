@@ -18,8 +18,13 @@ class TrackProjector(private val maxPoints: Int = 3000) {
     private var rm = 0.0
     private var rnCos = 0.0
     private val pts = ArrayDeque<Pair<Double, Double>>()
+    private val matched = ArrayDeque<Pair<Double, Double>>()
 
+    /** The engine's (filter) track. */
     val points: List<Pair<Double, Double>> get() = pts.toList()
+
+    /** Map-matched positions, in the SAME local frame as [points]. */
+    val matchedPoints: List<Pair<Double, Double>> get() = matched.toList()
 
     fun add(latRad: Double, lonRad: Double) {
         if (lat0.isNaN()) {
@@ -28,12 +33,22 @@ class TrackProjector(private val maxPoints: Int = 3000) {
             rm = meridianRadius(latRad)
             rnCos = primeVerticalRadius(latRad) * cos(latRad)
         }
-        pts.addLast(((lonRad - lon0) * rnCos) to ((latRad - lat0) * rm))
+        pts.addLast(local(latRad, lonRad))
         while (pts.size > maxPoints) pts.removeFirst()
     }
 
+    /** A map-matched position; ignored until the track has an anchor. */
+    fun addMatched(latRad: Double, lonRad: Double) {
+        if (lat0.isNaN()) return
+        matched.addLast(local(latRad, lonRad))
+        while (matched.size > maxPoints) matched.removeFirst()
+    }
+
+    private fun local(latRad: Double, lonRad: Double) = ((lonRad - lon0) * rnCos) to ((latRad - lat0) * rm)
+
     fun clear() {
         pts.clear()
+        matched.clear()
         lat0 = Double.NaN
     }
 

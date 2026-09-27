@@ -24,7 +24,12 @@ object Display {
         return if (simulatedOutage) "$s (SIMULATED OUTAGE)" else s
     }
 
-    fun roadName(name: String?): String = if (name.isNullOrBlank()) "$NA (map matching not on device yet)" else name
+    /** Road name, or why there is none: no offline map bundled, or no confident road match. */
+    fun roadName(name: String?, hasMap: Boolean = false): String = when {
+        !name.isNullOrBlank() -> name
+        hasMap -> "$NA (no confident road match)"
+        else -> "$NA (no offline map bundled)"
+    }
 
     fun metres(m: Double?): String =
         if (m == null || !m.isFinite()) NA else String.format(Locale.ROOT, "%.1f m", m)

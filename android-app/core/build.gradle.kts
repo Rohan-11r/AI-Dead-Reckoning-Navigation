@@ -9,8 +9,14 @@ kotlin {
 
 dependencies {
     implementation(libs.kotlinx.coroutines.core)
+    // ai.onnxruntime + org.json APIs: compiled against, NOT bundled. On Android the app supplies
+    // onnxruntime-android (same ai.onnxruntime API) and the platform's org.json; the JVM tests
+    // supply the desktop onnxruntime and org.json.
+    compileOnly(libs.onnxruntime.jvm)
+    compileOnly(libs.org.json)
     testImplementation(libs.junit)
     testImplementation(libs.org.json)
+    testImplementation(libs.onnxruntime.jvm)
     testImplementation(libs.kotlinx.coroutines.test)
 }
 

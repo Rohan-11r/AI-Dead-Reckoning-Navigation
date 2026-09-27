@@ -27,6 +27,11 @@ fun DiagnosticsScreen(d: DiagnosticsState, modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         d.error?.let { Text(it, color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold) }
+        if (d.engineNotes.isNotEmpty()) {
+            Section("Engine resources") {
+                for (n in d.engineNotes) Text(n, style = MaterialTheme.typography.bodySmall)
+            }
+        }
         Section("Sensor rates (measured on the sensors' own timestamps)") {
             for (c in Channel.entries) HudRow("${c.name} [${c.unit}]", Display.hz(d.ratesHz[c]))
             HudRow("GNSS fixes", Display.hz(d.gnssRateHz))
@@ -40,6 +45,7 @@ fun DiagnosticsScreen(d: DiagnosticsState, modifier: Modifier = Modifier) {
             HudRow("sensor samples rejected", d.sensorRejected.toString())
             HudRow("sensor samples dropped (consumer stalled)", d.sensorDropped.toString())
             HudRow("IMU samples without a fresh gyro", d.imuWithoutGyro.toString())
+            HudRow("10 Hz bins skipped (a channel missing)", d.resamplerSkipped.toString())
             HudRow("GNSS fixes mapped / rejected", "${d.fixesAccepted} / ${d.fixesRejected}")
             HudRow("GNSS fixes withheld by simulated outage", d.fixesWithheldBySim.toString())
             d.lastSensorRejection?.let { HudRow("last sensor rejection", it) }
@@ -48,7 +54,7 @@ fun DiagnosticsScreen(d: DiagnosticsState, modifier: Modifier = Modifier) {
         Section("EKF covariance diagonal") {
             val p = d.covarianceDiag
             if (p == null) {
-                Text("n/a: the 15-state EKF is not on the device yet (edge-engine port, parity-gated)",
+                Text("n/a: no dead-reckoning engine running (see Engine resources)",
                     style = MaterialTheme.typography.bodySmall)
             } else {
                 val labels = listOf("pE", "pN", "pU", "vE", "vN", "vU", "ψE", "ψN", "ψU", "baX", "baY", "baZ", "bgX", "bgY", "bgZ")
@@ -56,6 +62,7 @@ fun DiagnosticsScreen(d: DiagnosticsState, modifier: Modifier = Modifier) {
             }
         }
         Section("AI inference latency") {
+            HudRow("live (last Model A inference in the engine)", Display.ms(d.liveAiLatencyMs))
             val a = d.aiLatency
             if (a == null) {
                 Text("measuring…", style = MaterialTheme.typography.bodySmall)

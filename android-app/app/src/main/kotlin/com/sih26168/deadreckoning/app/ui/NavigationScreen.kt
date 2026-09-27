@@ -27,21 +27,25 @@ import com.sih26168.deadreckoning.core.NavSnapshot
 
 /**
  * Primary screen: track canvas + telemetry HUD + "Simulate GNSS outage" toggle.
- * The track canvas is a PLACEHOLDER for a map renderer: it draws the positions the engine
- * reported, in local metres, auto-scaled; there are no map tiles yet.
+ * The track canvas draws, in local metres, auto-scaled, north up: the ENGINE's (filter)
+ * track in blue with its current position in red -- it keeps moving on dead reckoning when
+ * GNSS is lost -- and the map-matched positions in green. There are no map tiles yet: the
+ * canvas stands in for a map renderer.
  */
 @Composable
 fun NavigationScreen(
     snapshot: NavSnapshot?,
     track: List<Pair<Double, Double>>,
+    matchedTrack: List<Pair<Double, Double>>,
+    hasMap: Boolean,
     outageOn: Boolean,
     running: Boolean,
     onOutage: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        TrackCanvas(track, Modifier.fillMaxWidth().weight(1f))
-        Hud(snapshot, outageOn)
+        TrackCanvas(track, matchedTrack, Modifier.fillMaxWidth().weight(1f))
+        Hud(snapshot, outageOn, hasMap)
         Card(Modifier.fillMaxWidth()) {
             Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
@@ -56,7 +60,7 @@ fun NavigationScreen(
 }
 
 @Composable
-private fun Hud(s: NavSnapshot?, outageOn: Boolean) {
+private fun Hud(s: NavSnapshot?, outageOn: Boolean, hasMap: Boolean) {
     val stateColor = when (s?.state) {
         GnssState.GOOD -> Color(0xFF2E7D32)
         GnssState.DEGRADED -> Color(0xFFF9A825)
@@ -74,8 +78,10 @@ private fun Hud(s: NavSnapshot?, outageOn: Boolean) {
             }
             HudRow("Confidence (within 10 m)", Display.percent(s?.confidence))
             HudRow("Horizontal σ", Display.metres(s?.sigmaHm))
-            HudRow("Road", Display.roadName(s?.roadName))
+            HudRow("Road", Display.roadName(s?.roadName, hasMap))
+            HudRow("Map match (confidence)", Display.percent(s?.mapMatchConfidence))
             HudRow("Engine", s?.engineName ?: Display.NA)
+            HudRow("Mode", s?.mode ?: Display.NA)
             s?.note?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
         }
     }
@@ -90,12 +96,13 @@ internal fun HudRow(label: String, value: String) {
 }
 
 @Composable
-private fun TrackCanvas(track: List<Pair<Double, Double>>, modifier: Modifier) {
+private fun TrackCanvas(track: List<Pair<Double, Double>>, matched: List<Pair<Double, Double>>, modifier: Modifier) {
     Card(modifier) {
         Canvas(Modifier.fillMaxSize().padding(16.dp)) {
             if (track.isEmpty()) return@Canvas
-            val xs = track.map { it.first }
-            val ys = track.map { it.second }
+            val all = track + matched // one frame for both: the projector gives them a shared anchor
+            val xs = all.map { it.first }
+            val ys = all.map { it.second }
             val span = maxOf(xs.max() - xs.min(), ys.max() - ys.min(), 50.0) // >= 50 m view
             val cx = (xs.max() + xs.min()) / 2
             val cy = (ys.max() + ys.min()) / 2
@@ -110,6 +117,8 @@ private fun TrackCanvas(track: List<Pair<Double, Double>>, modifier: Modifier) {
                 if (i == 0) path.moveTo(o.x, o.y) else path.lineTo(o.x, o.y)
             }
             drawPath(path, Color(0xFF1565C0), style = Stroke(width = 4f))
+            for ((e, n) in matched) drawCircle(Color(0xFF2E7D32), radius = 4f, center = p(e, n))
+            matched.lastOrNull()?.let { (e, n) -> drawCircle(Color(0xFF2E7D32), radius = 9f, center = p(e, n)) }
             val (le, ln) = track.last()
             drawCircle(Color(0xFFC62828), radius = 10f, center = p(le, ln))
         }

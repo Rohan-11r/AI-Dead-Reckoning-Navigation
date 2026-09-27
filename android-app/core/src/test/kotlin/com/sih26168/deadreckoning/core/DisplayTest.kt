@@ -42,7 +42,8 @@ class DisplayTest {
 
     @Test
     fun `road name says why it is missing`() {
-        assertEquals("— (map matching not on device yet)", Display.roadName(null))
-        assertEquals("High Street", Display.roadName("High Street"))
+        assertEquals("— (no offline map bundled)", Display.roadName(null))
+        assertEquals("— (no confident road match)", Display.roadName(null, hasMap = true))
+        assertEquals("High Street", Display.roadName("High Street", hasMap = true))
     }
 }

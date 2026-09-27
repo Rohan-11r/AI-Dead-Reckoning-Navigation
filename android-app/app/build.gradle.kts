@@ -27,20 +27,32 @@ android {
     }
     buildFeatures { compose = true }
 
-    // The exported, parity-validated models (Phase 6) and their cards ship as assets under
-    // models/: the SAME bytes whose SHA-256 the cards record (checked again at load).
+    // Assets (task copyExportedModels): models/ = the parity-validated exports + cards (the SAME
+    // bytes whose SHA-256 the cards record, checked again at load); config/imu_noise.json =
+    // measured process noise; roads/ = the offline road bundle, when one was exported.
     sourceSets["main"].assets.srcDir(layout.buildDirectory.dir("generated/modelAssets"))
-    androidResources { noCompress += "onnx" }
+    androidResources { noCompress += listOf("onnx", "bin") }
 }
 
 kotlin { jvmToolchain(17) }
 
-val copyExportedModels by tasks.registering(Copy::class) {
-    description = "Copies models/exported/*.onnx + model cards into the APK assets"
+val copyExportedModels by tasks.registering(Sync::class) {
+    description = "Bundles the validated models + cards, the measured IMU noise, and any road bundle"
     from(rootProject.file("../models/exported")) {
         include("*.onnx", "*.model_card.json")
+        into("models")
     }
-    into(layout.buildDirectory.dir("generated/modelAssets/models"))
+    // measured process noise (Phase 4 Allan analysis): the filter must not run on invented Q
+    from(rootProject.file("../reports/phase4")) {
+        include("imu_noise.json")
+        into("config")
+    }
+    // offline road graph (scripts/export/export_road_bundle.py); optional: absent -> no map matching
+    from(rootProject.file("../models/roads")) {
+        include("*.roads.bin", "*.roads.json")
+        into("roads")
+    }
+    into(layout.buildDirectory.dir("generated/modelAssets"))
 }
 tasks.named("preBuild") { dependsOn(copyExportedModels) }
 

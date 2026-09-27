@@ -37,6 +37,10 @@ data class DiagnosticsState(
     val sessionDir: String? = null,
     val covarianceDiag: DoubleArray? = null,
     val aiLatency: AiLatency? = null,
+    val liveAiLatencyMs: Double? = null, // the last real Model A inference inside the engine
+    val engineNotes: List<String> = emptyList(),
+    val resamplerSkipped: Long = 0, // 10 Hz bins skipped for a missing channel
+    val hasMap: Boolean = false,
     val error: String? = null,
 )
 
@@ -55,16 +59,23 @@ class NavigationRepository {
     private val _track = MutableStateFlow<List<Pair<Double, Double>>>(emptyList())
     val track: StateFlow<List<Pair<Double, Double>>> = _track.asStateFlow()
 
+    private val _matchedTrack = MutableStateFlow<List<Pair<Double, Double>>>(emptyList())
+    val matchedTrack: StateFlow<List<Pair<Double, Double>>> = _matchedTrack.asStateFlow()
+
     private val _running = MutableStateFlow(false)
     val running: StateFlow<Boolean> = _running.asStateFlow()
 
     /** The "Simulate GNSS outage" toggle, as requested by the UI. */
     val outageRequested = MutableStateFlow(false)
 
-    fun publish(snapshot: NavSnapshot?, diagnostics: DiagnosticsState, track: List<Pair<Double, Double>>) {
+    fun publish(
+        snapshot: NavSnapshot?, diagnostics: DiagnosticsState, track: List<Pair<Double, Double>>,
+        matchedTrack: List<Pair<Double, Double>> = emptyList(),
+    ) {
         _snapshot.value = snapshot
         _diagnostics.value = diagnostics
         _track.value = track
+        _matchedTrack.value = matchedTrack
     }
 
     fun setRunning(on: Boolean) {
