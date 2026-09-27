@@ -224,7 +224,9 @@ def run_segment(sid: str, d: pd.DataFrame, noise: NoiseParams) -> dict:
             new_fixes = []
             while fix_i < len(fixes) and fixes[fix_i].t_received_s <= t[i] + 1e-9:
                 new_fixes.append(fixes[fix_i])
-                if fixes[fix_i].speed_mps is not None:
+                # only a fix the filter actually receives may inform the stillness detector:
+                # a withheld (outage) fix's speed leaked GNSS into outages (found in Phase 7)
+                if fixes[fix_i].speed_mps is not None and not in_outage(fixes[fix_i].t_s):
                     last_speed = fixes[fix_i].speed_mps
                 fix_i += 1
             still = (acc_std[i] < STILL_ACC_STD and abs(acc_norm[i] - gamma) < STILL_NORM_TOL

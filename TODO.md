@@ -39,18 +39,14 @@ in parallel. Everything from Phase 12 on is gated by installing a JDK and the An
 
 ## Immediate Next Actions (top of the stack)
 
-1. **Phase 4:** resolve the two horizontal gyro axes (vertical = column 2 `gyro_y`, proven);
-   Allan variance on the stationary sessions `Vw1` (34 min) and `Vw15`; mounting rotation
-   `R_b^v` into `navcore.geometry.frames.vehicle_from_body`.
-2. **Phase 4:** use `gt_stationary` (103,447 rows) as labelled stationary segments for
-   bias estimation and, later, the ZUPT detector's false-positive calibration.
-3. **Before Phase 7:** refine per-session S/V alignment for the 47 unverified sessions before
-   any `gt_*` channel becomes a 10 Hz training target; install `requirements-gpu.txt` and
-   confirm `torch.cuda.is_available()` (driver 555.97 vs `cu126` is untested).
-4. **Android:** built externally / in CI in later phases (Android Studio not installed
-   locally, per user). A physical handset is still needed for Phases 13-14.
-5. **Housekeeping:** consider moving the workspace out of the OneDrive-synced tree, or
-   excluding `.venv/` and `data/processed/` from sync.
+1. **Review Phase 7 real-data results** and set the fusion defaults (§7.5 of the status file).
+2. **NHC (Phase 9):** correlated-error model (rate / σ), time-varying mount tilt, covariance
+   robustness at a GNSS reset (NHC arm diverged on S3c).
+3. **Models:** full-length training; fix Model A's low-speed bias; retrain or drop Model B.
+4. **Evaluation:** only 3 validation drives are scoreable — too few; plan the one-time TEST run.
+5. **Android:** built externally / in CI (Android Studio not installed locally); a physical
+   handset is still needed for Phases 13-14.
+6. **Housekeeping:** the laptop throttles on battery (runs 3-10x slower); plug in for long runs.
 
 ---
 
@@ -188,71 +184,31 @@ calibration items below.
 
 ---
 
-## Phase 5 — Attitude Estimation (AHRS)
+## Phase 5 — ML Training Pipeline (redefined; was AHRS) — DONE
 
-**Goal: orientation accuracy, the biggest single lever on drift.**
-
-- [ ] Raw gyro-integration baseline; quantify its drift honestly
-- [ ] Complementary filter
-- [ ] Madgwick and Mahony filters
-- [ ] Quaternion EKF with gyro-bias states
-- [ ] Gravity-vector levelling for roll/pitch
-- [ ] Magnetometer heading with disturbance gating
-- [ ] Static and in-motion initial alignment
-- [ ] Validate against the dataset `ORIENTATION` channels **and** GPS-derived heading,
-      stating the limitations of each reference
-- [ ] Report heading drift rate per method; choose by measurement, not preference
+- [x] Windowed datasets, gates, CAN / coordinate guards, augmentation, model registry,
+      Huber + NLL, trainer with CUDA-OOM fallback (see PROJECT_STATUS.md Phase 5)
+- [ ] AHRS work of the original plan (Madgwick/Mahony/magnetometer) — not scheduled; attitude
+      is the EKF + gravity levelling (reduced IMU)
 
 ---
 
-## Phase 6 — Strapdown INS Mechanization
+## Phase 6 — ML Evaluation & Export (redefined; the INS was delivered in Phase 4) — DONE
 
-**Goal: the physics core. Position by integration only.**
-
-- [ ] Strapdown equations in the local tangent frame
-- [ ] **Real non-uniform `dt`** throughout — no assumed 10 Hz
-- [ ] Gravity model; assess Coriolis and transport-rate relevance at vehicle speeds
-- [ ] Compare integration schemes (trapezoidal, RK, coning/sculling compensation)
-- [ ] Verify against analytically-known synthetic motion (clearly labelled fixtures)
-- [ ] **Pure-INS drift baseline** over 10 s / 30 s / 60 s / 300 s outages
-- [ ] Assert no GNSS field is read anywhere in the INS path
+- [x] CUDA torch; sweep TCN/1D-CNN/GRU/LSTM × 2 s/5 s; selection rule on VAL
+- [x] Evaluation incl. calibration; TEST once; ONNX + model cards; parity gate PASS
+- [ ] **Train to convergence** (best epochs were 10–11 of 12)
+- [ ] Model A: +2.8 m/s bias on test drivers; shrinks toward the mean at high speed
+- [ ] Model B: ≈ constant and over-confident on test — retrain with a better target or drop it
 
 ---
 
-## Phase 7 — AI Signal Processing (Denoising / Bias + Motion Context / Speed)
+## Phase 7 — Sensor Fusion & NHC (redefined) — DONE
 
-**Goal: learn what physics cannot — residual sensor error, and a direct, NON-INTEGRATING
-speed estimate. No coordinates, ever.**
-
-Merged from the original Phases 6 and 7: one dataset, one training harness, one export path.
-
-Stage A — denoising / residual bias:
-- [ ] Windowed dataset builder from the Phase 2 splits
-- [ ] Baseline: classical filtering, for an honest comparison point
-- [ ] Small sequence models (1-D CNN / TCN / GRU) sized for 4 GB VRAM and phone inference
-- [ ] Targets: accel/gyro bias and noise corrections in SI units
-- [ ] Ablation vs Phase 4 analytic calibration — report it even if AI loses
-
-Stage B — motion context:
-- [ ] Classifier: stationary / accelerating / cruising / braking / turning
-- [ ] Exploit the dataset's own route categorisation as additional labels
-- [ ] Operating point chosen on a cost-weighted curve; report false-`stationary` rate
-
-Stage C — speed / displacement / heading change:
-- [ ] **Speed regression** from IMU windows (the drift-arresting output)
-- [ ] **Displacement-magnitude regression** over windows
-- [ ] Heading-change regression as an independent check on Phase 5
-- [ ] Audit target quality: gate on GNSS accuracy, satellites, minimum speed for bearing;
-      report the exclusion count
-
-Common:
-- [ ] **Uncertainty / variance heads** on every output so Phase 8 can weight them
-- [ ] Heteroscedastic NLL; validate variance calibration separately from RMSE
-- [ ] **Evaluate on held-out drivers**, not just held-out routes
-- [ ] Pinned seeds; two fixed-seed runs must agree
-- [ ] Record parameter count, inference latency, model size
-- [ ] Install `requirements-gpu.txt` and confirm CUDA actually works (untested as of Phase 1)
-- [ ] Static check: no coordinate appears as a target anywhere in the training code
+- [x] ONNX wrapper, AI-assisted EKF, NHC, GNSS state machine, integration tests
+- [x] Real-data ablation (PROJECT_STATUS.md §7.5)
+- [ ] Decide defaults: AI speed on; NHC only with AI speed; Model B off (pending review)
+- [ ] Find why AI speed worsens some 30 s outages (S3a, S3b)
 
 ---
 

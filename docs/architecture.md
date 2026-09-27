@@ -125,6 +125,28 @@ filter covariance P ────────────────────
 
 A point estimate with no covariance is not an answer to a navigation problem.
 
+### As built (Phase 7): what the shipped fusion actually runs
+
+The diagram above is the design space. What `navcore.fusion.navigator.FusionConfig()` runs
+by default was chosen by a **real-data ablation**, not by preference
+(`reports/phase7/fusion_evaluation.json`, 3 validation drives, pooled outages):
+
+| Component | Default | Evidence |
+| --- | --- | --- |
+| Model A — forward speed (1D-CNN, 5 s) as an EKF measurement when GNSS is DEGRADED / LOST / RECOVERING | **ON** | 60 s outage error 2,814 → 490 m; 30 s p90 1,123 → 520 m |
+| NHC (vertical; lateral only with an accepted mount) | **ON, only paired with AI speed** | alone: worse and diverged on 1 drive (mount-tilt error, correlated violations); with AI speed: best 30 s p90 (380 m) and 60 s median (364 m) |
+| Model B — longitudinal acceleration (LSTM, 2 s) correcting the IMU before `predict()` | **OFF** | see below |
+| GNSS state machine (GOOD / DEGRADED / LOST / RECOVERING) | ON | neutral alone; it is what switches AI speed on |
+
+**Model B was fully trained, selected, exported, parity-validated and evaluated, and is
+disabled by default because it made real-world navigation worse.** Adding it on top of AI
+speed + NHC raised the aided error from 12.5 to 37.9 m and the 60 s outage error from 364 to
+633 m, and dropped the filter's 2σ coverage to 63 %. That is consistent with its offline
+evaluation: 4 % better than a constant on the held-out drivers, and over-confident there
+(z std 1.52). The inverse-variance blend trusts it more than it deserves. It remains in the
+code behind `use_ai_accel=True` for research, and is re-enabled only on new evidence
+(a guard test, `test_default_fusion_config_is_the_measured_one`, pins these defaults).
+
 ---
 
 ## 3. Two Implementations, One Specification
@@ -293,12 +315,12 @@ the held-out numbers mean something (`AGENTS.md` §2.3).
 | --- | --- |
 | JDK, Android SDK, Gradle, adb | **absent on this machine** — blocks Phases 12–14 |
 | Physical Android handset | unconfirmed — an emulator cannot produce real IMU data |
-| CUDA runtime verification | untested; driver 555.97 vs `cu126` build |
+| CUDA runtime verification | *Resolved in Phase 6:* `torch 2.14.0+cu126`, `cuda.is_available()` True on the RTX 2050 |
 | `Categorised` vs `Uncategorised` duplication | unresolved; Phase 2 settles it by checksum |
 | Gyro `Yaw/Pitch/Roll` → body-axis mapping | **unknown**; must be derived from data in Phase 4, never assumed |
 | Accelerometer gravity-inclusive? | indicated by one sample row; to be confirmed in Phase 2 |
 | Dataset `GRAVITY` magnitude vs local normal gravity | discrepancy noted — see `navigation_math.md` §5 |
-| Wheel-odometry channel | *Revised in Phase 2:* IO-VNBD **does** contain a vehicle log per session (`V-*.csv`: VBOX GNSS + CAN wheel speeds, yaw rate, steering). Whether it may be a model **input** or only reference truth is an open decision — a phone-only deployment has no CAN bus. Until decided, it is reference/evaluation data only. |
+| Wheel-odometry channel | *Decided (Phase 2, by the user):* IO-VNBD's CAN channels (wheel speed, steering, yaw rate) are **ground truth only**, never a model or filter input. The problem statement requires velocity without OBD-II; enforced in code (`training/preprocessing/columns.py`). |
 
 Every row above is a thing we do not yet know. None of them will be filled in with a
 plausible-sounding guess.

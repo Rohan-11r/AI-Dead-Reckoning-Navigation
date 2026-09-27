@@ -1,0 +1,1192 @@
+{
+ "generated": "2026-09-27T23:00:51",
+ "script": "scripts/evaluate/phase7_fusion_eval.py",
+ "sessions": [
+  "S3a",
+  "S3b",
+  "S3c",
+  "Vtb10",
+  "Vtb12"
+ ],
+ "models": {
+  "model_a": "model_a_cnn1d_w50",
+  "model_b": "model_b_lstm_w20"
+ },
+ "arms": {
+  "baseline": {
+   "config": {
+    "use_ai_speed": false,
+    "use_ai_accel": false,
+    "use_nhc": false,
+    "nhc_requires_ai_speed": true,
+    "use_state_machine": false,
+    "ai_every": 1,
+    "ai_speed_min_mps": 1.0,
+    "ai_speed_sigma_floor_mps": 0.5,
+    "ai_speed_interval_s": 1.0,
+    "ai_sample_dt_s": 0.1,
+    "accel_imu_sigma_mps2": 1.04,
+    "still_acc_std_mps2": 0.08,
+    "still_norm_tol_mps2": 0.1,
+    "still_gyro_radps": 0.02,
+    "still_speed_mps": 1.0,
+    "nhc": {
+     "sigma_lateral_mps": 0.3,
+     "sigma_vertical_mps": 0.3,
+     "min_speed_mps": 2.0,
+     "max_lateral_accel_mps2": 3.0
+    }
+   },
+   "aided_p50_m": 34.21585411699208,
+   "aided_p95_m": 827.16566830645,
+   "aided_within_2sigma": 0.9412008772449766,
+   "outage_30s": {
+    "n": 14,
+    "p50_m": 274.17965617472134,
+    "p90_m": 1122.6652545096695,
+    "along_p50_m": 203.54067215010292,
+    "cross_p50_m": 162.5778780191344
+   },
+   "outage_60s": {
+    "n": 12,
+    "p50_m": 2813.954746705136,
+    "p90_m": 5109.759185929423,
+    "along_p50_m": 1506.3154088888855,
+    "cross_p50_m": 855.5942968577356
+   },
+   "session_median_of_medians": {
+    "aided_m": 9.862787419763709,
+    "outage_30s_m": 100.34092704832254,
+    "outage_60s_m": 1975.9511059782922
+   },
+   "n_failed": 0,
+   "counts": {
+    "gnss_accepted": 240,
+    "zupt": 1889,
+    "gnss_rejected": 328,
+    "gnss_lockout_resets": 105
+   }
+  },
+  "nhc": {
+   "config": {
+    "use_ai_speed": false,
+    "use_ai_accel": false,
+    "use_nhc": true,
+    "nhc_requires_ai_speed": false,
+    "use_state_machine": false,
+    "ai_every": 1,
+    "ai_speed_min_mps": 1.0,
+    "ai_speed_sigma_floor_mps": 0.5,
+    "ai_speed_interval_s": 1.0,
+    "ai_sample_dt_s": 0.1,
+    "accel_imu_sigma_mps2": 1.04,
+    "still_acc_std_mps2": 0.08,
+    "still_norm_tol_mps2": 0.1,
+    "still_gyro_radps": 0.02,
+    "still_speed_mps": 1.0,
+    "nhc": {
+     "sigma_lateral_mps": 0.3,
+     "sigma_vertical_mps": 0.3,
+     "min_speed_mps": 2.0,
+     "max_lateral_accel_mps2": 3.0
+    }
+   },
+   "aided_p50_m": 12.946537187560834,
+   "aided_p95_m": 2573.5178217308453,
+   "aided_within_2sigma": 0.6822399095747186,
+   "outage_30s": {
+    "n": 6,
+    "p50_m": 281.7546472154918,
+    "p90_m": 2170.0631564761507,
+    "along_p50_m": 245.1111845505569,
+    "cross_p50_m": 166.50507035499714
+   },
+   "outage_60s": {
+    "n": 5,
+    "p50_m": 1578.675953329187,
+    "p90_m": 11996.689265703588,
+    "along_p50_m": 1468.9941823254596,
+    "cross_p50_m": 1214.3122757666106
+   },
+   "session_median_of_medians": {
+    "aided_m": 13.30061770504097,
+    "outage_30s_m": 270.2549865009762,
+    "outage_60s_m": 1578.675953329187
+   },
+   "n_failed": 1,
+   "counts": {
+    "nhc_accepted": 22147,
+    "gnss_accepted": 163,
+    "nhc_hard_cornering": 4734,
+    "nhc_low_speed": 1160,
+    "zupt": 131,
+    "gnss_rejected": 80,
+    "gnss_lockout_resets": 25,
+    "nhc_gated": 994
+   }
+  },
+  "sm_only": {
+   "config": {
+    "use_ai_speed": false,
+    "use_ai_accel": false,
+    "use_nhc": false,
+    "nhc_requires_ai_speed": true,
+    "use_state_machine": true,
+    "ai_every": 1,
+    "ai_speed_min_mps": 1.0,
+    "ai_speed_sigma_floor_mps": 0.5,
+    "ai_speed_interval_s": 1.0,
+    "ai_sample_dt_s": 0.1,
+    "accel_imu_sigma_mps2": 1.04,
+    "still_acc_std_mps2": 0.08,
+    "still_norm_tol_mps2": 0.1,
+    "still_gyro_radps": 0.02,
+    "still_speed_mps": 1.0,
+    "nhc": {
+     "sigma_lateral_mps": 0.3,
+     "sigma_vertical_mps": 0.3,
+     "min_speed_mps": 2.0,
+     "max_lateral_accel_mps2": 3.0
+    }
+   },
+   "aided_p50_m": 31.815859434792756,
+   "aided_p95_m": 866.1038640088059,
+   "aided_within_2sigma": 0.9389287337245372,
+   "outage_30s": {
+    "n": 14,
+    "p50_m": 296.5107898529852,
+    "p90_m": 1208.3294581065536,
+    "along_p50_m": 227.69981720069177,
+    "cross_p50_m": 183.9113745940007
+   },
+   "outage_60s": {
+    "n": 12,
+    "p50_m": 2860.034778963077,
+    "p90_m": 4690.668197624188,
+    "along_p50_m": 1598.320678495022,
+    "cross_p50_m": 1181.7204979057428
+   },
+   "session_median_of_medians": {
+    "aided_m": 10.252308465558553,
+    "outage_30s_m": 100.50507797694279,
+    "outage_60s_m": 1997.7931445010868
+   },
+   "n_failed": 0,
+   "counts": {
+    "gnss_accepted": 253,
+    "zupt": 1889,
+    "gnss_rejected": 315,
+    "gnss_lockout_resets": 100
+   }
+  },
+  "ai_speed": {
+   "config": {
+    "use_ai_speed": true,
+    "use_ai_accel": false,
+    "use_nhc": false,
+    "nhc_requires_ai_speed": true,
+    "use_state_machine": true,
+    "ai_every": 1,
+    "ai_speed_min_mps": 1.0,
+    "ai_speed_sigma_floor_mps": 0.5,
+    "ai_speed_interval_s": 1.0,
+    "ai_sample_dt_s": 0.1,
+    "accel_imu_sigma_mps2": 1.04,
+    "still_acc_std_mps2": 0.08,
+    "still_norm_tol_mps2": 0.1,
+    "still_gyro_radps": 0.02,
+    "still_speed_mps": 1.0,
+    "nhc": {
+     "sigma_lateral_mps": 0.3,
+     "sigma_vertical_mps": 0.3,
+     "min_speed_mps": 2.0,
+     "max_lateral_accel_mps2": 3.0
+    }
+   },
+   "aided_p50_m": 11.934906011586238,
+   "aided_p95_m": 437.34760124143077,
+   "aided_within_2sigma": 0.7870112421709837,
+   "outage_30s": {
+    "n": 14,
+    "p50_m": 300.36449330014767,
+    "p90_m": 520.4013025628316,
+    "along_p50_m": 116.6171380162533,
+    "cross_p50_m": 146.1959766379188
+   },
+   "outage_60s": {
+    "n": 12,
+    "p50_m": 489.7900908637255,
+    "p90_m": 746.4189477599728,
+    "along_p50_m": 235.13033921746162,
+    "cross_p50_m": 252.01512650290238
+   },
+   "session_median_of_medians": {
+    "aided_m": 11.297939396014922,
+    "outage_30s_m": 300.36449330014767,
+    "outage_60s_m": 446.6090936680484
+   },
+   "n_failed": 0,
+   "counts": {
+    "ai_speed_inferences": 66073,
+    "ai_speed_accepted": 3097,
+    "gnss_accepted": 427,
+    "zupt": 2115,
+    "ai_speed_skipped_low_speed": 345,
+    "gnss_rejected": 141,
+    "gnss_lockout_resets": 41,
+    "ai_speed_rejected": 2
+   }
+  },
+  "ai_speed_nhc": {
+   "config": {
+    "use_ai_speed": true,
+    "use_ai_accel": false,
+    "use_nhc": true,
+    "nhc_requires_ai_speed": true,
+    "use_state_machine": true,
+    "ai_every": 1,
+    "ai_speed_min_mps": 1.0,
+    "ai_speed_sigma_floor_mps": 0.5,
+    "ai_speed_interval_s": 1.0,
+    "ai_sample_dt_s": 0.1,
+    "accel_imu_sigma_mps2": 1.04,
+    "still_acc_std_mps2": 0.08,
+    "still_norm_tol_mps2": 0.1,
+    "still_gyro_radps": 0.02,
+    "still_speed_mps": 1.0,
+    "nhc": {
+     "sigma_lateral_mps": 0.3,
+     "sigma_vertical_mps": 0.3,
+     "min_speed_mps": 2.0,
+     "max_lateral_accel_mps2": 3.0
+    }
+   },
+   "aided_p50_m": 12.535250864018732,
+   "aided_p95_m": 417.47142871065387,
+   "aided_within_2sigma": 0.7453816213225851,
+   "outage_30s": {
+    "n": 14,
+    "p50_m": 294.15604613130245,
+    "p90_m": 380.10198006688694,
+    "along_p50_m": 116.98552752140797,
+    "cross_p50_m": 203.7909806434624
+   },
+   "outage_60s": {
+    "n": 12,
+    "p50_m": 363.96044239225137,
+    "p90_m": 1036.8361271812873,
+    "along_p50_m": 215.5677170006934,
+    "cross_p50_m": 180.20860548671067
+   },
+   "session_median_of_medians": {
+    "aided_m": 11.468584092819786,
+    "outage_30s_m": 279.43616924839966,
+    "outage_60s_m": 318.9945337841506
+   },
+   "n_failed": 0,
+   "counts": {
+    "nhc_accepted": 57966,
+    "ai_speed_inferences": 66073,
+    "ai_speed_accepted": 3192,
+    "gnss_accepted": 418,
+    "nhc_hard_cornering": 2710,
+    "gnss_rejected": 150,
+    "gnss_lockout_resets": 43,
+    "nhc_low_speed": 5434,
+    "ai_speed_skipped_low_speed": 326,
+    "zupt": 2115,
+    "nhc_gated": 107,
+    "ai_speed_rejected": 1
+   }
+  },
+  "full": {
+   "config": {
+    "use_ai_speed": true,
+    "use_ai_accel": true,
+    "use_nhc": true,
+    "nhc_requires_ai_speed": true,
+    "use_state_machine": true,
+    "ai_every": 1,
+    "ai_speed_min_mps": 1.0,
+    "ai_speed_sigma_floor_mps": 0.5,
+    "ai_speed_interval_s": 1.0,
+    "ai_sample_dt_s": 0.1,
+    "accel_imu_sigma_mps2": 1.04,
+    "still_acc_std_mps2": 0.08,
+    "still_norm_tol_mps2": 0.1,
+    "still_gyro_radps": 0.02,
+    "still_speed_mps": 1.0,
+    "nhc": {
+     "sigma_lateral_mps": 0.3,
+     "sigma_vertical_mps": 0.3,
+     "min_speed_mps": 2.0,
+     "max_lateral_accel_mps2": 3.0
+    }
+   },
+   "aided_p50_m": 37.948016558118645,
+   "aided_p95_m": 844.1675367779472,
+   "aided_within_2sigma": 0.6271511271807638,
+   "outage_30s": {
+    "n": 14,
+    "p50_m": 321.2001909781759,
+    "p90_m": 1173.1469447282232,
+    "along_p50_m": 75.81143239154068,
+    "cross_p50_m": 237.79270536530407
+   },
+   "outage_60s": {
+    "n": 12,
+    "p50_m": 633.4645377581792,
+    "p90_m": 5081.838070388689,
+    "along_p50_m": 319.1955547228275,
+    "cross_p50_m": 449.3090046129927
+   },
+   "session_median_of_medians": {
+    "aided_m": 12.598707884290976,
+    "outage_30s_m": 273.0723382896555,
+    "outage_60s_m": 646.1965755797787
+   },
+   "n_failed": 0,
+   "counts": {
+    "nhc_accepted": 52973,
+    "ai_speed_inferences": 66073,
+    "ai_accel_inferences": 66073,
+    "ai_accel_corrections": 62129,
+    "ai_speed_accepted": 4217,
+    "gnss_accepted": 223,
+    "nhc_hard_cornering": 4074,
+    "nhc_low_speed": 2901,
+    "zupt": 2115,
+    "ai_speed_skipped_low_speed": 184,
+    "gnss_rejected": 345,
+    "gnss_lockout_resets": 112,
+    "nhc_gated": 6269,
+    "ai_speed_rejected": 376
+   }
+  },
+  "default": {
+   "config": {
+    "use_ai_speed": true,
+    "use_ai_accel": false,
+    "use_nhc": true,
+    "nhc_requires_ai_speed": true,
+    "use_state_machine": true,
+    "ai_every": 1,
+    "ai_speed_min_mps": 1.0,
+    "ai_speed_sigma_floor_mps": 0.5,
+    "ai_speed_interval_s": 1.0,
+    "ai_sample_dt_s": 0.1,
+    "accel_imu_sigma_mps2": 1.04,
+    "still_acc_std_mps2": 0.08,
+    "still_norm_tol_mps2": 0.1,
+    "still_gyro_radps": 0.02,
+    "still_speed_mps": 1.0,
+    "nhc": {
+     "sigma_lateral_mps": 0.3,
+     "sigma_vertical_mps": 0.3,
+     "min_speed_mps": 2.0,
+     "max_lateral_accel_mps2": 3.0
+    }
+   },
+   "aided_p50_m": 12.535250864018732,
+   "aided_p95_m": 417.47142871065387,
+   "aided_within_2sigma": 0.7453816213225851,
+   "outage_30s": {
+    "n": 14,
+    "p50_m": 294.15604613130245,
+    "p90_m": 380.10198006688694,
+    "along_p50_m": 116.98552752140797,
+    "cross_p50_m": 203.7909806434624
+   },
+   "outage_60s": {
+    "n": 12,
+    "p50_m": 363.96044239225137,
+    "p90_m": 1036.8361271812873,
+    "along_p50_m": 215.5677170006934,
+    "cross_p50_m": 180.20860548671067
+   },
+   "session_median_of_medians": {
+    "aided_m": 11.468584092819786,
+    "outage_30s_m": 279.43616924839966,
+    "outage_60s_m": 318.9945337841506
+   },
+   "n_failed": 0,
+   "counts": {
+    "nhc_accepted": 57966,
+    "ai_speed_inferences": 66073,
+    "ai_speed_accepted": 3192,
+    "gnss_accepted": 418,
+    "nhc_hard_cornering": 2710,
+    "gnss_rejected": 150,
+    "gnss_lockout_resets": 43,
+    "nhc_low_speed": 5434,
+    "ai_speed_skipped_low_speed": 326,
+    "zupt": 2115,
+    "nhc_gated": 107,
+    "ai_speed_rejected": 1
+   }
+  }
+ },
+ "per_segment": [
+  {
+   "session_id": "S3a",
+   "segment_id": 0,
+   "mount_acceptable": false,
+   "fix_interval_s": 9.0,
+   "arms": {
+    "baseline": {
+     "aided_p50_m": 7.2244411686721115,
+     "aided_p95_m": 281.7941420861218,
+     "aided_within_2sigma": 0.9018212711729411,
+     "outage_30s": {
+      "n": 5,
+      "p50_m": 100.34092704832254,
+      "p90_m": 233.84299827603064,
+      "along_p50_m": 60.85583486847915,
+      "cross_p50_m": 50.53250922217296
+     },
+     "outage_60s": {
+      "n": 5,
+      "p50_m": 960.1183250626042,
+      "p90_m": 4802.744155096196,
+      "along_p50_m": 525.6896979995986,
+      "cross_p50_m": 821.1140840072367
+     },
+     "session_median_of_medians": {
+      "aided_m": 7.2244411686721115,
+      "outage_30s_m": 100.34092704832254,
+      "outage_60s_m": 960.1183250626042
+     },
+     "n_failed": 0,
+     "counts": {
+      "gnss_accepted": 172,
+      "zupt": 112,
+      "gnss_rejected": 32,
+      "gnss_lockout_resets": 8
+     }
+    },
+    "nhc": {
+     "aided_p50_m": 12.814145561330582,
+     "aided_p95_m": 2766.3831183133975,
+     "aided_within_2sigma": 0.6753039876811979,
+     "outage_30s": {
+      "n": 5,
+      "p50_m": 301.196052964418,
+      "p90_m": 2537.087126643312,
+      "along_p50_m": 296.0675928375851,
+      "cross_p50_m": 156.6237480864253
+     },
+     "outage_60s": {
+      "n": 5,
+      "p50_m": 1578.675953329187,
+      "p90_m": 11996.689265703588,
+      "along_p50_m": 1468.9941823254596,
+      "cross_p50_m": 1214.3122757666106
+     },
+     "session_median_of_medians": {
+      "aided_m": 12.814145561330582,
+      "outage_30s_m": 301.196052964418,
+      "outage_60s_m": 1578.675953329187
+     },
+     "n_failed": 0,
+     "counts": {
+      "nhc_accepted": 18297,
+      "gnss_accepted": 137,
+      "nhc_hard_cornering": 4320,
+      "nhc_low_speed": 945,
+      "zupt": 112,
+      "gnss_rejected": 67,
+      "gnss_lockout_resets": 22,
+      "nhc_gated": 968
+     }
+    },
+    "sm_only": {
+     "aided_p50_m": 7.238383225055499,
+     "aided_p95_m": 269.93412073655344,
+     "aided_within_2sigma": 0.8918918918918919,
+     "outage_30s": {
+      "n": 5,
+      "p50_m": 100.50507797694279,
+      "p90_m": 223.56227881527053,
+      "along_p50_m": 60.83134105349096,
+      "cross_p50_m": 46.630493151808245
+     },
+     "outage_60s": {
+      "n": 5,
+      "p50_m": 953.2908582299967,
+      "p90_m": 4516.586233642095,
+      "along_p50_m": 526.0040040222502,
+      "cross_p50_m": 808.4672240801247
+     },
+     "session_median_of_medians": {
+      "aided_m": 7.238383225055499,
+      "outage_30s_m": 100.50507797694279,
+      "outage_60s_m": 953.2908582299967
+     },
+     "n_failed": 0,
+     "counts": {
+      "gnss_accepted": 185,
+      "zupt": 112,
+      "gnss_rejected": 19,
+      "gnss_lockout_resets": 3
+     }
+    },
+    "ai_speed": {
+     "aided_p50_m": 7.283203538649561,
+     "aided_p95_m": 369.1705262251907,
+     "aided_within_2sigma": 0.862475442043222,
+     "outage_30s": {
+      "n": 5,
+      "p50_m": 316.92860435283063,
+      "p90_m": 393.40484990515534,
+      "along_p50_m": 103.63844368065244,
+      "cross_p50_m": 168.04293533151082
+     },
+     "outage_60s": {
+      "n": 5,
+      "p50_m": 387.991705200026,
+      "p90_m": 639.820533513822,
+      "along_p50_m": 182.9027263484998,
+      "cross_p50_m": 342.1756215721829
+     },
+     "session_median_of_medians": {
+      "aided_m": 7.283203538649561,
+      "outage_30s_m": 316.92860435283063,
+      "outage_60s_m": 387.991705200026
+     },
+     "n_failed": 0,
+     "counts": {
+      "ai_speed_inferences": 24482,
+      "ai_speed_accepted": 944,
+      "gnss_accepted": 177,
+      "zupt": 300,
+      "ai_speed_skipped_low_speed": 127,
+      "gnss_rejected": 27,
+      "gnss_lockout_resets": 8,
+      "ai_speed_rejected": 2
+     }
+    },
+    "ai_speed_nhc": {
+     "aided_p50_m": 9.57271053055265,
+     "aided_p95_m": 556.6267716436238,
+     "aided_within_2sigma": 0.792916688790952,
+     "outage_30s": {
+      "n": 5,
+      "p50_m": 320.5781461654019,
+      "p90_m": 349.8550688137989,
+      "along_p50_m": 114.13256361962428,
+      "cross_p50_m": 264.2267447904434
+     },
+     "outage_60s": {
+      "n": 5,
+      "p50_m": 454.7649204027344,
+      "p90_m": 897.6704654196419,
+      "along_p50_m": 227.16122457572118,
+      "cross_p50_m": 345.4353152014422
+     },
+     "session_median_of_medians": {
+      "aided_m": 9.57271053055265,
+      "outage_30s_m": 320.5781461654019,
+      "outage_60s_m": 454.7649204027344
+     },
+     "n_failed": 0,
+     "counts": {
+      "nhc_accepted": 21302,
+      "ai_speed_inferences": 24482,
+      "ai_speed_accepted": 1113,
+      "gnss_accepted": 158,
+      "nhc_hard_cornering": 1040,
+      "gnss_rejected": 46,
+      "gnss_lockout_resets": 13,
+      "nhc_low_speed": 2186,
+      "ai_speed_skipped_low_speed": 131,
+      "zupt": 300,
+      "nhc_gated": 2
+     }
+    },
+    "full": {
+     "aided_p50_m": 12.598707884290976,
+     "aided_p95_m": 595.6441736755304,
+     "aided_within_2sigma": 0.8317315350714172,
+     "outage_30s": {
+      "n": 5,
+      "p50_m": 273.0723382896555,
+      "p90_m": 530.9411736891743,
+      "along_p50_m": 73.69619229614676,
+      "cross_p50_m": 267.49101880584993
+     },
+     "outage_60s": {
+      "n": 5,
+      "p50_m": 550.3915911361531,
+      "p90_m": 1017.2426311117324,
+      "along_p50_m": 212.0887620268564,
+      "cross_p50_m": 380.9997487021141
+     },
+     "session_median_of_medians": {
+      "aided_m": 12.598707884290976,
+      "outage_30s_m": 273.0723382896555,
+      "outage_60s_m": 550.3915911361531
+     },
+     "n_failed": 0,
+     "counts": {
+      "nhc_accepted": 15198,
+      "ai_speed_inferences": 24482,
+      "ai_accel_inferences": 24482,
+      "ai_accel_corrections": 22104,
+      "ai_speed_accepted": 1332,
+      "gnss_accepted": 121,
+      "nhc_hard_cornering": 1118,
+      "nhc_low_speed": 1983,
+      "zupt": 300,
+      "ai_speed_skipped_low_speed": 128,
+      "gnss_rejected": 83,
+      "gnss_lockout_resets": 26,
+      "nhc_gated": 6231
+     }
+    },
+    "default": {
+     "aided_p50_m": 9.57271053055265,
+     "aided_p95_m": 556.6267716436238,
+     "aided_within_2sigma": 0.792916688790952,
+     "outage_30s": {
+      "n": 5,
+      "p50_m": 320.5781461654019,
+      "p90_m": 349.8550688137989,
+      "along_p50_m": 114.13256361962428,
+      "cross_p50_m": 264.2267447904434
+     },
+     "outage_60s": {
+      "n": 5,
+      "p50_m": 454.7649204027344,
+      "p90_m": 897.6704654196419,
+      "along_p50_m": 227.16122457572118,
+      "cross_p50_m": 345.4353152014422
+     },
+     "session_median_of_medians": {
+      "aided_m": 9.57271053055265,
+      "outage_30s_m": 320.5781461654019,
+      "outage_60s_m": 454.7649204027344
+     },
+     "n_failed": 0,
+     "counts": {
+      "nhc_accepted": 21302,
+      "ai_speed_inferences": 24482,
+      "ai_speed_accepted": 1113,
+      "gnss_accepted": 158,
+      "nhc_hard_cornering": 1040,
+      "gnss_rejected": 46,
+      "gnss_lockout_resets": 13,
+      "nhc_low_speed": 2186,
+      "ai_speed_skipped_low_speed": 131,
+      "zupt": 300,
+      "nhc_gated": 2
+     }
+    }
+   }
+  },
+  {
+   "session_id": "S3b",
+   "segment_id": 1,
+   "mount_acceptable": false,
+   "fix_interval_s": 9.0,
+   "arms": {
+    "baseline": {
+     "aided_p50_m": 9.862787419763709,
+     "aided_p95_m": 275.7387542537794,
+     "aided_within_2sigma": 0.8408333333333333,
+     "outage_30s": {
+      "n": 1,
+      "p50_m": 63.5279270286622,
+      "p90_m": 63.5279270286622,
+      "along_p50_m": 37.42597944330889,
+      "cross_p50_m": 51.33316252938298
+     },
+     "outage_60s": {
+      "n": 0,
+      "p50_m": null,
+      "p90_m": null,
+      "along_p50_m": null,
+      "cross_p50_m": null
+     },
+     "session_median_of_medians": {
+      "aided_m": 9.862787419763709,
+      "outage_30s_m": 63.5279270286622,
+      "outage_60s_m": null
+     },
+     "n_failed": 0,
+     "counts": {
+      "gnss_accepted": 34,
+      "gnss_rejected": 5,
+      "gnss_lockout_resets": 1,
+      "zupt": 19
+     }
+    },
+    "nhc": {
+     "aided_p50_m": 13.78708984875136,
+     "aided_p95_m": 333.5224533063177,
+     "aided_within_2sigma": 0.7366666666666667,
+     "outage_30s": {
+      "n": 1,
+      "p50_m": 239.31392003753433,
+      "p90_m": 239.31392003753433,
+      "along_p50_m": 23.668369305139834,
+      "cross_p50_m": 238.14063201849217
+     },
+     "outage_60s": {
+      "n": 0,
+      "p50_m": null,
+      "p90_m": null,
+      "along_p50_m": null,
+      "cross_p50_m": null
+     },
+     "session_median_of_medians": {
+      "aided_m": 13.78708984875136,
+      "outage_30s_m": 239.31392003753433,
+      "outage_60s_m": null
+     },
+     "n_failed": 0,
+     "counts": {
+      "nhc_accepted": 3850,
+      "nhc_hard_cornering": 414,
+      "gnss_accepted": 26,
+      "nhc_low_speed": 215,
+      "gnss_rejected": 13,
+      "gnss_lockout_resets": 3,
+      "nhc_gated": 26,
+      "zupt": 19
+     }
+    },
+    "sm_only": {
+     "aided_p50_m": 10.252308465558553,
+     "aided_p95_m": 283.85810258510315,
+     "aided_within_2sigma": 0.8395833333333333,
+     "outage_30s": {
+      "n": 1,
+      "p50_m": 62.302705167478294,
+      "p90_m": 62.302705167478294,
+      "along_p50_m": 40.83396941860943,
+      "cross_p50_m": 47.05543552774532
+     },
+     "outage_60s": {
+      "n": 0,
+      "p50_m": null,
+      "p90_m": null,
+      "along_p50_m": null,
+      "cross_p50_m": null
+     },
+     "session_median_of_medians": {
+      "aided_m": 10.252308465558553,
+      "outage_30s_m": 62.302705167478294,
+      "outage_60s_m": null
+     },
+     "n_failed": 0,
+     "counts": {
+      "gnss_accepted": 34,
+      "gnss_rejected": 5,
+      "gnss_lockout_resets": 1,
+      "zupt": 19
+     }
+    },
+    "ai_speed": {
+     "aided_p50_m": 11.297939396014922,
+     "aided_p95_m": 191.93370144668668,
+     "aided_within_2sigma": 0.8029166666666666,
+     "outage_30s": {
+      "n": 1,
+      "p50_m": 185.9010732058431,
+      "p90_m": 185.9010732058431,
+      "along_p50_m": 117.53887253989808,
+      "cross_p50_m": 144.0271587622759
+     },
+     "outage_60s": {
+      "n": 0,
+      "p50_m": null,
+      "p90_m": null,
+      "along_p50_m": null,
+      "cross_p50_m": null
+     },
+     "session_median_of_medians": {
+      "aided_m": 11.297939396014922,
+      "outage_30s_m": 185.9010732058431,
+      "outage_60s_m": null
+     },
+     "n_failed": 0,
+     "counts": {
+      "ai_speed_inferences": 4457,
+      "ai_speed_accepted": 204,
+      "gnss_accepted": 32,
+      "gnss_rejected": 7,
+      "ai_speed_skipped_low_speed": 6,
+      "zupt": 17,
+      "gnss_lockout_resets": 1
+     }
+    },
+    "ai_speed_nhc": {
+     "aided_p50_m": 11.468584092819786,
+     "aided_p95_m": 218.46569070462462,
+     "aided_within_2sigma": 0.8241666666666667,
+     "outage_30s": {
+      "n": 1,
+      "p50_m": 183.6279361708867,
+      "p90_m": 183.6279361708867,
+      "along_p50_m": 121.82762494252785,
+      "cross_p50_m": 137.3945004111955
+     },
+     "outage_60s": {
+      "n": 0,
+      "p50_m": null,
+      "p90_m": null,
+      "along_p50_m": null,
+      "cross_p50_m": null
+     },
+     "session_median_of_medians": {
+      "aided_m": 11.468584092819786,
+      "outage_30s_m": 183.6279361708867,
+      "outage_60s_m": null
+     },
+     "n_failed": 0,
+     "counts": {
+      "nhc_accepted": 4065,
+      "nhc_hard_cornering": 254,
+      "ai_speed_inferences": 4457,
+      "ai_speed_accepted": 211,
+      "gnss_accepted": 31,
+      "gnss_rejected": 8,
+      "gnss_lockout_resets": 2,
+      "nhc_low_speed": 183,
+      "ai_speed_skipped_low_speed": 6,
+      "zupt": 17,
+      "nhc_gated": 3,
+      "ai_speed_rejected": 1
+     }
+    },
+    "full": {
+     "aided_p50_m": 10.720988204652503,
+     "aided_p95_m": 277.3351129022132,
+     "aided_within_2sigma": 0.7666666666666667,
+     "outage_30s": {
+      "n": 1,
+      "p50_m": 136.46431487812075,
+      "p90_m": 136.46431487812075,
+      "along_p50_m": 2.0301528174206425,
+      "cross_p50_m": 136.44921295006728
+     },
+     "outage_60s": {
+      "n": 0,
+      "p50_m": null,
+      "p90_m": null,
+      "along_p50_m": null,
+      "cross_p50_m": null
+     },
+     "session_median_of_medians": {
+      "aided_m": 10.720988204652503,
+      "outage_30s_m": 136.46431487812075,
+      "outage_60s_m": null
+     },
+     "n_failed": 0,
+     "counts": {
+      "nhc_accepted": 4099,
+      "nhc_hard_cornering": 231,
+      "ai_speed_inferences": 4457,
+      "ai_accel_inferences": 4457,
+      "ai_accel_corrections": 4190,
+      "ai_speed_accepted": 225,
+      "gnss_accepted": 30,
+      "gnss_rejected": 9,
+      "gnss_lockout_resets": 3,
+      "nhc_low_speed": 175,
+      "zupt": 17,
+      "ai_speed_skipped_low_speed": 1
+     }
+    },
+    "default": {
+     "aided_p50_m": 11.468584092819786,
+     "aided_p95_m": 218.46569070462462,
+     "aided_within_2sigma": 0.8241666666666667,
+     "outage_30s": {
+      "n": 1,
+      "p50_m": 183.6279361708867,
+      "p90_m": 183.6279361708867,
+      "along_p50_m": 121.82762494252785,
+      "cross_p50_m": 137.3945004111955
+     },
+     "outage_60s": {
+      "n": 0,
+      "p50_m": null,
+      "p90_m": null,
+      "along_p50_m": null,
+      "cross_p50_m": null
+     },
+     "session_median_of_medians": {
+      "aided_m": 11.468584092819786,
+      "outage_30s_m": 183.6279361708867,
+      "outage_60s_m": null
+     },
+     "n_failed": 0,
+     "counts": {
+      "nhc_accepted": 4065,
+      "nhc_hard_cornering": 254,
+      "ai_speed_inferences": 4457,
+      "ai_speed_accepted": 211,
+      "gnss_accepted": 31,
+      "gnss_rejected": 8,
+      "gnss_lockout_resets": 2,
+      "nhc_low_speed": 183,
+      "ai_speed_skipped_low_speed": 6,
+      "zupt": 17,
+      "nhc_gated": 3,
+      "ai_speed_rejected": 1
+     }
+    }
+   }
+  },
+  {
+   "session_id": "S3c",
+   "segment_id": 0,
+   "mount_acceptable": false,
+   "fix_interval_s": 9.0,
+   "arms": {
+    "baseline": {
+     "aided_p50_m": 100.87660861163278,
+     "aided_p95_m": 1469.4205800486193,
+     "aided_within_2sigma": 0.974642614023145,
+     "outage_30s": {
+      "n": 8,
+      "p50_m": 916.202924706485,
+      "p90_m": 1463.7260698661123,
+      "along_p50_m": 596.4001399935714,
+      "cross_p50_m": 580.0920916525824
+     },
+     "outage_60s": {
+      "n": 7,
+      "p50_m": 2991.7838868939803,
+      "p90_m": 5089.2639317279145,
+      "along_p50_m": 1933.3250249211355,
+      "cross_p50_m": 890.0745097082344
+     },
+     "session_median_of_medians": {
+      "aided_m": 100.87660861163278,
+      "outage_30s_m": 916.202924706485,
+      "outage_60s_m": 2991.7838868939803
+     },
+     "n_failed": 0,
+     "counts": {
+      "gnss_accepted": 34,
+      "zupt": 1758,
+      "gnss_rejected": 291,
+      "gnss_lockout_resets": 96
+     }
+    },
+    "nhc": {
+     "aided_p50_m": null,
+     "aided_p95_m": null,
+     "aided_within_2sigma": null,
+     "outage_30s": {
+      "n": 0,
+      "p50_m": null,
+      "p90_m": null,
+      "along_p50_m": null,
+      "cross_p50_m": null
+     },
+     "outage_60s": {
+      "n": 0,
+      "p50_m": null,
+      "p90_m": null,
+      "along_p50_m": null,
+      "cross_p50_m": null
+     },
+     "session_median_of_medians": {
+      "aided_m": null,
+      "outage_30s_m": null,
+      "outage_60s_m": null
+     },
+     "n_failed": 1,
+     "counts": {},
+     "diverged": "P not positive-definite after reset_to_fix"
+    },
+    "sm_only": {
+     "aided_p50_m": 97.3357853007941,
+     "aided_p95_m": 1412.3396037314749,
+     "aided_within_2sigma": 0.9771953710006808,
+     "outage_30s": {
+      "n": 8,
+      "p50_m": 898.3232465655196,
+      "p90_m": 1502.7718348350886,
+      "along_p50_m": 702.0773734058562,
+      "cross_p50_m": 379.0705663621831
+     },
+     "outage_60s": {
+      "n": 7,
+      "p50_m": 3042.295430772177,
+      "p90_m": 5071.310496661589,
+      "along_p50_m": 1958.819295665087,
+      "cross_p50_m": 1935.4405663814991
+     },
+     "session_median_of_medians": {
+      "aided_m": 97.3357853007941,
+      "outage_30s_m": 898.3232465655196,
+      "outage_60s_m": 3042.295430772177
+     },
+     "n_failed": 0,
+     "counts": {
+      "gnss_accepted": 34,
+      "zupt": 1758,
+      "gnss_rejected": 291,
+      "gnss_lockout_resets": 96
+     }
+    },
+    "ai_speed": {
+     "aided_p50_m": 17.439158922402875,
+     "aided_p95_m": 514.6331898933244,
+     "aided_within_2sigma": 0.7373383253914227,
+     "outage_30s": {
+      "n": 8,
+      "p50_m": 300.36449330014767,
+      "p90_m": 563.6807905772943,
+      "along_p50_m": 131.92135870758665,
+      "cross_p50_m": 142.43706320777818
+     },
+     "outage_60s": {
+      "n": 7,
+      "p50_m": 505.2264821360708,
+      "p90_m": 792.9764808291682,
+      "along_p50_m": 287.35795208642344,
+      "cross_p50_m": 161.85463143362185
+     },
+     "session_median_of_medians": {
+      "aided_m": 17.439158922402875,
+      "outage_30s_m": 300.36449330014767,
+      "outage_60s_m": 505.2264821360708
+     },
+     "n_failed": 0,
+     "counts": {
+      "ai_speed_inferences": 37134,
+      "ai_speed_accepted": 1949,
+      "gnss_accepted": 218,
+      "zupt": 1798,
+      "ai_speed_skipped_low_speed": 212,
+      "gnss_rejected": 107,
+      "gnss_lockout_resets": 32
+     }
+    },
+    "ai_speed_nhc": {
+     "aided_p50_m": 16.259866702477645,
+     "aided_p95_m": 364.0299481869203,
+     "aided_within_2sigma": 0.7084751531654186,
+     "outage_30s": {
+      "n": 8,
+      "p50_m": 279.43616924839966,
+      "p90_m": 392.7429519186595,
+      "along_p50_m": 103.28932259667036,
+      "cross_p50_m": 203.81380721060745
+     },
+     "outage_60s": {
+      "n": 7,
+      "p50_m": 183.22414716556673,
+      "p90_m": 959.6616502690101,
+      "along_p50_m": 178.3664905910271,
+      "cross_p50_m": 68.95328524868252
+     },
+     "session_median_of_medians": {
+      "aided_m": 16.259866702477645,
+      "outage_30s_m": 279.43616924839966,
+      "outage_60s_m": 183.22414716556673
+     },
+     "n_failed": 0,
+     "counts": {
+      "nhc_accepted": 32599,
+      "ai_speed_inferences": 37134,
+      "ai_speed_accepted": 1868,
+      "gnss_accepted": 229,
+      "zupt": 1798,
+      "nhc_low_speed": 3065,
+      "ai_speed_skipped_low_speed": 189,
+      "nhc_hard_cornering": 1416,
+      "gnss_rejected": 96,
+      "gnss_lockout_resets": 28,
+      "nhc_gated": 102
+     }
+    },
+    "full": {
+     "aided_p50_m": 81.45394610885498,
+     "aided_p95_m": 998.0888151191318,
+     "aided_within_2sigma": 0.4846153846153846,
+     "outage_30s": {
+      "n": 8,
+      "p50_m": 403.88062963323466,
+      "p90_m": 1629.069065940093,
+      "along_p50_m": 102.0530228447956,
+      "cross_p50_m": 322.9055472579729
+     },
+     "outage_60s": {
+      "n": 7,
+      "p50_m": 742.0015600234043,
+      "p90_m": 5872.6732628476875,
+      "along_p50_m": 395.0689341282659,
+      "cross_p50_m": 584.8016226702355
+     },
+     "session_median_of_medians": {
+      "aided_m": 81.45394610885498,
+      "outage_30s_m": 403.88062963323466,
+      "outage_60s_m": 742.0015600234043
+     },
+     "n_failed": 0,
+     "counts": {
+      "nhc_accepted": 33676,
+      "ai_speed_inferences": 37134,
+      "ai_accel_inferences": 37134,
+      "ai_accel_corrections": 35835,
+      "ai_speed_accepted": 2660,
+      "gnss_accepted": 72,
+      "zupt": 1798,
+      "nhc_low_speed": 743,
+      "ai_speed_skipped_low_speed": 55,
+      "nhc_hard_cornering": 2725,
+      "nhc_gated": 38,
+      "gnss_rejected": 253,
+      "gnss_lockout_resets": 83,
+      "ai_speed_rejected": 376
+     }
+    },
+    "default": {
+     "aided_p50_m": 16.259866702477645,
+     "aided_p95_m": 364.0299481869203,
+     "aided_within_2sigma": 0.7084751531654186,
+     "outage_30s": {
+      "n": 8,
+      "p50_m": 279.43616924839966,
+      "p90_m": 392.7429519186595,
+      "along_p50_m": 103.28932259667036,
+      "cross_p50_m": 203.81380721060745
+     },
+     "outage_60s": {
+      "n": 7,
+      "p50_m": 183.22414716556673,
+      "p90_m": 959.6616502690101,
+      "along_p50_m": 178.3664905910271,
+      "cross_p50_m": 68.95328524868252
+     },
+     "session_median_of_medians": {
+      "aided_m": 16.259866702477645,
+      "outage_30s_m": 279.43616924839966,
+      "outage_60s_m": 183.22414716556673
+     },
+     "n_failed": 0,
+     "counts": {
+      "nhc_accepted": 32599,
+      "ai_speed_inferences": 37134,
+      "ai_speed_accepted": 1868,
+      "gnss_accepted": 229,
+      "zupt": 1798,
+      "nhc_low_speed": 3065,
+      "ai_speed_skipped_low_speed": 189,
+      "nhc_hard_cornering": 1416,
+      "gnss_rejected": 96,
+      "gnss_lockout_resets": 28,
+      "nhc_gated": 102
+     }
+    }
+   }
+  }
+ ],
+ "caveat": "VAL split; models were selected on VAL in Phase 6 -> optimistic; TEST reserved"
+}

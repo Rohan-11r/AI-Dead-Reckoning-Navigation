@@ -33,7 +33,7 @@
 | 4 | Baseline Navigation Core (sensors, alignment, INS, EKF) | **COMPLETED** |
 | 5 | ML Training Pipeline (pipeline + smoke test; full training not yet run) | **COMPLETED** |
 | 6 | ML Evaluation & Export (sweep, selection, evaluation, ONNX + parity gate) | **COMPLETED** |
-| 7 | Sensor Fusion & NHC (AI-assisted EKF, NHC, GNSS state machine) | `IN PROGRESS` |
+| 7 | Sensor Fusion & NHC (AI-assisted EKF, NHC, GNSS state machine; real-data gain mixed) | **COMPLETED** |
 | 8 | Fusion Engine (Error-State EKF) | `NOT STARTED` |
 | 9 | Non-Holonomic Constraints (NHC) | `NOT STARTED` |
 | 10 | Map Matching | `NOT STARTED` |
@@ -950,6 +950,11 @@ The held-out TEST drivers were never touched.
 | — of which 9 s-fix sessions | 10 | 9.1 m | 344 m | 943 m |
 
 (Train sessions are legitimate here: nothing in this classical filter is fitted to them.)
+
+> **Corrected twice since this was written:** an EKF tilt fix (§6.6) and a GNSS leak in
+> this script's stillness detector (§7.3). Current figures: validation 9.9 m / 100 m /
+> **1,989 m**; train+val 7.8 m / 290 m / **1,096 m** (with GNSS / 30 s / 60 s). The 60 s
+> figures above were optimistic.
 The filter's own 2σ covers its error in a median 88 % of rows (range 56–99 %). 30 s outage
 errors split evenly between along-track (170 m) and cross-track (193 m).
 
@@ -1224,55 +1229,181 @@ the synthetic tests (INS-only dropout drift 369 → 293 m).
 
 ---
 
-## Phase 7 — AI Signal Processing (Denoising / Bias + Motion Context / Speed)
+## Phase 7 — Sensor Fusion & NHC
 
-**Status:** `NOT STARTED`
+**Status:** `COMPLETED` for its defined scope (fusion code, NHC, state machine, integration
+tests, real-data ablation). **The real-data benefit is mixed and is reported as measured (§7.5).**
+**Date:** 2026-09-27
+**Evidence:** `reports/phase7/fusion_evaluation.json`; `tests/navigation/test_nhc_state_fusion.py` (12),
+`tests/integration/test_fused_navigation.py` (3); `ruff check .` clean; full suite passes
+**Scope note:** redefined by the user as "Sensor Fusion & NHC". It delivers much of the
+original Phase 8 (fusion with AI measurements) and Phase 9 (NHC) plans; those phases keep
+the parts not done here (§7.7).
 
-> Merged from the original Phases 6 and 7 — see the roadmap revision note above. The two
-> stages share one windowed dataset, one training harness and one export path, so the
-> split bought nothing but a phase boundary.
+**Run:**
 
-**Objective:** Learn what analytic calibration and physics cannot: the residual sensor-error
-structure, and a **direct, non-integrating speed estimate**. That second output is the
-mechanism that turns quadratic position drift into bounded drift, and is the single most
-important model in the system. Outputs are physical quantities in SI units with
-uncertainties — **never coordinates** (`AGENTS.md` §2.1).
+```
+.venv/Scripts/python.exe scripts/evaluate/phase7_fusion_eval.py          # real-data ablation (VAL, verified)
+.venv/Scripts/python.exe -m pytest tests/integration tests/navigation/test_nhc_state_fusion.py
+```
 
-**Planned scope — Stage A: denoising / residual bias regression**
-- Windowed 10 Hz datasets built from the Phase 2 route/driver splits.
-- Small sequence models (1-D CNN / TCN / GRU) sized for 4 GB VRAM and phone inference.
-- Targets: accel/gyro bias and noise correction, supervised against GNSS-derived
-  references where those references are valid.
-- Ablation against Phase 4 analytic calibration — if AI does not beat physics, that is the
-  reported result and the physics is kept.
+### 7.1 What was built
 
-**Planned scope — Stage B: motion context classification**
-- Classes: stationary / accelerating / cruising / braking / turning, plus the dataset's
-  own route categories.
-- Feeds ZUPT triggering and NHC relaxation; operating point chosen on a cost-weighted
-  curve because a false `stationary` permanently loses real distance.
+| Component | Content |
+| --- | --- |
+| `navcore.fusion.features` | the single feature implementation (13 channels), used by training AND inference, so they cannot drift apart |
+| `navcore.fusion.ai_models` | `OnnxSequenceModel`: loads an exported model, **refuses** it if its SHA-256 or feature order differs from the model card; `ImuWindow` (restarts on a data gap); `speed_innovation` (H = [0, v_h/\|v_h\|, …]); `correct_specific_force` (Model B, below) |
+| `navcore.nhc.constraints` | vehicle-frame lateral / vertical velocity ≈ 0 as pseudo-measurements; exact Jacobian in velocity **and** attitude error; skipped below 2 m/s and above 3 m/s² lateral acceleration; lateral row only with an **accepted** mount |
+| `navcore.state.gnss_state` | GOOD / DEGRADED / LOST / RECOVERING, from fix age (12 s / 25 s), accuracy (> 10 m) and gate outcome; per-state policy: GNSS noise ×1 / ×2 / off / ×3, AI speed off in GOOD only |
+| `navcore.fusion.navigator` | `FusedNavigator.step()`: axis map → window → models → **Model B correction → predict()** → state machine + GNSS (+ lock-out reset) → **Model A speed update** (not GOOD) → NHC → stillness ZUPT. Every component is a switch; everything is counted |
+| `ErrorStateEKF.update()` | public generic update (Joseph form, NIS gate, PD check) used by NHC and AI speed |
 
-**Planned scope — Stage C: speed / displacement / heading-change regression**
-- Speed and displacement-magnitude regression from IMU windows.
-- Heading-change regression as an independent check on the Phase 5 AHRS.
-- Target-quality auditing: GNSS speed is noisy and GNSS bearing is meaningless at low
-  speed, so windows failing a validity gate are excluded and the exclusion count reported.
+**How Model B is applied.** It predicts longitudinal acceleration, not a 3-axis correction.
+Before `predict()`, the specific force's along-track component (along the current horizontal
+velocity) is replaced by the inverse-variance blend of the IMU's value and Model B's, using
+Model B's own variance. The cross-track and vertical components are untouched. Below 3 m/s
+the direction is undefined and nothing is changed.
 
-**Planned scope — common to all stages**
-- Per-prediction variance heads, so the Phase 8 filter can weight these properly.
-- Heteroscedastic Gaussian NLL; variance calibration validated separately from RMSE.
-- Evaluation on entirely held-out **drivers**, not just held-out routes.
-- GPU swap (`requirements-gpu.txt`) installed and CUDA availability confirmed here —
-  it is untested as of Phase 1.
+### 7.2 A bug found by the real data: AI speed counted as independent evidence
 
-**Exit criteria**
-- [ ] Training reproducible from a committed script with a pinned seed; two fixed-seed runs agree
-- [ ] Stage A improvement (or lack thereof) over Phase 4 reported on held-out routes
-- [ ] Speed/displacement error characterised on held-out drivers
-- [ ] Classifier confusion matrix and false-positive `stationary` rate committed
-- [ ] Uncertainty calibration checked (predicted variance vs realised squared error)
-- [ ] Parameter count, inference latency and model size recorded per model
-- [ ] Zero coordinate targets anywhere in the training code, enforced by a static check
+The first real-data run applied Model A's speed at **every 10 Hz sample**, even with no new
+prediction, using its per-prediction variance. Consecutive 5 s windows share 49 of 50 samples,
+so their errors are nearly identical, and the filter treated a biased speed as ~10× more
+certain than it is. On S3a: 18,921 AI updates, none rejected; the filter grew over-confident
+and the GNSS gate then **rejected 146 of 204 real fixes** (baseline: 32), holding the state
+machine in DEGRADED 62 % of the time; aided error went from **7.2 m to 41.9 m**.
+
+**Fix** (derived from the model design, not tuned): a speed update only on a **fresh**
+prediction, at most once per second, with variance × (window length / interval) = ×5 for the
+5 s model, so one window's worth of overlapping predictions counts once. After the fix, S3a
+aided error is 7.3 m and GNSS rejections are 27. Unit test:
+`test_ai_speed_is_applied_once_per_interval_with_inflated_variance`.
+
+### 7.3 A leak found in the Phase 4 baseline (corrected)
+
+Phase 7's baseline arm reproduced Phase 4 exactly on S3a and S3b but not on S3c (aided 101 m
+vs 82 m). Cause: in `scripts/evaluate/phase4_baseline.py`, **a fix withheld during a simulated
+outage still updated the stillness detector's speed hint**, so the filter used withheld GNSS
+speed to recognise stops during outages. Confirmed: re-inserting the leak into Phase 7
+reproduces Phase 4 on S3c (77 m / 484 m / 1,448 m vs 82 / 493 / 1,466). Fixed; Phase 4 re-run:
+
+| Phase 4 baseline | With GNSS | End of 30 s outage | End of 60 s outage |
+| --- | --- | --- | --- |
+| Validation ∩ verified, as committed | 9.9 m | 100 m | 1,226 m |
+| Validation ∩ verified, **leak fixed** | 9.9 m | 100 m | **1,989 m** |
+| Train+val ∩ verified, as committed | 7.8 m | 290 m | 1,009 m |
+| Train+val ∩ verified, **leak fixed** | 7.8 m | 290 m | **1,096 m** |
+
+The earlier 60 s figures were optimistic; the phone-only filter is worse without GNSS than
+reported. Phase 4 gate re-run: 12/12 PASS.
+
+### 7.4 Synthetic integration test (`tests/integration/test_fused_navigation.py`)
+
+Clearly synthetic: a 260 s drive with acceleration, braking and turns, IO-VNBD column layout,
+IMU biases and noise, GNSS at 1 Hz with a **100 s dropout**. Model outputs come from
+noisy-oracle stubs (truth + N(0, σ)). The trained models are meaningless on synthetic motion,
+so real-model fusion is judged on real data (§7.5). Horizontal error at the end of the
+dropout, over **8 seeds with identical noise in every arm**:
+
+| Arm | Median | Range |
+| --- | --- | --- |
+| INS only | 475 m | 125–889 m |
+| + NHC | 197 m | 47–373 m |
+| + AI speed | 314 m | 88–730 m |
+| + AI speed + NHC | 49 m | 29–218 m |
+| **Full** (+ Model B) | **35 m** | 12–216 m |
+
+Speed bounds along-track error and NHC bounds heading / cross-track error; each alone does
+little. The test asserts the 8-seed median (< 25 % of INS-only, < 60 m), not one seed: per
+seed the full/INS ratio ranges 0.02–0.48, and the old single-seed test passed on a lucky seed.
+Other integration tests: the state machine walks DEGRADED → LOST → RECOVERING → GOOD across
+the dropout, with LOST 12–26 s after the last fix; P stays positive-definite throughout.
+
+*Correction:* an earlier single-seed run reported NHC alone as harmful (373 m vs 293 m). That
+predated the §6.6 tilt fix and was one seed; over 8 seeds NHC alone helps.
+
+### 7.5 Real data (`reports/phase7/fusion_evaluation.json`)
+
+Validation split ∩ clock-verified: 3 scoreable drives (S3a, S3b, S3c; driver A, 9 s phone
+fixes, mount **not** observable in any, so lateral NHC is off and only vertical NHC runs).
+Same initialisation, multi-hypothesis heading, outage schedule and scoring as Phase 4. Phone
+inputs only; VBOX scores. **Caveat:** Phase 6 selected the models on this split, so these lean
+optimistic; TEST is reserved.
+
+Pooled over all outages (14 × 30 s, 12 × 60 s):
+
+| Arm | With GNSS p50 | 30 s p50 / p90 | 30 s along / cross | 60 s p50 / p90 | Filter 2σ covers error |
+| --- | --- | --- | --- | --- | --- |
+| baseline | 34.2 m | 274 / 1,123 m | 204 / 163 m | 2,814 / 5,110 m | 94 % |
+| state machine only | 31.8 m | 297 / 1,208 m | 228 / 184 m | 2,860 / 4,691 m | 94 % |
+| NHC | 12.9 m | 282 / 2,170 m (n 6) | 245 / 167 m | 1,579 / 11,997 m (n 5) | 68 % |
+| **AI speed** | **11.9 m** | 300 / **520 m** | **117** / 146 m | **490 / 746 m** | 79 % |
+| AI speed + NHC | 12.5 m | 294 / **380 m** | 117 / 204 m | **364** / 1,037 m | 75 % |
+| full (+ Model B) | 37.9 m | 321 / 1,173 m | 76 / 238 m | 633 / 5,082 m | 63 % |
+
+Per drive (with GNSS / 30 s / 60 s, median per drive):
+
+| Drive | baseline | AI speed | AI speed + NHC | full |
+| --- | --- | --- | --- | --- |
+| S3a | 7.2 / 100 / 960 | 7.3 / 317 / 388 | 9.6 / 321 / 455 | 12.6 / 273 / 550 |
+| S3b | 9.9 / 64 / — | 11.3 / 186 / — | 11.5 / 184 / — | 10.7 / 136 / — |
+| S3c | 101 / 916 / 2,992 | 17.4 / 300 / 505 | 16.3 / 279 / 183 | 81.5 / 404 / 742 |
+
+What this says, plainly:
+- **Model A speed is the one component that clearly helps on real data.** 60 s outage error
+  falls 5.7× (2,814 → 490 m), and the 30 s tail halves (p90 1,123 → 520 m). Along-track error
+  at 30 s falls from 204 to 117 m. On the hardest drive (S3c) it also fixes the aided solution
+  (101 → 17 m).
+- **It does not help every outage.** On the two easier drives the median 30 s error roughly
+  triples (S3a 100 → 317 m, S3b 64 → 186 m). The pooled 30 s median is unchanged (274 vs 300 m).
+  The cause is **not found**. A stillness hypothesis was tested and rejected: with AI there are
+  more ZUPTs (2,115 vs 1,889), not fewer. Model A's +1–3 m/s bias at low speed (§6.3) is the
+  next suspect.
+- **NHC alone hurts on real data** and **diverged on S3c** (`P not positive-definite after
+  reset_to_fix`). Only vertical NHC runs here, and it needs the phone-to-vehicle tilt to well
+  under 1°: 1° of tilt error leaks 0.17 m/s² (≈ 77 m in 30 s) into along-track acceleration.
+  The tilt is one drive-wide estimate, and the phone's 60 s tilt differs from it by a median
+  0.8–1.3° (up to 6.3° on S3c; this includes road gradient, so it is an upper bound). NHC is also
+  applied at 10 Hz as if independent, and real NHC violations (sideslip, mount wobble) are
+  time-correlated. The filter becomes over-confident (2σ coverage 94 % → 68 %), and the
+  near-singular covariance is what failed at the reset. Combined with AI speed it is
+  **neutral-to-helpful** (best 30 s tail, p90 380 m; best 60 s median, 364 m).
+- **Model B makes things worse** (full vs AI speed + NHC): aided 12.5 → 37.9 m, 60 s 364 →
+  633 m, 2σ coverage 63 %. This matches Phase 6: Model B barely beats a constant and is
+  over-confident on new data, so the blend trusts it more than it deserves.
+- **The GNSS state machine is neutral** on its own (vs baseline), as it should be.
+
+**Shipped defaults** (`FusionConfig()`, agreed with the project owner after this ablation):
+AI speed **ON**; NHC **ON only together with AI speed** (`nhc_requires_ai_speed`); Model B
+**OFF**. **Model B was fully trained, selected, exported, parity-validated and evaluated, and
+is disabled by default because empirical testing showed it degraded real-world performance**
+(the `full` vs `ai_speed_nhc` rows above). It remains available behind `use_ai_accel=True`.
+The report's `default` arm runs `FusionConfig()` as shipped. See `docs/architecture.md`,
+"As built".
+
+**Final re-run (with the defaults in place):** every arm reproduced its earlier numbers to
+the last digit (the evaluation is deterministic), and the `default` arm equals
+`ai_speed_nhc` exactly: aided p50 12.5 m, 30 s outage p50 294 m (p90 380 m), 60 s outage p50
+364 m (pooled; n = 14 / 12).
+
+### 7.6 Exit criteria
+
+- [x] ONNX inference wrapper in `navigation-core/fusion/`, with integrity checks against the model card
+- [x] Model B applied to the IMU before `predict()`; Model A speed as a measurement when GNSS is DEGRADED / LOST / RECOVERING
+- [x] NHC in `navigation-core/nhc/` (lateral + vertical), exact Jacobian verified by finite differences
+- [x] GNSS state machine GOOD / DEGRADED / LOST / RECOVERING in `navigation-core/state/`, driving the filter policy
+- [x] Integration tests: raw IMU + AI outputs + simulated GNSS dropouts through the fused filter; all pass
+- [x] Real-data ablation per component, including where components hurt
+
+### 7.7 Carried forward
+
+| Item | Where |
+| --- | --- |
+| NHC: correlated-error model (rate / σ) and a time-varying tilt estimate; covariance robustness at reset | Phase 9 (NHC) |
+| Why AI speed worsens some 30 s outages; low-speed bias of Model A | Phase 8 / model retraining |
+| Model B: retrain or drop; its variance is not trustworthy on new drivers | model retraining |
+| Evaluation on only 3 drives / 14 + 12 outages — too few for fine conclusions; TEST drivers still reserved | Phase 11 |
+| Lateral NHC is untested on real data (no validation drive has an observable mount) | Phase 9 |
 
 ---
 
@@ -1441,3 +1572,5 @@ defensible uncertainty.
 | 2026-09-27 | Phase 3 COMPLETED (renamed "Preprocessing Pipeline & Coordinate Systems"): Phase 2 committed (`e22997b`); ruff installed at the pinned 0.16.9, repo lint-clean; `configs/dataset.yaml` replaces hardcoded paths; single constants source; wheel speed calibrated vs VBOX (rear axle, k = 1.00019, km/h by inference, FWD); `navcore.geometry` quaternion/rotation/geodesy/frames with 78 tests (pyproj oracle, mutation check 5/5); UTC-time sync of 72 sessions with measured GNSS latency (median 4.1 s) as epoch tags; CAN-as-ground-truth enforced in code; drive-level split v2 (0 leaks; v1 had 49); train-only normalisation. **Corrections to earlier phases:** phone GPS speed is m/s not km/h (Phases 0-2 divided by 3.6); total recorded time 29.56 h not 25.08 h; xcorr lag bias fixed (Phase 2 conclusions unchanged). `scripts/phase3_validate.py` 20/20 CRITICAL PASS. |
 | 2026-09-27 | Phase 4 COMPLETED (redefined "Baseline Navigation Core"): sensors, alignment, INS, 15-state EKF, recovery, Allan; horizontal gyro columns shown unusable (reduced IMU); Phase 3 GNSS "4.1 s latency" corrected to a 9 s sample-and-hold artefact (new-fix delay ~0 s); spec sec 8.3 sign corrected; EKF consistent in Monte Carlo (NEES 16.5/15, NIS 5.00/5); real-data baseline on verified non-test drives: 7.8 m with GNSS, 291 m after 30 s and 995 m after 60 s without; `scripts/phase4_validate.py` 12/12 CRITICAL PASS. |
 | 2026-09-27 | Phase 5 COMPLETED (redefined "ML Training Pipeline"): configs/training.yaml, windowed datasets with gap/segment/target gates and CAN/coordinate guards, mount-invariant features + rotation/noise/bias/jitter augmentation, model registry (TCN/CNN1D/GRU/LSTM, heteroscedastic heads), Huber+NLL loss, trainer with CUDA-OOM -> smaller batch -> CPU fallback, scripts/train/train_all.py. Smoke test passes on CPU; limited run: Model A val MAE 5.92 m/s vs 7.02 constant reference. Full training NOT yet run; CUDA torch not installed. 199 tests pass. |
+| 2026-09-27 | Phase 6 COMPLETED (redefined "ML Evaluation & Export"): CUDA torch on RTX 2050; 16-run sweep; selected model_a_cnn1d_w50 (test MAE 3.91 m/s vs 5.47 constant, bias +2.81) and model_b_lstm_w20 (test 0.455 vs 0.474 m/s², weak); ONNX export + model cards; parity gate atol 1e-5 + rtol 1e-6 with an fp64-referenced stress set (agreed with the owner), both PASS; EKF reduced-IMU tilt fix. Committed e0eca3c. |
+| 2026-09-27 | Phase 7 COMPLETED (redefined "Sensor Fusion & NHC"): ONNX wrapper with integrity checks, Model B pre-predict correction, Model A speed update by GNSS state, NHC, GNSS state machine, FusedNavigator; 15 fusion tests incl. 8-seed dropout test. Fixed: AI speed applied at 10 Hz as independent (aided 7 -> 42 m on S3a). **Phase 4 correction:** withheld GNSS speed leaked into stillness detection (val 60 s 1,226 -> 1,989 m). Real data: AI speed cuts 60 s outage error 2,814 -> 490 m but worsens some 30 s outages; NHC alone hurts and diverged once; Model B hurts. |
