@@ -27,6 +27,12 @@ DEFAULTS (Phase 7 real-data ablation, reports/phase7/fusion_evaluation.json):
   validated and evaluated, and it DEGRADED real-world accuracy (aided p50 12.5 -> 37.9 m,
   60 s outage 364 -> 633 m). It stays available behind ``use_ai_accel`` for research.
   8. phone-only stillness -> ZUPT + accelerometer levelling
+  9. OUTPUT: ``output()`` is the filter position plus an offset that absorbs every
+     correction jump and glides back to zero within 10 s (navcore.recovery.manager.OutputSmoother) -- the
+     reported trajectory never teleports; the filter estimate itself is unaffected.
+  Optional GNSS recovery manager (``recovery``): after LOST, fixes are held until
+  mutually consistent along the DR path, then fused with graded noise, with covariance
+  inflation instead of reject-then-reset (navcore.recovery.manager.RecoveryManager).
 
 Every switch exists so that the real-data ablation (scripts/evaluate/phase7_fusion_eval.py)
 can measure each component's contribution with ONE code path. Everything is counted.
@@ -45,6 +51,7 @@ from navcore.fusion.ai_models import ImuWindow, correct_specific_force, speed_in
 from navcore.ins.mechanization import gravity_enu
 from navcore.nhc.constraints import NhcConfig, apply_nhc
 from navcore.recovery.gnss_reset import ConsecutiveRejectionReset
+from navcore.recovery.manager import OutputSmoother, RecoveryConfig, RecoveryManager
 from navcore.sensors.samples import GnssSample, ImuAxisMap, ImuSample
 from navcore.state.gnss_state import POLICY, FilterPolicy, GnssState, GnssStateMachine
 
@@ -67,6 +74,9 @@ class FusionConfig:
     still_gyro_radps: float = 0.02
     still_speed_mps: float = 1.0
     nhc: NhcConfig = field(default_factory=NhcConfig)
+    recovery: RecoveryConfig | None = None   # GNSS recovery manager (None = Phase 7 behaviour)
+    output_max_rate_mps: float = 15.0        # output smoother: correction speed for small offsets
+    output_max_blend_s: float = 10.0         # ... and any offset is absorbed at >= |offset| / this
 
 
 class FusedNavigator:
@@ -79,6 +89,9 @@ class FusedNavigator:
         self.lateral_ok = bool(lateral_nhc_allowed and R_vb is not None)
         self.sm = GnssStateMachine()
         self.reset = ConsecutiveRejectionReset()
+        self.recovery = RecoveryManager(cfg.recovery) if cfg.recovery is not None else None
+        self._tracked = False  # has GNSS ever been out of LOST? (start-up is not a recovery)
+        self.smoother = OutputSmoother(cfg.output_max_rate_mps, cfg.output_max_blend_s)
         self.counts: Counter = Counter()
         sizes = [m.window for m in (model_speed, model_accel) if m is not None]
         self.win = ImuWindow(max(sizes) if sizes else 1)
@@ -149,25 +162,48 @@ class FusedNavigator:
             self.counts["ai_accel_corrections"] += applied
         self.ekf.predict(ImuSample(t_s=imu.t_s, accel_mps2=f_b, gyro_radps=imu.gyro_radps,
                                    frame=imu.frame, gyro_valid=imu.gyro_valid), dt)
+        self.smoother.mark(self.ekf)
+        self._updates(t_s, fixes, body, wz, float(np.linalg.norm(acc)))
+        self.smoother.absorb(self.ekf, dt)
 
-        # ---- GNSS through the state machine
+    def output(self) -> tuple[float, float, float]:
+        """The reported position (lat_rad, lon_rad, h_m): continuous across corrections."""
+        return self.smoother.output(self.ekf)
+
+    def _fuse_gnss(self, t_s: float, fix: GnssSample, confirmed: bool) -> None:
+        pol = self._policy()
+        if self.cfg.use_state_machine and self.sm.state is GnssState.LOST:
+            pol = POLICY[GnssState.RECOVERING]
+        if not pol.use_gnss:
+            return
+        use = self.recovery.grade(fix) if self.recovery is not None else fix
+        f = replace(use, horizontal_accuracy_m=use.horizontal_accuracy_m * pol.gnss_noise_inflation)
+        if self.recovery is not None:
+            self.recovery.admit(self.ekf, f, confirmed)
+        ok = self.ekf.update_gnss(f)
+        self.counts["gnss_accepted" if ok else "gnss_rejected"] += 1
+        if self.reset.after_update(self.ekf, fix, ok):
+            self.counts["gnss_lockout_resets"] += 1
+        if self.cfg.use_state_machine:
+            self.sm.on_fix(t_s, fix.horizontal_accuracy_m, ok)
+
+    def _updates(self, t_s: float, fixes, body, wz: float, acc_norm: float) -> None:
+        # ---- GNSS through the state machine (and the recovery manager, if enabled)
         if self.cfg.use_state_machine:
             self.sm.on_time(t_s)
+            if self.sm.state is not GnssState.LOST:
+                self._tracked = True
+            elif self.recovery is not None and self._tracked:
+                self.recovery.on_lost()  # a LOSS after tracking -- not the start-up LOST
         for fix in fixes:
             if fix.speed_mps is not None:
                 self.last_fix_speed = fix.speed_mps
-            pol = self._policy()
-            if self.cfg.use_state_machine and self.sm.state is GnssState.LOST:
-                pol = POLICY[GnssState.RECOVERING]
-            if not pol.use_gnss:
-                continue
-            f = replace(fix, horizontal_accuracy_m=fix.horizontal_accuracy_m * pol.gnss_noise_inflation)
-            ok = self.ekf.update_gnss(f)
-            self.counts["gnss_accepted" if ok else "gnss_rejected"] += 1
-            if self.reset.after_update(self.ekf, fix, ok):
-                self.counts["gnss_lockout_resets"] += 1
-            if self.cfg.use_state_machine:
-                self.sm.on_fix(t_s, fix.horizontal_accuracy_m, ok)
+            if self.recovery is not None and self.cfg.use_state_machine:
+                released, confirmed = self.recovery.submit(fix, self.ekf)
+            else:
+                released, confirmed = [fix], False
+            for f in released:
+                self._fuse_gnss(t_s, f, confirmed)
         pol = self._policy()
 
         # ---- AI speed as a measurement
@@ -191,7 +227,7 @@ class FusedNavigator:
             self.counts[f"nhc_{r['reason']}"] += 1
 
         # ---- stillness
-        if self._still(float(np.linalg.norm(acc)), wz):
+        if self._still(acc_norm, wz):
             self.ekf.update_zupt(t_s)
             self.ekf.update_levelling(body)
             self.counts["zupt"] += 1

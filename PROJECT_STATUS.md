@@ -3,7 +3,7 @@
 **Project:** AI-ML based Intelligent Dead Reckoning system for seamless navigation
 **Workspace:** `C:\Users\Shreeyash\OneDrive\Desktop\dead reckening`
 **Governing document:** [`AGENTS.md`](./AGENTS.md) — the core directive overrides anything here.
-**Last updated:** 2026-09-27 (Phase 8)
+**Last updated:** 2026-09-28 (Phase 9)
 
 > **Status honesty rule.** A phase is `COMPLETED` only when its exit criteria are met by
 > code in this repo that anyone can re-run. Nothing is marked done on intent. No metric
@@ -35,7 +35,7 @@
 | 6 | ML Evaluation & Export (sweep, selection, evaluation, ONNX + parity gate) | **COMPLETED** |
 | 7 | Sensor Fusion & NHC (AI-assisted EKF, NHC, GNSS state machine; real-data gain mixed) | **COMPLETED** |
 | 8 | Offline Map Matching (OSM road graph, HMM matcher; real gain only while drift < ~30 m) | **COMPLETED** |
-| 9 | Non-Holonomic Constraints (NHC) | `NOT STARTED` |
+| 9 | GNSS Outage Detection, Recovery & Replay (code + tests; recovery manager OFF pending real-drive evidence) | **COMPLETED** |
 | 10 | *(was Map Matching — delivered in Phase 8)* | — |
 | 11 | Evaluation Harness & Benchmarking | `NOT STARTED` |
 | 12 | Model Export & Python/Android Numerical Parity | `NOT STARTED` |
@@ -1515,22 +1515,117 @@ Read plainly:
 
 ---
 
-## Phase 9 — Non-Holonomic Constraints (NHC)
+## Phase 9 — GNSS Outage Detection, Recovery & Replay
 
-**Status:** `NOT STARTED`
+**Status:** `COMPLETED` for code and tests: outage simulator, replay engine, streaming
+engine, recovery manager, output smoother. **The recovery manager is OFF by default**
+(`FusionConfig.recovery = None`). Two real-drive benchmark runs showed earlier designs of
+it failing badly (§9.4). The third run, of the corrected design, was still in progress at
+commit time; it is not waited for (owner's decision). Until it reports, the manager is
+unvalidated on real data.
+**Date:** 2026-09-28
+**Evidence:** `tests/simulation/` (14), `tests/navigation/test_recovery_manager.py` (13),
+`tests/navigation/test_recovery.py` (2, Phase 4, unchanged); **full suite 271 passed**, `ruff` clean;
+`reports/phase9/outage_benchmark_first_design.json`, `..._second_design.json` (failed designs,
+kept on purpose); `reports/phase9/outage_benchmark.json` (third run, when complete)
+**Scope note:** redefined by the user as "GNSS Outage Detection, Recovery & Replay". The
+original Phase 9 (NHC) was delivered in Phase 7.
 
-**Objective:** Exploit the fact that a road vehicle cannot slide sideways or fly.
+**Run:**
 
-**Planned scope**
-- Body-frame lateral and vertical velocity pseudo-measurements constrained near zero.
-- Bicycle-model yaw-rate / speed consistency coupling.
-- Mounting-misalignment coupling with Phase 4 (a wrong body frame makes NHC actively harmful).
-- Constraint relaxation on detected wheel slip, sharp manoeuvres, and rough terrain.
-- Measured ablation: fusion with NHC vs without, on the same held-out routes.
+```
+.venv/Scripts/python.exe -m pytest tests/simulation tests/navigation/test_recovery_manager.py
+.venv/Scripts/python.exe scripts/evaluate/phase9_outage_benchmark.py     # ~30-60 min on battery
+```
 
-**Exit criteria**
-- [ ] NHC contribution quantified by ablation, with cases where it hurts reported too
-- [ ] Constraint-relaxation logic validated against real turning and braking segments
+### 9.1 What was built
+
+| Component | Content |
+| --- | --- |
+| `simulation/outage/simulator.py` | `OutageSchedule` of `OutageEvent`s over RECORDED fixes: `full` (10/30/60/120/300 s …), `tunnel` (degraded approach, a confident 150 m multipath outlier at the exit, degraded exit ramp), `intermittent` (random on/off, degraded fixes), `degraded` (urban canyon); builders `periodic` (the Phase 4/7 protocol) and `benchmark` (the full battery with 150 s gaps). Seeded and deterministic; never mutates its input; every perturbation logged and labelled synthetic |
+| `simulation/replay/replay.py` | `load_segments` (synced `.parquet` → phone arrays + fixes with epoch and receipt time; VBOX truth kept separate; CAN rule enforced on the input list); `ReplayEngine` streams sample by sample, delivering each fix once, at its receipt time, never early; optional real-time pacing with an injectable clock; `ReplayResult.digest` (SHA-256) proves bit-identical runs |
+| `navcore/fusion/engine.py` | `NavigationEngine`: the streaming, causal engine: WAITING → ALIGNING (8 heading hypotheses, 120 s) → NAVIGATING; causal mount (tilt from the accelerometer before start-up, or the phone's gravity channel when a drive starts moving in its first second, found on real data), or `mount_mode="given"` for the Phase 4/7 whole-drive lookahead |
+| `navcore/recovery/manager.py` | `RecoveryManager` (opt-in): after a LOSS (not the start-up LOST), holds fixes until two agree along the dead-reckoned path within a tolerance that includes the filter's own velocity and heading uncertainty; fails open after 30 s; fuses the first recovery fixes with graded noise (×9, ×4, ×2); inflates the POSITION covariance (≤ ×100) to admit a confirmed fix that fails the gate on position, and leaves P untouched otherwise. `OutputSmoother` (ON): the reported position = filter + an offset that absorbs every correction jump and glides back linearly at max(15 m/s, offset ÷ 10 s): never a teleport, never more than 10 s of lag |
+| `navcore/fusion/navigator.py` | `output()` (smoothed position); optional `recovery`; unchanged filter behaviour when `recovery=None` |
+| `simulation/synthetic/drive.py` | the synthetic drive generator, clearly labelled, shared by tests |
+| `scripts/evaluate/phase9_outage_benchmark.py` | the battery replayed on every verified TRAIN+VAL drive: `phase7` vs `recovery` arms (+ `given_mount` on VAL); error at event end, jump size, error +10/+30 s, re-convergence time, wrong jumps |
+
+**Replay engine verified against Phase 7:** replaying S3b through `NavigationEngine` with the
+Phase 7 mount and schedule reproduces the Phase 7 default arm to every printed digit
+(aided p50 **11.468584092819786 m**, 30 s outage **183.6279361708867 m**).
+
+### 9.2 Tests (27 new)
+
+Position continuity across LOST → RECOVERING → GOOD: the filter jumps by more than 100 m at
+recovery; the output never moves by more than its glide bound, and it converges. This holds
+with and without the manager. A confident 150 m multipath fix at recovery is flagged and
+never fused (in the shipped configuration the NIS gate also rejects it — stated in the
+test). A filter that honestly knows nothing about its velocity accepts it (it cannot tell).
+Fixes are held until two agree. Fail-open timeout. The tolerance widens with the filter's
+heading σ. Inflation admits a confirmed fix, never touches velocity, is capped, and is
+refused (P unchanged) beyond the cap. Start-up LOST is not a recovery. Graded schedule.
+Smoother absorbs a 300 m jump without moving, and a 1.5 km correction within 10 s.
+Simulator: each dropout length removes exactly its window; tunnel approach, outlier and
+exit; intermittent; degraded noise statistics; deterministic by seed; input never mutated;
+battery layout; Phase 7 periodic protocol. Replay: causal delivery at receipt, outages never
+reach the engine, bit-identical digests, lifecycle and heading choice, real-time pacing,
+time-reversal refused, CAN/VBOX columns never exposed, start-up in the first second.
+
+*Process note:* while adding these, `tests/navigation/test_recovery.py` (the Phase 4
+lock-out tests) was accidentally overwritten; it was restored from git unchanged and the
+new tests live in `test_recovery_manager.py`.
+
+### 9.3 Real-drive benchmark battery
+
+12 verified TRAIN + VAL drives, 144 events (full 10/30/60/120/300 s, tunnel 45 s,
+intermittent 120 s, degraded 60 s), causal engine, shipped fusion defaults.
+Train-drive absolute errors are optimistic (Model A was trained on them); arms are compared
+on identical inputs.
+
+### 9.4 What the benchmark found — two failed designs, kept on record
+
+**Run 1** (`outage_benchmark_first_design.json`), recovery arm vs Phase 7 behaviour, output
+error at event end (p50): degraded 60 s 16.5 → **1,309 m**; 10 s 47 → **244 m**; 60 s 453 →
+**955 m**; tunnel 472 → **1,538 m**. Causes:
+- the consistency check assumed a metre-accurate DR displacement over 9 s; with this phone's
+  reduced IMU, heading is tens of degrees off after an outage, so **1,390 good fixes were
+  rejected** and GNSS was held out while the filter drifted;
+- velocity covariance was inflated with position;
+- separately, a fixed 15 m/s output glide lagged kilometre corrections by minutes (S3a:
+  output p50 **375 m** vs filter **22 m**).
+
+**Run 2** (`outage_benchmark_second_design.json`), after: tolerance from the filter's own
+velocity/heading σ, fail-open, position-only inflation, time-bounded glide.
+- Inconsistency rejections fell from 1,390 to 25.
+- The Phase 7 arm's output now tracks its filter (e.g. 30 s event end 256.6 m / 256.6 m).
+- **But the recovery arm diverged, with filter jumps up to 1,186 km.** Cause: when inflating
+  position could not admit a fix (its mismatch was in velocity), the covariance was
+  inflated ×10,000 **and left inflated**; a second attempt compounded it to σ ≈ 2,000 km.
+  It also acted during start-up, corrupting the 8-hypothesis heading choice.
+- Lookahead measured on VAL (filter error at event end, whole-drive mount vs causal):
+  10 s 42 vs 37 m, 30 s 287 vs 308 m, 60 s 221 vs 294 m, tunnel 250 vs 400 m (n 3–5 each):
+  **the Phase 4/7 whole-drive mount was a mild advantage**, not decisive.
+
+**Run 3** (corrected: inflation only for a position mismatch, capped ×100, refused and
+undone otherwise; start-up excluded; linear glide smoother): **in progress at commit time.**
+
+### 9.5 What is and is not established
+
+| Claim | Status |
+| --- | --- |
+| Outage simulator and replay are correct and deterministic | **verified** (tests; exact Phase 7 reproduction) |
+| Output never teleports across LOST → RECOVERING → GOOD | **verified** by construction and tests (synthetic); run 2 real-drive: a *previous* smoother version |
+| Final linear-glide smoother on real drives | pending run 3 (glide bound: after a 300 s outage expect fast glides, ~km/10 s) |
+| Recovery manager improves real-drive recovery | **not established**: two designs failed; the third is unmeasured. OFF by default |
+| Unit tests passing ⇒ correct on real data | **false in this phase**: all tests passed while runs 1 and 2 failed. Synthetic heading was near-perfect; real heading is not |
+
+### 9.6 Exit criteria
+
+- [x] Outage simulator in `simulation/outage/` (10/30/60/120/300 s, tunnel, intermittent, degraded)
+- [x] Recovery logic in `navigation-core/recovery/` with consistency checks and gradual fusion; output continuity
+- [x] Replay engine in `simulation/replay/`, deterministic, streaming, causal
+- [x] Unit tests for continuity across LOST → RECOVERING → GOOD; full suite passes
+- [ ] Real-drive evidence that the recovery manager helps (run 3 pending; manager OFF until then)
 
 ---
 
@@ -1645,3 +1740,4 @@ next redefined phase.
 | 2026-09-27 | Phase 6 COMPLETED (redefined "ML Evaluation & Export"): CUDA torch on RTX 2050; 16-run sweep; selected model_a_cnn1d_w50 (test MAE 3.91 m/s vs 5.47 constant, bias +2.81) and model_b_lstm_w20 (test 0.455 vs 0.474 m/s², weak); ONNX export + model cards; parity gate atol 1e-5 + rtol 1e-6 with an fp64-referenced stress set (agreed with the owner), both PASS; EKF reduced-IMU tilt fix. Committed e0eca3c. |
 | 2026-09-27 | Phase 7 COMPLETED (redefined "Sensor Fusion & NHC"): ONNX wrapper with integrity checks, Model B pre-predict correction, Model A speed update by GNSS state, NHC, GNSS state machine, FusedNavigator; 15 fusion tests incl. 8-seed dropout test. Fixed: AI speed applied at 10 Hz as independent (aided 7 -> 42 m on S3a). **Phase 4 correction:** withheld GNSS speed leaked into stillness detection (val 60 s 1,226 -> 1,989 m). Real data: AI speed cuts 60 s outage error 2,814 -> 490 m but worsens some 30 s outages; NHC alone hurts and diverged once; Model B hurts. |
 | 2026-09-27 | Phase 8 COMPLETED (redefined "Offline Map Matching"): OSM drivable network cached once (Overpass, 30.6 MB, 450,775 directed segments, ODbL) with provenance manifest; `navcore.map_matching` RoadNetwork (directed, one-way rules, grid index, bounded Dijkstra, npz cache), online HMM (covariance emission + heading, route-continuity transition, Viterbi, off-network suspension, map_match_confidence), DeadReckoningMapMatcher (read-only on the EKF); 15 tests. VAL: outage epochs 83.9 -> 80.7 m, cross-track 47.7 -> 39.2 m, correct road 20 % (0 % at outage ends); gain only while drift < ~30 m (15-30 m band: cross-track 11.4 -> 5.4 m). |
+| 2026-09-28 | Phase 9 COMPLETED for code + tests (redefined "GNSS Outage Detection, Recovery & Replay"): outage simulator (full/tunnel/intermittent/degraded, battery), deterministic causal replay engine (reproduces Phase 7 S3b exactly), streaming NavigationEngine, RecoveryManager (opt-in, OFF) + OutputSmoother (ON); 27 new tests. Real-drive benchmark: runs 1 and 2 showed the recovery manager failing (1,390 good fixes rejected; then 1,186 km divergence from a kept failed inflation) -- both fixed and kept on record; run 3 in progress at commit time. |
