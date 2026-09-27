@@ -1,0 +1,72 @@
+# SIH26168 -- training hyperparameters (Phase 5). Loaded ONLY via
+# training/configs/loader.py; every key is required (no silent defaults).
+schema_version: 1
+seed: 26168
+
+data:
+  window_samples: 50            # 5 s at 10 Hz (docs/ml_pipeline.md sec 4: 1-5 s)
+  stride_train: 10              # 1 s
+  stride_eval: 50               # = window length: non-overlapping eval windows (sec 4)
+  max_window_dt_s: 0.15         # a window containing a larger real dt spans a gap -> rejected
+  min_gt_valid_fraction: 1.0    # every sample of the window must have a matched ground truth
+  # Target quality gate (sec 5 "target quality is audited"): VBOX sats, speed range
+  min_vbox_sats: 6
+  max_speed_mps: 60.0
+  # S/V time alignment: only 25 sessions are verified (Phase 2). Speed changes slowly, so
+  # unverified sessions (residual clock error ~1-2 s) are usable for Model A; the
+  # acceleration target of Model B is timing-sensitive -> verified sessions only.
+  verified_only:
+    model_a: false
+    model_b: true
+
+features:
+  # Phone-only inputs (training.preprocessing.columns.assert_model_inputs enforces this).
+  # gyro: ONLY logged column 2 (vertical) is an angular rate (reports/phase4/
+  # gyro_axis_resolution.json); it enters as the device-frame vector [0, 0, w_z] so that
+  # rotation augmentation stays physically consistent.
+  raw_channels: [acc_x_mps2, acc_y_mps2, acc_z_mps2, grav_x_mps2, grav_y_mps2, grav_z_mps2]
+  gyro_vertical_channel: gyro_y_radps
+  # Mount-invariant features (independent of how the phone sits in the car):
+  # |f|, f . g_hat (vertical specific force), |f x g_hat| (horizontal), w . g_hat (yaw rate)
+  invariant: true
+  # fixed PHYSICAL scaling for derived features (not data-fitted -> no leakage)
+  accel_scale_mps2: 9.80665
+  gyro_scale_radps: 0.5
+
+augmentation:              # TRAIN split only
+  enabled: true
+  accel_noise_mps2: 0.05
+  gyro_noise_radps: 0.005
+  accel_bias_mps2: 0.05    # per-window constant offset, U(-x, x) per axis
+  time_jitter_s: 0.005     # per-sample timestamp jitter, re-interpolated onto the grid
+  rotation: yaw_tilt       # yaw_tilt | full | none -- the phone mount is NOT fixed (Phase 4)
+  max_tilt_deg: 15.0
+
+models:
+  model_a:                 # forward speed + uncertainty
+    arch: tcn
+    target: gt_speed_mps
+    hidden: 48
+    levels: 4
+    kernel: 3
+    dropout: 0.1
+  model_b:                 # longitudinal acceleration correction + uncertainty
+    arch: gru
+    target: gt_long_accel_from_speed_mps2
+    hidden: 48
+    layers: 1
+    dropout: 0.1
+
+train:
+  batch_size: 256
+  min_batch_size: 16       # OOM fallback halves the batch down to this, then moves to CPU
+  lr: 0.001
+  weight_decay: 0.0001
+  epochs: 20
+  grad_clip: 1.0
+  huber_delta: 1.0
+  nll_weight: 0.5          # loss = huber(mean) + nll_weight * gaussian_nll
+  logvar_clamp: [-8.0, 6.0]
+  early_stopping_patience: 4
+  num_workers: 0           # Windows: in-process loading
+  device: auto             # auto | cuda | cpu

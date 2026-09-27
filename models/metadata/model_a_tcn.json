@@ -1,0 +1,83 @@
+{
+ "model": "model_a",
+ "arch": "tcn",
+ "hparams": {
+  "hidden": 48,
+  "levels": 4,
+  "kernel": 3,
+  "dropout": 0.1
+ },
+ "target": "gt_speed_mps",
+ "output": {
+  "name": "forward_speed",
+  "unit": "m/s",
+  "range": [
+   0.0,
+   60.0
+  ],
+  "positive": true
+ },
+ "inputs": [
+  "acc_x",
+  "acc_y",
+  "acc_z",
+  "grav_x",
+  "grav_y",
+  "grav_z",
+  "gyro_x",
+  "gyro_y",
+  "gyro_z",
+  "f_norm",
+  "f_vertical",
+  "f_horizontal",
+  "w_vertical"
+ ],
+ "input_rule": "phone channels only (CAN rule)",
+ "n_params": 51410,
+ "seed": 26168,
+ "train_data": {
+  "sessions": 56,
+  "windows": 72206,
+  "excluded": {
+   "target_low_vbox_sats": 465,
+   "spans_gap_or_segment": 25,
+   "ground_truth_unmatched": 907
+  },
+  "target": "gt_speed_mps",
+  "target_mean": 13.34980293265872,
+  "target_std": 9.068836511510897,
+  "window_samples": 50,
+  "stride": 10,
+  "augment": true
+ },
+ "val_data": {
+  "sessions": 14,
+  "windows": 2956,
+  "excluded": {
+   "ground_truth_unmatched": 19,
+   "target_low_vbox_sats": 29,
+   "spans_gap_or_segment": 1
+  },
+  "target": "gt_speed_mps",
+  "target_mean": 12.993382761990679,
+  "target_std": 8.445502423358665,
+  "window_samples": 50,
+  "stride": 50,
+  "augment": false
+ },
+ "data_load_s": 0.7,
+ "baseline_constant_train_mean": {
+  "value": 13.34980293265872,
+  "val_mae": 7.022593577675591
+ },
+ "name": "model_a_tcn",
+ "commit": "2536dd5",
+ "split_manifest_sha256": "d59e8601e41f106c5ac7ac520542638f96a3bf4685beb757be124d82ca7464a4",
+ "device_final": "cpu",
+ "batch_size_final": 256,
+ "fallbacks": [],
+ "epochs_run": 1,
+ "best_val_mae": 7.571176528930664,
+ "runtime_s": 3.3,
+ "checkpoint": "models\\checkpoints\\model_a_tcn\\best.pt"
+}

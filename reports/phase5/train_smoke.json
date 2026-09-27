@@ -1,0 +1,217 @@
+{
+ "generated": "2026-09-27T20:07:03",
+ "mode": "smoke",
+ "epochs_cap": 1,
+ "config": "C:\\Users\\Shreeyash\\OneDrive\\Desktop\\dead reckening\\configs\\training.yaml",
+ "python": "3.14.4",
+ "torch": "2.14.0+cpu",
+ "cuda_available": false,
+ "cuda_device": null,
+ "max_batches": 20,
+ "models": {
+  "model_a": {
+   "model": "model_a",
+   "arch": "tcn",
+   "hparams": {
+    "hidden": 48,
+    "levels": 4,
+    "kernel": 3,
+    "dropout": 0.1
+   },
+   "target": "gt_speed_mps",
+   "output": {
+    "name": "forward_speed",
+    "unit": "m/s",
+    "range": [
+     0.0,
+     60.0
+    ],
+    "positive": true
+   },
+   "inputs": [
+    "acc_x",
+    "acc_y",
+    "acc_z",
+    "grav_x",
+    "grav_y",
+    "grav_z",
+    "gyro_x",
+    "gyro_y",
+    "gyro_z",
+    "f_norm",
+    "f_vertical",
+    "f_horizontal",
+    "w_vertical"
+   ],
+   "input_rule": "phone channels only (CAN rule)",
+   "n_params": 51410,
+   "seed": 26168,
+   "train_data": {
+    "sessions": 56,
+    "windows": 72206,
+    "excluded": {
+     "target_low_vbox_sats": 465,
+     "spans_gap_or_segment": 25,
+     "ground_truth_unmatched": 907
+    },
+    "target": "gt_speed_mps",
+    "target_mean": 13.34980293265872,
+    "target_std": 9.068836511510897,
+    "window_samples": 50,
+    "stride": 10,
+    "augment": true
+   },
+   "val_data": {
+    "sessions": 14,
+    "windows": 2956,
+    "excluded": {
+     "ground_truth_unmatched": 19,
+     "target_low_vbox_sats": 29,
+     "spans_gap_or_segment": 1
+    },
+    "target": "gt_speed_mps",
+    "target_mean": 12.993382761990679,
+    "target_std": 8.445502423358665,
+    "window_samples": 50,
+    "stride": 50,
+    "augment": false
+   },
+   "data_load_s": 0.7,
+   "baseline_constant_train_mean": {
+    "value": 13.34980293265872,
+    "val_mae": 7.022593577675591
+   },
+   "name": "model_a_tcn",
+   "commit": "2536dd5",
+   "split_manifest_sha256": "d59e8601e41f106c5ac7ac520542638f96a3bf4685beb757be124d82ca7464a4",
+   "device_final": "cpu",
+   "batch_size_final": 256,
+   "fallbacks": [],
+   "epochs_run": 1,
+   "best_val_mae": 7.571176528930664,
+   "runtime_s": 3.3,
+   "history": [
+    {
+     "epoch": 0,
+     "train_loss": 26.900628662109376,
+     "train_huber": 10.823616766929627,
+     "train_nll": 32.15402364730835,
+     "train_batches": 20,
+     "val": {
+      "mae": 7.571176528930664,
+      "rmse": 8.927825927734375,
+      "nll": 3.0987861156463623,
+      "coverage_1sigma": 1.0,
+      "coverage_2sigma": 1.0,
+      "mean_sigma": 20.085538864135742,
+      "n": 2956
+     }
+    }
+   ],
+   "checkpoint": "models\\checkpoints\\model_a_tcn\\best.pt",
+   "model_card": "models\\metadata\\model_a_tcn.json"
+  },
+  "model_b": {
+   "model": "model_b",
+   "arch": "gru",
+   "hparams": {
+    "hidden": 48,
+    "layers": 1,
+    "dropout": 0.1
+   },
+   "target": "gt_long_accel_from_speed_mps2",
+   "output": {
+    "name": "longitudinal_acceleration",
+    "unit": "m/s^2",
+    "range": [
+     -10.0,
+     10.0
+    ],
+    "positive": false
+   },
+   "inputs": [
+    "acc_x",
+    "acc_y",
+    "acc_z",
+    "grav_x",
+    "grav_y",
+    "grav_z",
+    "gyro_x",
+    "gyro_y",
+    "gyro_z",
+    "f_norm",
+    "f_vertical",
+    "f_horizontal",
+    "w_vertical"
+   ],
+   "input_rule": "phone channels only (CAN rule)",
+   "n_params": 16130,
+   "seed": 26168,
+   "train_data": {
+    "sessions": 18,
+    "windows": 31130,
+    "excluded": {
+     "target_low_vbox_sats": 22,
+     "target_not_finite": 7,
+     "spans_gap_or_segment": 15,
+     "ground_truth_unmatched": 358
+    },
+    "target": "gt_long_accel_from_speed_mps2",
+    "target_mean": -0.0013451286803129227,
+    "target_std": 0.7045696457418432,
+    "window_samples": 50,
+    "stride": 10,
+    "augment": true
+   },
+   "val_data": {
+    "sessions": 5,
+    "windows": 1355,
+    "excluded": {
+     "ground_truth_unmatched": 4,
+     "target_low_vbox_sats": 22,
+     "spans_gap_or_segment": 1
+    },
+    "target": "gt_long_accel_from_speed_mps2",
+    "target_mean": -0.008029735806929245,
+    "target_std": 0.7239255492439354,
+    "window_samples": 50,
+    "stride": 50,
+    "augment": false
+   },
+   "data_load_s": 0.2,
+   "baseline_constant_train_mean": {
+    "value": -0.0013451286803129227,
+    "val_mae": 0.47904522837553526
+   },
+   "name": "model_b_gru",
+   "commit": "2536dd5",
+   "split_manifest_sha256": "d59e8601e41f106c5ac7ac520542638f96a3bf4685beb757be124d82ca7464a4",
+   "device_final": "cpu",
+   "batch_size_final": 256,
+   "fallbacks": [],
+   "epochs_run": 1,
+   "best_val_mae": 0.4838782548904419,
+   "runtime_s": 2.0,
+   "history": [
+    {
+     "epoch": 0,
+     "train_loss": 0.2939127519726753,
+     "train_huber": 0.21281834691762924,
+     "train_nll": 0.16218880803789942,
+     "train_batches": 20,
+     "val": {
+      "mae": 0.4838782548904419,
+      "rmse": 0.7269346714019775,
+      "nll": 0.19009557366371155,
+      "coverage_1sigma": 0.7505534887313843,
+      "coverage_2sigma": 0.9306272864341736,
+      "mean_sigma": 0.6707930564880371,
+      "n": 1355
+     }
+    }
+   ],
+   "checkpoint": "models\\checkpoints\\model_b_gru\\best.pt",
+   "model_card": "models\\metadata\\model_b_gru.json"
+  }
+ }
+}

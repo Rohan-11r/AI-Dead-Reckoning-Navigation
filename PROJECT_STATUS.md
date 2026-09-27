@@ -3,7 +3,7 @@
 **Project:** AI-ML based Intelligent Dead Reckoning system for seamless navigation
 **Workspace:** `C:\Users\Shreeyash\OneDrive\Desktop\dead reckening`
 **Governing document:** [`AGENTS.md`](./AGENTS.md) — the core directive overrides anything here.
-**Last updated:** 2026-09-27 (Phase 4)
+**Last updated:** 2026-09-27 (Phase 5)
 
 > **Status honesty rule.** A phase is `COMPLETED` only when its exit criteria are met by
 > code in this repo that anyone can re-run. Nothing is marked done on intent. No metric
@@ -31,7 +31,7 @@
 | 2 | Dataset Ingestion, Schema Normalisation & Integrity Audit | **COMPLETED** |
 | 3 | Preprocessing Pipeline & Coordinate Systems | **COMPLETED** |
 | 4 | Baseline Navigation Core (sensors, alignment, INS, EKF) | **COMPLETED** |
-| 5 | Attitude Estimation (AHRS) | `NOT STARTED` |
+| 5 | ML Training Pipeline (pipeline + smoke test; full training not yet run) | **COMPLETED** |
 | 6 | Strapdown INS Mechanization | `NOT STARTED` |
 | 7 | AI Signal Processing (denoising/bias + context/speed) | `NOT STARTED` |
 | 8 | Fusion Engine (Error-State EKF) | `NOT STARTED` |
@@ -984,24 +984,84 @@ beat, and the reason they exist.
 
 ---
 
-## Phase 5 — Attitude Estimation (AHRS)
+## Phase 5 — ML Training Pipeline
 
-**Status:** `NOT STARTED`
+**Status:** `COMPLETED` for its defined scope (pipeline + smoke test). **Full training has
+NOT been run**: the numbers below prove the pipeline works, not model accuracy.
+**Date:** 2026-09-27
+**Evidence:** `reports/phase5/train_smoke.json`, `reports/phase5/train_limited.json`; 199 tests pass; `ruff check .` clean
+**Scope note:** redefined by the user as "ML Training Pipeline", replacing the original
+"Attitude Estimation (AHRS)". Attitude is currently handled by the Phase 4 EKF plus gravity
+levelling (reduced IMU).
 
-**Objective:** Reliable orientation, the largest single lever on dead-reckoning drift.
+**Run:**
 
-**Planned scope**
-- Gyro integration baseline; quantify drift honestly.
-- Complementary / Madgwick / Mahony filters and a quaternion EKF; compare on real data.
-- Gravity-vector levelling for roll and pitch; magnetometer heading with disturbance gating.
-- Static and in-motion initial alignment.
-- Validation against the dataset's own `ORIENTATION` channels **and** against
-  GPS-derived heading while moving, with the limitations of each reference stated.
+```
+.venv/Scripts/python.exe scripts/train/train_all.py --smoke                   # 1 epoch, 20 batches
+.venv/Scripts/python.exe scripts/train/train_all.py --epochs 2 --max-batches 150   # "limited"
+.venv/Scripts/python.exe scripts/train/train_all.py                           # full, per configs/training.yaml
+```
 
-**Exit criteria**
-- [ ] Attitude error characterised over full routes with real numbers
-- [ ] Heading drift rate reported per method
-- [ ] Chosen filter justified by measured comparison, not preference
+### 5.1 What was built
+
+| Component | Content |
+| --- | --- |
+| `configs/training.yaml` + `training/configs/loader.py` | All hyperparameters; every key required, a missing key raises |
+| `training/datasets/windows.py` | 5 s windows (50 × 10 Hz); train stride 1 s, eval stride 5 s (non-overlapping, ml_pipeline §4); windows never span a gap or segment; a target-quality gate counts every exclusion; TEST split refused; inputs pass the CAN-rule guard, targets the no-coordinate guard |
+| Features | device-frame acc, gravity, gyro `[0, 0, ω_z]` (the only real rate axis, §4.2) **plus mount-invariant** \|f\|, f·ĝ, \|f×ĝ\|, ω·ĝ. Fixed physical scaling (not data-fitted, so no leakage). The Phase 3 per-axis statistics are deliberately not used: rotation augmentation makes per-device-axis statistics meaningless |
+| Augmentation (train only) | random device rotation (yaw about gravity + ≤ 15° tilt, or full SO(3)) for the non-rigid mount; accel/gyro noise; per-window accel bias; timestamp jitter. Applied *before* invariant features are computed |
+| `training/models/registry.py` | `tcn` (causal, dilated), `cnn1d`, `gru`, `lstm`; heteroscedastic head (mean, log σ²); softplus mean for speed |
+| `training/losses/regression.py` | Huber(mean) + 0.5 · Gaussian NLL (ml_pipeline §6); calibration metrics (1σ / 2σ coverage) |
+| `training/trainers/trainer.py` | seeded; device auto → CUDA if available else CPU; **CUDA OOM → halve batch down to 16 → CPU** (logged); gradient clipping; early stopping; best-epoch checkpoint with commit, seed, split-manifest hash, inputs, output unit |
+| `scripts/train/train_all.py` | Models A and B; reports; model cards `models/metadata/<model>.json` (output name, unit, range); prints the constant-mean reference every model must beat |
+
+### 5.2 The two models
+
+| | Model A — forward speed | Model B — longitudinal acceleration |
+| --- | --- | --- |
+| Output | speed [m/s] ≥ 0, + log σ² | a_long [m/s²], + log σ² |
+| Target | `gt_speed_mps` (VBOX) | d(`gt_speed_mps`)/dt, central difference over ±0.5 s on real timestamps, within one segment |
+| Why | non-integrating speed: the measurement that bounds outage drift | a learned, mount-independent replacement for the raw accelerometer's along-track component, which drives the Phase 4 outage drift |
+| Architecture | TCN, 4 levels, 48 ch — **51,410 params** | GRU, 48 units — **16,130 params** |
+| Sessions | train 56 / val 14 (all) | train 18 / val 5 (**alignment-verified only**: the acceleration target is timing-sensitive) |
+| Windows | train 72,206 / val 2,956 | train 31,130 / val 1,355 |
+| Excluded (train) | 907 unmatched ground truth, 465 low VBOX sats, 25 gap/segment | 358, 22, 15, 7 target not finite |
+
+### 5.3 Smoke test and a short sanity run (CPU; the installed torch is the CPU build)
+
+| Run | Model | Val MAE | Constant-mean reference | 1σ / 2σ coverage | Time |
+| --- | --- | --- | --- | --- | --- |
+| smoke (1 epoch × 20 batches) | A | 7.57 m/s | 7.02 m/s | 1.00 / 1.00 (σ still ≈ 20 m/s) | 3.3 s |
+| smoke | B | 0.484 m/s² | 0.479 m/s² | 0.75 / 0.93 | 2.0 s |
+| limited (2 epochs × 150 batches) | A | **5.92 m/s** | 7.02 m/s | 0.71 / 0.92 | ~40 s |
+| limited | B | 0.467 m/s² | 0.479 m/s² | 0.53 / 0.80 | ~20 s |
+
+Reading this honestly: the pipeline runs end to end with no fallback triggered, and Model A
+**learns** (16 % below the constant reference after 300 batches, with σ already near
+calibrated). Model B barely beats its reference so far. Nothing here is a trained-model
+result. Two identical runs of the limited configuration gave bit-identical metrics
+(val MAE 5.920392…), so training is deterministic.
+
+### 5.4 Tests (`tests/ml/test_phase5_pipeline.py`, 20)
+
+Every architecture builds, stays under 1 M params, and returns the right shapes; TCN causality
+(future samples cannot change past outputs); the NLL formula and its optimum at the true
+variance; loss finite and differentiable; coverage metric on a calibrated Gaussian;
+**static check that no config target, model output or training target is a coordinate**;
+a missing config key raises; OOM policy (halve → CPU); invariant features unchanged under
+random rotation; TEST split refused; windows never cross gaps or segments and inputs hold no
+`gt_` column; augmentation changes inputs but never targets.
+
+### 5.5 Not done / carried forward
+
+| Item | Note |
+| --- | --- |
+| **Full training** of A and B, hyperparameter sweep (window 1–5 s, arch) | next step; CPU is workable at this model size |
+| **CUDA build not installed**: GPU path and OOM fallback untested on the RTX 2050 | `pip install -r requirements-gpu.txt`, then confirm `torch.cuda.is_available()` (driver 555.97 vs cu126 untested) |
+| Variance calibration by bins (ml_pipeline §6) | only 1σ/2σ coverage so far |
+| Model B on 18 train sessions only (verified alignment) | per-session alignment refinement would widen it |
+| Motion-context classifier (ZUPT trigger) | not in this phase's scope |
+| ONNX export + parity check | export phase |
 
 ---
 
@@ -1241,3 +1301,4 @@ defensible uncertainty.
 | 2026-09-27 | Phase 2 COMPLETED: raw layout normalised to `data/raw/IO-VNBD/`; two schemas found (S phone 24-col, V vehicle/CAN 29-col); 288 files → 72 unique sessions (V pairs byte-identical, S pairs content-identical, max diff 7.1e-15); 2,118 Excel-damaged satellite cells recovered; GRAVITY channel shown normalised to g0 in 72/72 sessions; gyro vertical axis = column 2 (gain 0.997); S/V row pairing shown misaligned by the phone clock error (up to 314 s), UTC-time join adopted (25 verified, 0 contradicted); driver-held-out split v1; `navigation_math.md` §5.2 arithmetic corrected (9.812377 → 9.812381); `scripts/phase2_validate.py` 26/26 CRITICAL PASS. |
 | 2026-09-27 | Phase 3 COMPLETED (renamed "Preprocessing Pipeline & Coordinate Systems"): Phase 2 committed (`e22997b`); ruff installed at the pinned 0.16.9, repo lint-clean; `configs/dataset.yaml` replaces hardcoded paths; single constants source; wheel speed calibrated vs VBOX (rear axle, k = 1.00019, km/h by inference, FWD); `navcore.geometry` quaternion/rotation/geodesy/frames with 78 tests (pyproj oracle, mutation check 5/5); UTC-time sync of 72 sessions with measured GNSS latency (median 4.1 s) as epoch tags; CAN-as-ground-truth enforced in code; drive-level split v2 (0 leaks; v1 had 49); train-only normalisation. **Corrections to earlier phases:** phone GPS speed is m/s not km/h (Phases 0-2 divided by 3.6); total recorded time 29.56 h not 25.08 h; xcorr lag bias fixed (Phase 2 conclusions unchanged). `scripts/phase3_validate.py` 20/20 CRITICAL PASS. |
 | 2026-09-27 | Phase 4 COMPLETED (redefined "Baseline Navigation Core"): sensors, alignment, INS, 15-state EKF, recovery, Allan; horizontal gyro columns shown unusable (reduced IMU); Phase 3 GNSS "4.1 s latency" corrected to a 9 s sample-and-hold artefact (new-fix delay ~0 s); spec sec 8.3 sign corrected; EKF consistent in Monte Carlo (NEES 16.5/15, NIS 5.00/5); real-data baseline on verified non-test drives: 7.8 m with GNSS, 291 m after 30 s and 995 m after 60 s without; `scripts/phase4_validate.py` 12/12 CRITICAL PASS. |
+| 2026-09-27 | Phase 5 COMPLETED (redefined "ML Training Pipeline"): configs/training.yaml, windowed datasets with gap/segment/target gates and CAN/coordinate guards, mount-invariant features + rotation/noise/bias/jitter augmentation, model registry (TCN/CNN1D/GRU/LSTM, heteroscedastic heads), Huber+NLL loss, trainer with CUDA-OOM -> smaller batch -> CPU fallback, scripts/train/train_all.py. Smoke test passes on CPU; limited run: Model A val MAE 5.92 m/s vs 7.02 constant reference. Full training NOT yet run; CUDA torch not installed. 199 tests pass. |

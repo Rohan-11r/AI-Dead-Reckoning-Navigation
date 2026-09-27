@@ -1,0 +1,83 @@
+{
+ "model": "model_b",
+ "arch": "gru",
+ "hparams": {
+  "hidden": 48,
+  "layers": 1,
+  "dropout": 0.1
+ },
+ "target": "gt_long_accel_from_speed_mps2",
+ "output": {
+  "name": "longitudinal_acceleration",
+  "unit": "m/s^2",
+  "range": [
+   -10.0,
+   10.0
+  ],
+  "positive": false
+ },
+ "inputs": [
+  "acc_x",
+  "acc_y",
+  "acc_z",
+  "grav_x",
+  "grav_y",
+  "grav_z",
+  "gyro_x",
+  "gyro_y",
+  "gyro_z",
+  "f_norm",
+  "f_vertical",
+  "f_horizontal",
+  "w_vertical"
+ ],
+ "input_rule": "phone channels only (CAN rule)",
+ "n_params": 16130,
+ "seed": 26168,
+ "train_data": {
+  "sessions": 18,
+  "windows": 31130,
+  "excluded": {
+   "target_low_vbox_sats": 22,
+   "target_not_finite": 7,
+   "spans_gap_or_segment": 15,
+   "ground_truth_unmatched": 358
+  },
+  "target": "gt_long_accel_from_speed_mps2",
+  "target_mean": -0.0013451286803129227,
+  "target_std": 0.7045696457418432,
+  "window_samples": 50,
+  "stride": 10,
+  "augment": true
+ },
+ "val_data": {
+  "sessions": 5,
+  "windows": 1355,
+  "excluded": {
+   "ground_truth_unmatched": 4,
+   "target_low_vbox_sats": 22,
+   "spans_gap_or_segment": 1
+  },
+  "target": "gt_long_accel_from_speed_mps2",
+  "target_mean": -0.008029735806929245,
+  "target_std": 0.7239255492439354,
+  "window_samples": 50,
+  "stride": 50,
+  "augment": false
+ },
+ "data_load_s": 0.2,
+ "baseline_constant_train_mean": {
+  "value": -0.0013451286803129227,
+  "val_mae": 0.47904522837553526
+ },
+ "name": "model_b_gru",
+ "commit": "2536dd5",
+ "split_manifest_sha256": "d59e8601e41f106c5ac7ac520542638f96a3bf4685beb757be124d82ca7464a4",
+ "device_final": "cpu",
+ "batch_size_final": 256,
+ "fallbacks": [],
+ "epochs_run": 1,
+ "best_val_mae": 0.4838782548904419,
+ "runtime_s": 2.0,
+ "checkpoint": "models\\checkpoints\\model_b_gru\\best.pt"
+}
