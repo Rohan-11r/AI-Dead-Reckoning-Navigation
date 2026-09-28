@@ -3,7 +3,7 @@
 **Project:** AI-ML based Intelligent Dead Reckoning system for seamless navigation
 **Workspace:** `C:\Users\Shreeyash\OneDrive\Desktop\dead reckening`
 **Governing document:** [`AGENTS.md`](./AGENTS.md) — the core directive overrides anything here.
-**Last updated:** 2026-09-28 (Phase 11)
+**Last updated:** 2026-09-28 (Android work re-filed as Phases 12-13; CI + testing guide)
 
 > **Status honesty rule.** A phase is `COMPLETED` only when its exit criteria are met by
 > code in this repo that anyone can re-run. Nothing is marked done on intent. No metric
@@ -36,10 +36,10 @@
 | 7 | Sensor Fusion & NHC (AI-assisted EKF, NHC, GNSS state machine; real-data gain mixed) | **COMPLETED** |
 | 8 | Offline Map Matching (OSM road graph, HMM matcher; real gain only while drift < ~30 m) | **COMPLETED** |
 | 9 | GNSS Outage Detection, Recovery & Replay (code + tests; recovery manager OFF pending real-drive evidence) | **COMPLETED** |
-| 10 | Android Application — Base & Sensors (source complete; **never compiled**: no JDK/SDK here) | `BLOCKED` (build machine) |
-| 11 | Android ML & Dead Reckoning Integration (Kotlin port of INS/EKF/NHC/Model A/map matcher; golden-vector parity; **never compiled**) | `BLOCKED` (build machine) |
-| 12 | Model Export & Python/Android Numerical Parity (golden vectors + Kotlin parity tests written in Phase 11; running them is pending) | `NOT STARTED` |
-| 13 | Android Application | `NOT STARTED` |
+| 10 | *(TODO.md "Map Matching": delivered as Phase 8 above)* | — |
+| 11 | Evaluation Harness & Benchmarking | `NOT STARTED` |
+| 12 | Model Export & Python/Android Numerical Parity (Python side + golden vectors done; Kotlin parity tests + CI written, **never run**) | `IN PROGRESS` |
+| 13 | Android Application (Part A base & sensors, Part B ML & dead reckoning: source complete, **never compiled**) | `BLOCKED` (build machine + handset) |
 | 14 | End-to-End Validation, Documentation & Demo | `NOT STARTED` |
 
 > **Roadmap revision (2026-09-27).** "Architecture & Repository Creation" was inserted as
@@ -49,6 +49,13 @@
 > training harness and one export path, and were already noted as parallelisable.
 > Phases 8-14 keep their original numbers. Cross-references in `docs/` and `TODO.md` were
 > renumbered mechanically in the same commit.
+>
+> **Renumbering (2026-09-28), Android work.** The Kotlin work committed as "Phase 10"
+> (`4556c2e`) and "Phase 11" (`f832719`) is re-filed to match TODO.md: its parity parts
+> under **Phase 12**, the app under **Phase 13** (Parts A and B). Phase 11 is the
+> Evaluation Harness again. Commit messages and code comments keep the old labels.
+> Phases 5-9 in this file still carry the per-phase redefinitions agreed at the time and
+> do not match TODO.md's titles one-to-one.
 
 ---
 
@@ -1666,20 +1673,131 @@ Recovery manager ON vs OFF (train + val, p50 per event kind):
 
 ---
 
-## Phase 10 — Android Application: Base & Sensors
+## Phase 11 — Evaluation Harness & Benchmarking
+
+**Status:** `NOT STARTED`
+**Note:** this is TODO.md's Phase 11. The Kotlin work committed as "Phase 10" (`4556c2e`)
+and "Phase 11" (`f832719`) is re-filed under Phases 12 and 13 below (renumbering of
+2026-09-28). Nothing has been built for the harness yet; the Phase 9 outage benchmark
+(`scripts/evaluate/phase9_outage_benchmark.py`) is the closest existing piece.
+
+**Objective:** One harness that produces every number that appears in any report.
+
+**Planned scope**
+- Metrics: absolute trajectory error, relative pose error, CDF percentiles (50/68/95),
+  final-position error, drift as a percentage of distance travelled, heading error.
+- Outage-scenario battery: outage durations from seconds to several minutes, at varied
+  start points across routes.
+- GNSS masking enforced at the harness level.
+- Per-stage ablation table: INS → +AI → +Fusion → +NHC → +Map Matching.
+- Every result stamped with script, commit, split, seed, and timestamp (`AGENTS.md` §2.2).
+
+**Exit criteria**
+- [ ] Single command regenerates every published number
+- [ ] Ablation table complete, including regressions where they exist
+- [ ] Results reproduce across two runs with a fixed seed
+
+---
+
+## Phase 12 — Model Export & Python/Android Numerical Parity
+
+**Status:** `IN PROGRESS` — Python side done and checked here; Kotlin side **written, never
+run** (no JDK / Android SDK on this machine, §0.8). Blocked on the first `:core:test` run,
+which the CI workflow (§12.3) or the build machine (`TESTING_GUIDE.md`) will provide.
+**Date:** 2026-09-28
+**Scope note:** the parity work was committed under the labels "Phase 10" (`4556c2e`) and
+"Phase 11" (`f832719`); it is filed here to match TODO.md.
+
+**Objective:** Enforce the parity contract in `AGENTS.md` §4.
+
+### 12.1 What exists
+
+| Item | Where | State |
+| --- | --- | --- |
+| ONNX export of Model A / Model B + model cards (SHA-256, feature order) | Phase 6 §6.4, `models/exported/` | **done**; Python parity gate (atol 1e-5 + rtol 1e-6) passes |
+| Golden vectors from the Python reference | `scripts/parity/generate_golden_vectors.py`, `nav_golden.py` → `tests/regression/golden/` | **done**; `--check` regenerates them byte-identically (on this Windows machine); `tests/regression/test_golden_vectors.py` passes |
+| Kotlin replay of the vectors | `android-app/core/src/test/.../ParityTest.kt`, `nav/NavParityTest.kt` | **written, never run** |
+| Model A through ONNX Runtime (JVM) against the Python outputs | `NavParityTest` (`nav_model_a.json`) | **written, never run** |
+| CI on every push | `.github/workflows/android.yml` | **written, never run** (§12.3) |
+| Shared constants file generated for both languages | — | **not done**: `Geometry.kt` copies the Python constants by hand; the golden vectors would catch a drift, but no generator exists |
+| Float vs double policy per module | — | **partly**: stated in code comments (double math; float32 cast for model features); no standalone document |
+| Cross-language runner reporting max abs / rel deviation | — | **not done**: the Kotlin tests assert tolerances, they do not print a deviation report |
+| On-device (not JVM) replay of a golden recording | — | **not done** (Phase 13 exit criterion) |
+
+#### Base-layer vectors (written with Phase 13 Part A, commit `4556c2e`)
+
+**Golden-vector parity (AGENTS.md §4)**, replayed by the Kotlin `ParityTest`:
+`gnss_state_machine.json` (421 events, every transition, boundary values), `sample_validation.json`
+(10 accept/reject cases), `wgs84_radii.json` (10 latitudes, 1e-12 relative). Generated from
+the Python reference; `tests/regression/test_golden_vectors.py` **passes** and fails if the
+reference and the committed vectors ever diverge.
+
+### 12.2 Navigation-core golden vectors (written with Phase 13 Part B, commit `f832719`)
+
+| Vector | Content | Kotlin tolerance |
+| --- | --- | --- |
+| `nav_geometry.json` | quaternion ops (incl. the small-angle branch), ECEF ↔ geodetic, gravity, earth/transport rate, tangent plane | 1e-15 … 1e-13 (quaternions), 1e-8 m (ECEF) |
+| `nav_ins.json` | 300 propagation steps, variable dt | 1e-6 m, 1e-9 m/s, 1e-11 |
+| `nav_ekf_ops.json` | 40 predicts (full and reduced gyro), GNSS, ZUPT, levelling, NHC (vertical, lateral), a generic update, a gate rejection, a reset — full P after each | gate decisions **exact**; P 1e-7 relative |
+| `nav_features.json` | 4 windows × 13 × 50 features | float32, 2 ulp |
+| `nav_model_a.json` | Model A outputs on 5 windows | the Phase 6 gate: 1e-5 + 1e-6·\|y\| |
+| `nav_navigator.json` | 180 s synthetic drive, 60 s dropout, full pipeline (deterministic speed stand-in) | GNSS state + all counters **exact**; 1 mm, P 1e-5 relative |
+| `nav_engine.json` | 150 s drive, 40 s dropout, 8 hypotheses from a first-second start | mode, state, chosen heading, tilt source **exact**; 1 mm |
+| `nav_map_matching.json` + `mm_*.roads.bin` | 4 HMM scenarios (drift at a junction, turn with a break, off-network suspend/re-enter, dual carriageway), Viterbi paths, the DR wrapper, course σ | modes, segments, paths, counts **exact**; 1e-9 m |
+
+The same engine vector is also replayed through the **device path** (raw channel events →
+10 Hz resampler → fix queue → engine) and must reproduce the reference, so the device-only
+glue cannot silently change the navigation. Kotlin tests: 37 in `:core` (27 from Part A + 10 parity), none run yet.
+
+### 12.3 CI
+
+`.github/workflows/android.yml`, on every push and pull request, two independent jobs:
+
+- **python-golden** (Ubuntu, Python 3.14, CPU torch): `tests/regression/test_golden_vectors.py`,
+  i.e. the committed vectors must still be what the Python reference produces. The vectors
+  were generated on Windows; byte-identical regeneration on Linux has **never been checked**,
+  so a failure of this job on its first run may be a platform difference rather than a
+  regression, and must be investigated, not waved through.
+- **android** (Ubuntu, JDK 17, Android SDK): `./gradlew :core:test :app:assembleDebug`;
+  uploads the `:core` test reports and the debug APK as artifacts.
+
+The Gradle wrapper JAR is not committed (it could not be generated here). Until the build
+machine commits `gradlew` + `gradle/wrapper/gradle-wrapper.jar`, the workflow creates the
+wrapper itself with Gradle 8.11.1. **The workflow has not run yet**: its first run is the
+first time any of this Kotlin is compiled; expect first-build fixes.
+
+### 12.4 Exit criteria
+
+- [x] Exported models match the Python trainer within a stated tolerance (Phase 6 gate, Python ONNX Runtime)
+- [x] Golden-vector fixtures: geodesy, rotations, INS steps, filter updates, NHC, features, Model A, full pipeline, map matching
+- [ ] Kotlin parity within the §4 targets across all modules — **`:core:test` has never run**
+- [ ] Parity suite runs in CI; any failure blocks release — workflow written, **not yet run**
+- [ ] Shared constants file generated from one source
+- [ ] Float vs double policy documented per module
+- [ ] Deviation report (max abs / rel) from the cross-language runner
+
+---
+
+## Phase 13 — Android Application
+
+**Status:** `BLOCKED` (build machine + handset) — **source complete for Parts A and B, never
+compiled**. `COMPLETED` only when `./gradlew :core:test :app:assembleDebug` passes (CI or the
+build machine) and the exit criteria in §13D are met on a real phone.
+**Build / test:** `TESTING_GUIDE.md`; CI: `.github/workflows/android.yml`.
+
+### 13A — Base & Sensors (commit `4556c2e`, formerly labelled "Phase 10")
 
 **Status:** `BLOCKED` on verification — **source complete, never compiled**. This machine has
 no JDK, Gradle, Kotlin compiler or Android SDK (§0.8), so not one line of the Kotlin below has
 been compiled or executed, and none of its unit tests has run. By this file's honesty rule the
-phase is not `COMPLETED` until `./gradlew :core:test :app:assembleDebug` passes on a build
+part is not `COMPLETED` until `./gradlew :core:test :app:assembleDebug` passes on a build
 machine. Everything that CAN be checked here was: the Python side of the parity contract
 (golden vectors + their regression test) runs and passes.
 **Date:** 2026-09-28
 **Evidence:** `android-app/` (33 files, `README.md`); `scripts/parity/generate_golden_vectors.py`,
 `tests/regression/golden/*.json`, `tests/regression/test_golden_vectors.py` (passing)
-**Scope note:** redefined by the user as "Android Application — Base & Sensors" (the old
-Phase 10 slot was freed when map matching moved to Phase 8). The original Phase 13 "Android
-Application" remains for the full on-device pipeline.
+**Scope note:** committed as "Phase 10 — Android Application: Base & Sensors" (`4556c2e`);
+re-filed as Part A of Phase 13 to match TODO.md. Its golden vectors are listed in Phase 12 §12.1.
 
 **Build (on a machine with JDK 17 + Android SDK 35):**
 
@@ -1690,7 +1808,7 @@ gradle wrapper --gradle-version 8.11.1   # the wrapper JAR is a binary: not comm
 ./gradlew :app:assembleDebug
 ```
 
-### 10.1 Structure (Kotlin, Gradle Kotlin DSL, version catalog)
+#### 13A.1 Structure (Kotlin, Gradle Kotlin DSL, version catalog)
 
 | Module | Kind | Contents |
 | --- | --- | --- |
@@ -1703,7 +1821,7 @@ Versions (AGP 8.7.3, Kotlin 2.1.0, Compose BOM 2024.12.01, coroutines 1.9.0, ONN
 Android 1.20.0, Play services location 21.3.0) are the last known to the author and may need
 bumping on the build machine.
 
-### 10.2 Screens
+#### 13A.2 Screens
 
 - **Navigation**: track canvas (a **placeholder** for a map renderer: the reported positions
   in local metres, auto-scaled, north up; no tiles); HUD with speed (km/h), navigation state
@@ -1725,7 +1843,7 @@ first, as in Python. The on-device feature pipeline is not ported, so the model 
 navigation, and the screen says so. The exported `.onnx` files and cards are copied into the
 APK assets by a Gradle task: the same bytes the Phase 6 parity gate validated.
 
-### 10.3 What the app does NOT do yet — stated on screen
+#### 13A.3 What the app does NOT do yet — stated on screen
 
 | Item | On the device |
 | --- | --- |
@@ -1735,7 +1853,7 @@ APK assets by a Gradle task: the same bytes the Phase 6 parity gate validated.
 | Map tiles | no (track canvas) |
 | Satellites used | not collected (needs a `GnssStatus` callback) |
 
-### 10.4 Session logger (dataset expansion)
+#### 13A.4 Session logger (dataset expansion)
 
 One directory per drive under the app's external files dir: `manifest.json` (schema v1,
 session start in UTC ms **and** elapsed-realtime ns, device, SDK, app version, sensors
@@ -1745,7 +1863,9 @@ available, GNSS source); `sensors.csv` (`t_s,channel,x,y,z,accuracy`, raw DEVICE
 Locale-independent full-precision numbers; buffered; synchronized; a write after close
 throws instead of losing data; the service closes the log on cancellation.
 
-### 10.5 Tests
+#### 13A.5 Tests
+
+Golden-vector parity for this part: Phase 12 §12.1.
 
 **Kotlin (`:core`, 4 files, 27 tests; written, NOT yet run):**
 - sensor-event mapping: channels, session clock, axes copied unchanged, rejections counted;
@@ -1757,13 +1877,7 @@ throws instead of losing data; the service closes the log on cancellation.
   CSV quoting, manifest, write-after-close fails); the placeholder engine giving no position
   when lost; HUD formatting.
 
-**Golden-vector parity (AGENTS.md §4)**, replayed by the Kotlin `ParityTest`:
-`gnss_state_machine.json` (421 events, every transition, boundary values), `sample_validation.json`
-(10 accept/reject cases), `wgs84_radii.json` (10 latitudes, 1e-12 relative). Generated from
-the Python reference; `tests/regression/test_golden_vectors.py` **passes** and fails if the
-reference and the committed vectors ever diverge.
-
-### 10.6 Exit criteria
+#### 13A.6 Exit criteria
 
 - [x] Android project structure: Kotlin, Gradle KTS, version catalog, SDK 35, Compose, coroutines
 - [x] Sensor (accel / gyro / mag / gravity) and GNSS (LocationManager + Fused) wrappers mapped into the shared schema
@@ -1775,9 +1889,7 @@ reference and the committed vectors ever diverge.
 - [ ] **Kotlin tests pass** (`:core:test`, incl. parity) — needs the build machine
 - [ ] Runs on a real handset: rates, logging, outage toggle verified — needs a phone
 
----
-
-## Phase 11 — Android ML & Dead Reckoning Integration
+### 13B — ML & Dead Reckoning Integration (commit `f832719`, formerly labelled "Phase 11")
 
 **Status:** `BLOCKED` on verification — **source complete, never compiled** (no JDK, Gradle,
 Kotlin compiler or Android SDK on this machine). The port is pinned by **golden vectors from
@@ -1791,16 +1903,16 @@ recorded.
 (13 golden files, regenerated byte-identically by `generate_golden_vectors.py --check`);
 `navigation-core/map_matching/bundle.py` + `scripts/export/export_road_bundle.py`;
 full Python suite **275 passed**, `ruff` clean
-**Scope note:** redefined by the user as "Android ML & Dead Reckoning Integration". It is
-the core of the original Phase 12 ("Model Export & Python/Android Numerical Parity"),
-done module by module.
+**Scope note:** committed as "Phase 11 — Android ML & Dead Reckoning Integration" (`f832719`);
+re-filed as Part B of Phase 13 to match TODO.md. Its golden vectors and tolerances are listed
+in Phase 12 §12.2.
 
 **Preceding owner decision (applied first, commit `cc73ed2`):** the app displays the
 **filter position** (Phase 9: 21.9 m vs 63.0 m for the smoothed output; the visible jump
 marks GNSS re-fusion). `EngineConfig.display = "filter"` in Python; the Kotlin engine
 reports the filter position and has no smoother.
 
-### 11.1 What was ported (Kotlin, `:core`, pure JVM)
+#### 13B.1 What was ported (Kotlin, `:core`, pure JVM)
 
 | Kotlin | Python reference | Notes |
 | --- | --- | --- |
@@ -1826,7 +1938,7 @@ reports the filter position and has no smoother.
   matcher runs on the filter output once NAVIGATING; the map-matched position is reported
   **alongside** the filter position, never instead of it, never fed back.
 
-### 11.2 Offline road bundle
+#### 13B.2 Offline road bundle
 
 `navcore.map_matching.bundle`: a documented big-endian binary (magic `SIHROAD1`) holding
 the same arrays as the Python network, so both implementations build the identical graph
@@ -1836,7 +1948,7 @@ regenerable) and a tracked manifest with its SHA-256. The app bundles it when pr
 the SHA-256, and loads it in the background. It takes seconds, and is handed to the
 processing coroutine as a message. Round trip tested in Python (`test_road_bundle_round_trip…`).
 
-### 11.3 App integration
+#### 13B.3 App integration
 
 - `EngineFactory` builds the engine from APK assets: measured IMU noise
   (`config/imu_noise.json`, Phase 4), Model A + card, road bundle + manifest. Downgrades are
@@ -1855,25 +1967,7 @@ processing coroutine as a message. Round trip tested in Python (`test_road_bundl
   (each real inference) and from the zero-input probe; skipped 10 Hz bins.
 - Session logs record the engine, its notes, the display choice and the road bundle used.
 
-### 11.4 Parity contract (golden vectors, AGENTS.md §4)
-
-| Vector | Content | Kotlin tolerance |
-| --- | --- | --- |
-| `nav_geometry.json` | quaternion ops (incl. the small-angle branch), ECEF ↔ geodetic, gravity, earth/transport rate, tangent plane | 1e-15 … 1e-13 (quaternions), 1e-8 m (ECEF) |
-| `nav_ins.json` | 300 propagation steps, variable dt | 1e-6 m, 1e-9 m/s, 1e-11 |
-| `nav_ekf_ops.json` | 40 predicts (full and reduced gyro), GNSS, ZUPT, levelling, NHC (vertical, lateral), a generic update, a gate rejection, a reset — full P after each | gate decisions **exact**; P 1e-7 relative |
-| `nav_features.json` | 4 windows × 13 × 50 features | float32, 2 ulp |
-| `nav_model_a.json` | Model A outputs on 5 windows | the Phase 6 gate: 1e-5 + 1e-6·\|y\| |
-| `nav_navigator.json` | 180 s synthetic drive, 60 s dropout, full pipeline (deterministic speed stand-in) | GNSS state + all counters **exact**; 1 mm, P 1e-5 relative |
-| `nav_engine.json` | 150 s drive, 40 s dropout, 8 hypotheses from a first-second start | mode, state, chosen heading, tilt source **exact**; 1 mm |
-| `nav_map_matching.json` + `mm_*.roads.bin` | 4 HMM scenarios (drift at a junction, turn with a break, off-network suspend/re-enter, dual carriageway), Viterbi paths, the DR wrapper, course σ | modes, segments, paths, counts **exact**; 1e-9 m |
-
-The same engine vector is also replayed through the **device path** (raw channel events →
-10 Hz resampler → fix queue → engine) and must reproduce the reference, so the device-only
-glue cannot silently change the navigation. Kotlin tests: 37 in `:core` (27 from Phase 10
-+ 10 parity), none run yet.
-
-### 11.5 What is not established
+#### 13B.4 What is not established
 
 | Claim | Status |
 | --- | --- |
@@ -1883,7 +1977,7 @@ glue cannot silently change the navigation. Kotlin tests: 37 in `:core` (27 from
 | Model A generalises to other phones | **unknown**: trained on one IO-VNBD phone model |
 | Map matching helps on the device | Phase 8 measured a marginal gain (only while drift < ~30 m); nothing new here |
 
-### 11.6 Exit criteria
+#### 13B.5 Exit criteria
 
 - [x] Model A through ONNX Runtime from APK assets, integrity-checked (SHA-256 + feature order)
 - [x] Rolling 5 s window at 10 Hz fed exactly as the model card defines (parity vectors)
@@ -1894,74 +1988,28 @@ glue cannot silently change the navigation. Kotlin tests: 37 in `:core` (27 from
 - [ ] Compiles; `:core:test` (37, incl. parity) passes — build machine
 - [ ] A real drive recorded on a phone, replayed through Python and Kotlin — handset
 
----
+### 13C — Against the original Phase 13 plan (TODO.md)
 
-## (Unscheduled) Evaluation Harness & Benchmarking — the original Phase 11 plan
+| Planned | State |
+| --- | --- |
+| Android project scaffolding | written (13A) |
+| Sensor acquisition with real hardware timestamps; honest rate handling | written (13A; 13B resampler) |
+| Port calibration, AHRS, INS, EKF, NHC against golden vectors | INS, EKF, NHC ported with vectors (13B); calibration and AHRS are not ported as separate stages |
+| On-device inference | ONNX Runtime, Model A (13B) |
+| Background-service lifecycle, doze behaviour | foreground service written; doze **not tested** |
+| Battery, CPU, thermal **measured** | **not done** (needs a handset) |
+| Offline map tiles; on-device map matching | map matching written (13B); **no tiles** |
+| On-device parity harness (replay a golden recording) | **not done** |
+| UI: position, uncertainty, pipeline mode, GNSS status | written (σ, confidence, state); no uncertainty ellipse drawn |
+| Full operation with GNSS disabled and no network | **not tested** |
 
-**Status:** `NOT STARTED`
+### 13D — Exit criteria
 
-**Objective:** One harness that produces every number that appears in any report.
-
-**Planned scope**
-- Metrics: absolute trajectory error, relative pose error, CDF percentiles (50/68/95),
-  final-position error, drift as a percentage of distance travelled, heading error.
-- Outage-scenario battery: outage durations from seconds to several minutes, at varied
-  start points across routes.
-- GNSS masking enforced at the harness level.
-- Per-stage ablation table: INS → +AI → +Fusion → +NHC → +Map Matching.
-- Every result stamped with script, commit, split, seed, and timestamp (`AGENTS.md` §2.2).
-
-**Exit criteria**
-- [ ] Single command regenerates every published number
-- [ ] Ablation table complete, including regressions where they exist
-- [ ] Results reproduce across two runs with a fixed seed
-
----
-
-## Phase 12 — Model Export & Python/Android Numerical Parity
-
-**Status:** `NOT STARTED`
-**Depends on:** resolving the JDK / Android SDK blocker (§0.8)
-
-**Objective:** Enforce the parity contract in `AGENTS.md` §4.
-
-**Planned scope**
-- Export Phase 7–7 models to ONNX and/or TFLite; re-run the exported graph on the
-  trainer's own inputs and compare numerically before acceptance.
-- Generate the shared constants file for both languages from one source.
-- Golden-vector fixtures covering geodesy, rotations, INS steps, filter updates, NHC,
-  and the full pipeline.
-- Cross-language parity test runner reporting maximum absolute and relative deviation.
-- Explicit float/double policy per module, documented.
-
-**Exit criteria**
-- [ ] Exported models match the Python trainer within a stated tolerance
-- [ ] Golden-vector parity within the §4 targets across all modules
-- [ ] Parity suite runnable in CI; any failure blocks release
-
----
-
-## Phase 13 — Android Application
-
-**Status:** `NOT STARTED`
-**Depends on:** JDK + Android SDK + Gradle installation, and a real test handset
-
-**Objective:** Run the identical pipeline on-device, in real time, in a GNSS outage.
-
-**Planned scope**
-- Sensor acquisition with real hardware timestamps and honest sample-rate handling.
-- Port of calibration, AHRS, INS, EKF, and NHC against the Phase 12 golden vectors.
-- On-device inference (ONNX Runtime Mobile / TFLite / NNAPI), with the export verified.
-- Background-service lifecycle, battery and thermal behaviour measured, not estimated.
-- Offline map tiles and on-device map matching.
-- On-device parity harness: replay a golden recording, compare against Python output.
-- UI showing position, uncertainty, and current pipeline mode.
-
-**Exit criteria**
+- [ ] Compiles; `:core:test` passes (CI or build machine)
 - [ ] On-device replay of a golden recording matches Python within tolerance
 - [ ] Real-time performance measured on real hardware (latency, CPU, battery, thermals)
 - [ ] Works fully offline with GNSS disabled
-- [ ] No coordinate ever produced outside the ported geodesy path
+- [ ] No coordinate produced outside the ported geodesy path (true by construction in the source; to be confirmed once it builds)
 
 ---
 
@@ -1975,6 +2023,7 @@ glue cannot silently change the navigation. Kotlin tests: 37 in `:core` (27 from
 - Field collection on new routes (tunnels, underpasses, urban canyon, multi-storey car
   parks) with GNSS truth logged for evaluation only.
 - Comparison of on-device results against the Phase 11 Python benchmarks.
+- Build and field test on a physical handset by a teammate (`TESTING_GUIDE.md`).
 - Architecture documentation, algorithm specification, dataset card, model cards.
 - Limitations document: where the system fails and why.
 - Reproducibility guide — clean-machine setup to published results.
@@ -2003,3 +2052,4 @@ glue cannot silently change the navigation. Kotlin tests: 37 in `:core` (27 from
 | 2026-09-28 | Phase 9 COMPLETED for code + tests (redefined "GNSS Outage Detection, Recovery & Replay"): outage simulator (full/tunnel/intermittent/degraded, battery), deterministic causal replay engine (reproduces Phase 7 S3b exactly), streaming NavigationEngine, RecoveryManager (opt-in, OFF) + OutputSmoother (ON); 27 new tests. Real-drive benchmark: runs 1 and 2 showed the recovery manager failing (1,390 good fixes rejected; then 1,186 km divergence from a kept failed inflation) -- both fixed and kept on record; run 3 in progress at commit time. |
 | 2026-09-28 | Phase 10 source complete, BLOCKED on verification (redefined "Android Application — Base & Sensors"): android-app/ Gradle KTS monorepo (:core JVM, :sensors, :gnss, :app), shared schema + GNSS state machine ported, foreground acquisition service with independent coroutines, Compose navigation + diagnostics screens, outage toggle, CSV/JSON session logger, ONNX latency probe, 27 Kotlin tests; golden vectors from the Python reference (state machine, sample validation, WGS84 radii) with a passing Python regression test. Nothing compiled: no JDK/Android SDK on this machine. |
 | 2026-09-28 | Display default set to the filter position (owner decision; cc73ed2). Phase 11 source complete, BLOCKED on verification (redefined "Android ML & Dead Reckoning Integration"): Kotlin ports of geometry, INS, 15-state EKF, NHC, features, ONNX Model A (SHA-256 + feature-order checked), fused navigator, streaming engine with heading hypotheses, 10 Hz resampler, map matcher reading a new binary road bundle (Coventry: 13.2 MB, gitignored, manifest tracked); app shows the DR marker moving when GNSS is lost plus map-matched positions; 13 golden files from the Python reference (regenerated byte-identically) replayed by 37 Kotlin tests. Nothing compiled: no JDK/Android SDK here. |
+| 2026-09-28 | **Renumbering to match TODO.md:** the Android work committed as "Phase 10" (`4556c2e`) and "Phase 11" (`f832719`) is re-filed as Phase 12 (parity: golden vectors + Kotlin parity tests; `IN PROGRESS`) and Phase 13 Parts A/B (the app; `BLOCKED` on build machine + handset); Phase 11 is the Evaluation Harness again (`NOT STARTED`). Added `.github/workflows/android.yml` (golden-vector check; `./gradlew :core:test :app:assembleDebug`) and `TESTING_GUIDE.md`. Neither the workflow nor any Kotlin has run yet. No code or result changed. |

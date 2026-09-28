@@ -1,8 +1,9 @@
-# android-app — SIH26168 Android application (Phase 10: base & sensors)
+# android-app — SIH26168 Android application (PROJECT_STATUS.md Phase 13; parity: Phase 12)
 
 > **Not compiled yet.** This machine has no JDK, Gradle, Kotlin compiler or Android SDK.
 > Every file here was written as source and reviewed by hand; the first build and the first
 > `:core:test` run happen on the build machine. Treat build errors there as expected work.
+> Step-by-step build, parity-test and handset checklist: [`../TESTING_GUIDE.md`](../TESTING_GUIDE.md).
 
 ## Build machine
 
@@ -37,12 +38,12 @@ monorepo checkout.
 
 | Item | Status (all source-only until the first build) |
 | --- | --- |
-| Sensor + GNSS acquisition, one session clock (`elapsedRealtimeNanos`) | Phase 10 |
-| Schema validation, GNSS state machine | Phase 10; golden-vector parity |
-| **Dead reckoning**: INS + 15-state EKF + Model A speed + NHC + state machine + 8 heading hypotheses (`core/nav/`) | **Phase 11**: a port of the Python reference with golden-vector parity per layer; the marker keeps moving when GNSS is lost |
-| Model A on-device inference (ONNX Runtime, SHA-256 + feature-order checked) | Phase 11 |
-| 10 Hz resampling of the phone's faster sensor stream | Phase 11 (device-only; averaging: to be checked on recordings) |
-| Map matching from an offline road bundle (`core/mapmatch/`) | Phase 11; needs `models/roads/*.roads.bin` (see below) before the build |
+| Sensor + GNSS acquisition, one session clock (`elapsedRealtimeNanos`) | Phase 13A |
+| Schema validation, GNSS state machine | Phase 13A; golden-vector parity (Phase 12) |
+| **Dead reckoning**: INS + 15-state EKF + Model A speed + NHC + state machine + 8 heading hypotheses (`core/nav/`) | **Phase 13B**: a port of the Python reference with golden-vector parity per layer; the marker keeps moving when GNSS is lost |
+| Model A on-device inference (ONNX Runtime, SHA-256 + feature-order checked) | Phase 13B |
+| 10 Hz resampling of the phone's faster sensor stream | Phase 13B (device-only; averaging: to be checked on recordings) |
+| Map matching from an offline road bundle (`core/mapmatch/`) | Phase 13B; needs `models/roads/*.roads.bin` (see below) before the build |
 | Displayed position | the **filter's** (owner decision after Phase 9); map-matched positions shown alongside |
 | Map tiles | not yet (track canvas) |
 | Satellites used | not collected (needs a `GnssStatus` callback) |

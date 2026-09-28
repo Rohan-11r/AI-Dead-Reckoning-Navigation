@@ -1,0 +1,97 @@
+# SIH26168 -- build + parity gate for the Android port (PROJECT_STATUS.md Phase 12 §12.3).
+#
+# Two independent jobs:
+#   python-golden  the committed golden vectors must still be what the Python reference produces
+#   android        ./gradlew :core:test :app:assembleDebug  (Kotlin unit + golden-vector parity
+#                  tests, then the debug APK)
+# A parity failure is a release blocker (AGENTS.md 4): do not mark either job as allowed to fail.
+
+name: android
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-golden:
+    name: Python golden vectors (reference side)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      - name: Install pinned dependencies (CPU torch)
+        run: |
+          python -m pip install --upgrade pip
+          # the PyPI Linux torch wheel is the CUDA build; the CPU build satisfies torch==2.14.0
+          python -m pip install torch==2.14.0 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -r requirements.txt
+          python -m pip install -e . --no-deps
+
+      # --check regenerates every vector and compares byte-for-byte; writes nothing.
+      # The vectors were generated on Windows: a first-run failure here may be a platform
+      # difference and must be investigated, not waved through.
+      - name: Golden vectors reproduce
+        run: python -m pytest tests/regression/test_golden_vectors.py -v
+
+  android:
+    name: Kotlin tests + debug APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: android-app
+    steps:
+      # the :core tests read ../tests/regression/golden and ../models/exported: full monorepo
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.11.1"
+
+      # The wrapper JAR is not committed yet (it could not be generated on the authoring
+      # machine). Once the build machine commits gradlew + gradle/wrapper/gradle-wrapper.jar,
+      # this step does nothing.
+      - name: Gradle wrapper (generate if missing)
+        run: |
+          if [ ! -f gradlew ]; then
+            gradle wrapper --gradle-version 8.11.1
+          fi
+          chmod +x gradlew
+
+      - name: Kotlin tests + assemble debug APK
+        run: ./gradlew :core:test :app:assembleDebug --stacktrace
+
+      - name: Upload :core test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-test-reports
+          path: |
+            android-app/core/build/reports/tests/
+            android-app/core/build/test-results/
+          if-no-files-found: ignore
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: android-app/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
