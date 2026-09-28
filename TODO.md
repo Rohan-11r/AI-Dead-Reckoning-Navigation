@@ -5,47 +5,59 @@
 Read [`AGENTS.md`](./AGENTS.md) first — it governs everything below.
 Detailed per-phase status lives in [`PROJECT_STATUS.md`](./PROJECT_STATUS.md).
 
+**Numbering.** This file keeps the planned phase numbers and titles. PROJECT_STATUS.md files
+the work as it was executed; Phases 0-7 and 11-14 match, but the work executed as "Phase 8"
+is this file's Phase 10 (Map Matching), and the work executed as "Phase 9" (GNSS outage
+detection, recovery & replay) is spread over Phases 8 and 11 below. PROJECT_STATUS.md has
+the crosswalk. Each item below says where it was delivered.
+
 ---
 
 ## The Shape of the Work
 
 ```
-Phase 0   Environment                         [COMPLETED]
+Phase 0   Environment                          [COMPLETED]
 Phase 1   Architecture & repo                  [COMPLETED]
-Phase 2   Data                                [COMPLETED]
-Phase 3   Preprocessing & frames          [COMPLETED]
-Phase 4   Baseline nav core                [COMPLETED]
+Phase 2   Data                                 [COMPLETED]
+Phase 3   Preprocessing & frames               [COMPLETED]
+Phase 4   Baseline nav core (INS + EKF)        [COMPLETED]
               |
-Phase 5   AHRS          ------------------\
-Phase 6   INS           ------------------ +-- physics core
+Phase 5   ML training pipeline  ------------\
+Phase 6   ML evaluation & export ----------- +-- learned layer    [COMPLETED]
               |
-Phase 7   AI: bias + speed/context ---------- learned layer
+Phase 7   Sensor fusion & NHC   ------------\                     [COMPLETED]
+Phase 8   Fusion EKF            ------------ |                    [mostly done; follow-ups open]
+Phase 9   NHC                   ------------ +-- estimation       [core done; follow-ups open]
+Phase 10  Map matching          ------------/                     [COMPLETED as executed Phase 8]
               |
-Phase 8   Fusion EKF    ------------------\
-Phase 9   NHC           ------------------ +-- estimation
-Phase 10  Map Matching  ------------------/
+Phase 11  Evaluation harness    -- the truth-teller               [NOT STARTED]
               |
-Phase 11  Evaluation    -- the truth-teller
-              |
-Phase 12  Export + Parity ----------------\
-Phase 13  Android       ------------------ +-- deployment
-Phase 14  Field validation + docs --------/
+Phase 12  Export + parity       ------------\                     [IN PROGRESS]
+Phase 13  Android               ------------ +-- deployment       [BLOCKED: build machine + handset]
+Phase 14  Field validation + docs ----------/                     [NOT STARTED]
 ```
 
-Phases 3 and 3 can proceed in parallel once Phase 2 lands. Phases 7 and 7 can be trained
-in parallel. Everything from Phase 12 on is gated by installing a JDK and the Android SDK.
+Phases 5 and 6 replaced the original AHRS and INS phases (the INS and EKF were delivered in
+Phase 4); the original two AI phases were merged into Phase 7. Everything from Phase 12 on
+needs a JDK and the Android SDK, which the authoring machine does not have: the Kotlin is
+built in CI and on the teammate's machine (`TESTING_GUIDE.md`).
 
 ---
 
 ## Immediate Next Actions (top of the stack)
 
-1. **Review Phase 7 real-data results** and set the fusion defaults (§7.5 of the status file).
-2. **NHC (Phase 9):** correlated-error model (rate / σ), time-varying mount tilt, covariance
-   robustness at a GNSS reset (NHC arm diverged on S3c).
-3. **Models:** full-length training; fix Model A's low-speed bias; retrain or drop Model B.
-4. **Evaluation:** only 3 validation drives are scoreable — too few; plan the one-time TEST run.
-5. **Android:** built externally / in CI (Android Studio not installed locally); a physical
-   handset is still needed for Phases 13-14.
+1. **First build (Phases 12-13):** on the teammate's machine or in CI, run
+   `./gradlew :core:test` and `./gradlew :app:assembleDebug`; fix first-build errors;
+   commit the Gradle wrapper. No Kotlin has been compiled yet.
+2. **Field test in Nagpur (Phases 13-14):** generate the local road bundle
+   (`scripts/export/export_road_bundle.py --bbox ...`), install the APK, record drives with
+   the session logger, and bring the logs back for replay through Python.
+3. **Models:** full-length training; fix Model A's +2.8 m/s bias on test drivers; retrain or
+   drop Model B.
+4. **NHC follow-ups (Phase 9):** correlated-error model (rate / σ), time-varying mount tilt,
+   covariance robustness at a GNSS reset (the NHC-only arm diverged on S3c).
+5. **Evaluation (Phase 11):** only 3 validation drives are scoreable — too few; build the
+   harness and plan the one-time TEST run.
 6. **Housekeeping:** the laptop throttles on battery (runs 3-10x slower); plug in for long runs.
 
 ---
@@ -86,6 +98,7 @@ in parallel. Everything from Phase 12 on is gated by installing a JDK and the An
 - [x] `scripts/phase1_validate.py` — structure, venv, pins, imports, ONNX round trip
 - [x] Anti-drift assertions: requirements ↔ pyproject pins, pyproject packages ↔ manifest
 - [x] Verified torch → ONNX → onnxruntime round trip (max |Δ| = 2.98e-08, tol 1e-5)
+- [x] First git commit (made at the start of Phase 2)
 
 Defects found and fixed in this phase (each would otherwise have surfaced in Phase 12):
 
@@ -93,10 +106,6 @@ Defects found and fixed in this phase (each would otherwise have surfaced in Pha
 - [x] dynamo ONNX exporter crashes on its own `✅` under cp1252 — `PYTHONUTF8=1` set
 - [x] `packages.find` cannot see through `package-dir`; silently found zero navcore
       packages — replaced with an explicit list, now asserted against the manifest
-
-Not done (deliberately):
-
-- [ ] No git commit made — committing was not requested
 
 ---
 
@@ -109,8 +118,7 @@ Not done (deliberately):
 - [x] Python version decided on evidence *(done in Phase 1)*
 - [x] `git init` + `.gitignore` *(done in Phase 1; initial commit made at Phase 2 start)*
 - [x] Raw layout normalised to `data/raw/IO-VNBD/` (rename only, inventory verified)
-- [ ] Single config module holding the one dataset path — **not done**: path is a
-      constant in each Phase 2 script + `.env.example`. Carry to Phase 3.
+- [x] Single config module holding the one dataset path *(done in Phase 3: `configs/dataset.yaml`)*
 - [x] Loader: cp1252 + per-token mojibake repair, normalised column names, explicit datetime
 - [x] Split `GPS SATELLITES IN RANGE` into used/visible; 2,118 Excel-damaged cells repaired
 - [x] Convert km/h to m/s at the loader boundary; SI everywhere inside *(Phase 3: phone GPS speed was actually m/s -- fixed)*
@@ -121,23 +129,23 @@ Not done (deliberately):
 - [~] Kinematic plausibility screen: gravity vs g0 and local g, sensor ranges, GPS speed vs
       VBOX speed. **GPS speed vs differentiated GPS position not done.**
 - [~] Stationary rows detected (CAN + wheel + VBOX speed all zero) for the audit;
-      **not yet exported as reusable segments** for Phase 4 / Phase 8
+      **not exported as reusable segments** (the filter detects stillness from phone data)
 - [x] Parquet with an explicit versioned schema (`iovnbd-v1`, units in metadata)
 - [x] **Route/driver-level** split manifest `data/splits/iovnbd_split_v1.json`
+      *(superseded by the drive-level v2 in Phase 3)*
 - [x] Leak check: no session, route group, or test driver spans two splits
 - [x] Dataset card: `reports/phase2/dataset_report.html` (+ `.json`)
 - [x] Loader unit tests (22)
 
-**New items found by Phase 2 (carried forward):**
-- [ ] Phase 4: resolve the two horizontal gyro axes (vertical = column 2 `gyro_y`, proven)
-- [ ] Phase 4: Allan variance from stationary-only sessions `Vw1` (34 min), `Vw15`
-- [ ] Phase 4: wheel-speed unit (km/h vs rad/s label) and odometry scale vs VBOX speed
-- [ ] Phase 7: per-session S/V time-alignment refinement for the 47 unverified sessions
-      before any V-file channel is used as a 10 Hz training target
-- [ ] Phase 8: model phone-GNSS latency (median 4.1 s behind VBOX) in the measurement model
-- [ ] **Decision needed:** whether V-file CAN channels (wheel speed, yaw rate) may be
-      model *inputs*, or only reference/evaluation truth — a phone-only deployment has
-      no CAN bus
+**Items found by Phase 2, and where they went:**
+- [x] Resolve the two horizontal gyro axes — Phase 4: columns 1/3 are not angular rates (reduced IMU)
+- [x] Allan variance from stationary sessions — Phase 4 (`reports/phase4/imu_noise.json`)
+- [x] Wheel-speed unit and odometry scale vs VBOX speed — Phase 3 (k = 1.00019)
+- [x] Phone-GNSS "4.1 s latency" — Phase 4: a 9 s sample-and-hold artefact, not latency; no latency model needed
+- [x] **Decided (user, 2026-09-27):** V-file CAN channels are ground truth only, never model
+      or filter inputs — enforced in code (Phase 3)
+- [ ] Per-session S/V time-alignment for the 47 unverified sessions — until then only
+      clock-verified sessions are scored
 
 ---
 
@@ -151,7 +159,7 @@ Not done (deliberately):
 - [x] Single Python constants source (`navcore.common.constants`)
 - [x] Quaternion / rotation / geodesy / frames in `navigation-core/geometry/`
 - [x] 78 math tests incl. pyproj oracle and a 5/5 mutation check
-- [x] UTC-time sync pipeline; GNSS latency measured and epoch-tagged
+- [x] UTC-time sync pipeline; GNSS timing measured and epoch-tagged
 - [x] CAN = ground truth only, enforced by `columns.assert_model_inputs`
 - [x] Drive-level split v2 with independent leak audit (0 leaks)
 - [x] Train-only normalisation `models/normalization/imu_{mean,std}.json`
@@ -163,7 +171,7 @@ Not done (deliberately):
 ## Phase 4 — Baseline Navigation Core (sensors, alignment, INS, EKF)
 
 **Status: COMPLETED 2026-09-27** — `reports/phase4_validation.txt`. Redefined by the user:
-absorbs the INS (orig. Phase 6) and classical EKF (orig. Phase 8 core) plus the
+absorbs the INS and the core of the classical EKF (planned for Phases 6 and 8), plus the
 calibration items below.
 
 - [x] `SensorSample` / `ImuSample` / `GnssSample` with frames, validation, epoch vs receipt time
@@ -177,9 +185,9 @@ calibration items below.
 - [x] GNSS lock-out recovery (navcore/recovery)
 - [x] Real-data baseline on verified validation drives (+ all verified non-test drives)
 - [x] Phase 3 GNSS-timing error found and corrected (9 s sample-and-hold, not 4.1 s latency)
-- [ ] Accelerometer scale factor / axis misalignment calibration -> carried
-- [ ] Magnetometer hard/soft-iron fit and disturbance rejection -> carried
-- [ ] Allan-variance PLOTS (numbers exist; figures not produced) -> carried
+- [ ] Accelerometer scale factor / axis misalignment calibration
+- [ ] Magnetometer hard/soft-iron fit and disturbance rejection
+- [ ] Allan-variance PLOTS (numbers exist; figures not produced)
 - [ ] Per-segment re-alignment for a non-rigid phone mount -> Phase 9 (NHC depends on it)
 
 ---
@@ -203,11 +211,11 @@ calibration items below.
 
 ---
 
-## Phase 7 — Sensor Fusion & NHC (redefined) — DONE
+## Phase 7 — Sensor Fusion & NHC (redefined; merges the two planned AI phases) — DONE
 
 - [x] ONNX wrapper, AI-assisted EKF, NHC, GNSS state machine, integration tests
 - [x] Real-data ablation (PROJECT_STATUS.md §7.5)
-- [ ] Decide defaults: AI speed on; NHC only with AI speed; Model B off (pending review)
+- [x] Defaults agreed with the owner: AI speed ON; NHC only together with AI speed; Model B OFF
 - [ ] Find why AI speed worsens some 30 s outages (S3a, S3b)
 
 ---
@@ -215,59 +223,81 @@ calibration items below.
 ## Phase 8 — Fusion Engine (Error-State EKF)
 
 **Goal: statistically defensible fusion with honest uncertainty.**
+Most of this was delivered in Phase 4 (filter) and Phase 7 (AI measurements); the outage
+simulation came with executed Phase 9.
 
-- [ ] Error-state EKF: position, velocity, attitude, IMU-bias states
-- [ ] Process noise from Phase 4 Allan variance
-- [ ] Measurement noise from the Phase 7–7 variance heads
-- [ ] GNSS position/velocity updates gated on accuracy and satellite count
-- [ ] AI speed / displacement measurement models
-- [ ] ZUPT on detected stationarity
-- [ ] Innovation gating and outlier rejection
-- [ ] **NIS / NEES consistency tests** — a filter that is accurate but inconsistent is broken
-- [ ] Covariance symmetry and positive-definiteness assertions
-- [ ] GNSS-outage simulation enforced by harness-level column masking
-- [ ] Outage-duration vs error curves against the Phase 6 baseline
+- [x] Error-state EKF: position, velocity, attitude, IMU-bias states (15-state, Phase 4)
+- [x] Process noise from Phase 4 Allan variance (`reports/phase4/imu_noise.json`)
+- [x] Measurement noise from Model A's variance head (Phase 7)
+- [~] GNSS updates gated on reported accuracy (state machine) and the NIS gate;
+      **satellite count not used**
+- [~] AI speed measurement model (Phase 7); **no displacement model**
+- [x] ZUPT on detected stationarity (Phase 4; phone-only stillness since Phase 7)
+- [x] Innovation gating and outlier rejection (NIS gate)
+- [x] **NIS / NEES consistency tests** — Monte Carlo, synthetic (Phase 4)
+- [ ] Real-data consistency: the shipped default's 2σ covers the error only 75 % of the time
+      on VAL (Phase 7 §7.5) — the filter is overconfident on real data
+- [x] Covariance symmetry and positive-definiteness assertions (Joseph form, Cholesky check)
+- [x] GNSS-outage simulation over recorded fixes, enforced by the replay harness
+      (`simulation/outage`, `simulation/replay`; executed Phase 9)
+- [~] Outage-duration vs error: tables vs the Phase 4 baseline at 30 / 60 s (Phase 7) and a
+      10-300 s battery (executed Phase 9); **no plotted curves**
 
 ---
 
 ## Phase 9 — Non-Holonomic Constraints (NHC)
 
 **Goal: exploit vehicle kinematics — a car cannot slide sideways or fly.**
+The constraint itself was delivered in Phase 7 (`navcore.nhc`).
 
-- [ ] Body-frame lateral-velocity pseudo-measurement (≈ 0)
-- [ ] Body-frame vertical-velocity pseudo-measurement (≈ 0)
+- [x] Body-frame lateral-velocity pseudo-measurement (≈ 0) — **untested on real data**: no
+      validation drive has an observable mount
+- [x] Body-frame vertical-velocity pseudo-measurement (≈ 0)
 - [ ] Bicycle-model yaw-rate / speed consistency coupling
-- [ ] Couple with Phase 4 mounting misalignment (a wrong body frame makes NHC harmful)
-- [ ] Constraint relaxation on wheel slip, sharp manoeuvres, rough terrain
-- [ ] Ablation: fusion with vs without NHC — report cases where it hurts
+- [x] Couple with Phase 4 mounting misalignment (lateral row only with an accepted mount)
+- [~] Constraint relaxation: skipped below 2 m/s and above 3 m/s² lateral acceleration;
+      **no wheel-slip or rough-terrain handling**
+- [x] Ablation: fusion with vs without NHC — NHC alone hurts and diverged once (Phase 7 §7.5)
 - [ ] Validate relaxation logic against real turning and braking segments
+- [ ] Correlated-error model (rate / σ) and a time-varying mount-tilt estimate
+- [ ] Covariance robustness at a GNSS reset
 
 ---
 
-## Phase 10 — Map Matching
+## Phase 10 — Map Matching (delivered as executed Phase 8)
 
 **Goal: refinement only. Map matching never originates a position.**
 
-- [ ] Fetch OSM road network for the Coventry, UK operating area
-- [ ] Build a spatial index over road geometry
-- [ ] HMM map matching: emission from filter covariance, transition from topology
-- [ ] Off-network detection — do not force-snap car parks and private roads
-- [ ] Optional matched-heading feedback into fusion, with the correlation risk stated
-- [ ] Ablation with map matching disabled
-- [ ] Document failure modes: parallel roads, complex junctions, off-network travel
-- [ ] Assert positions remain valid and physics-derived with map matching removed
+- [x] Fetch the OSM road network for the Coventry, UK operating area (`scripts/download/fetch_osm_roads.py`)
+- [x] Same for any field-test area: `--city` or `--bbox` (`scripts/export/export_road_bundle.py`)
+- [x] Build a spatial index over road geometry (50 m grid)
+- [x] HMM map matching: emission from filter covariance, transition from topology
+- [x] Off-network detection — do not force-snap car parks and private roads
+- [ ] Matched-heading feedback into fusion — **not done, by decision** (`docs/map_matching.md` §5:
+      the correlation risk outweighs it)
+- [x] Ablation with map matching disabled (VAL: marginal gain, only while drift < ~30 m)
+- [x] Failure modes documented (`docs/map_matching.md`) and tested on synthetic junctions,
+      parallel roads, dual carriageways, off-network travel
+- [x] Positions remain valid and physics-derived with map matching removed (the matcher never
+      writes to the EKF; tested)
+- [ ] Gate the matched output on the fused σ; recalibrate `map_match_confidence` on TRAIN
+- [ ] Measure the bundle's load time and memory on a phone
 
 ---
 
 ## Phase 11 — Evaluation Harness & Benchmarking
 
 **Goal: one harness generates every number that ever gets published.**
+The executed Phase 9 outage benchmark (`scripts/evaluate/phase9_outage_benchmark.py`) is the
+closest existing piece.
 
 - [ ] Metrics: ATE, RPE, error CDF (p50 / p68 / p95), final-position error
 - [ ] Drift as a percentage of distance travelled
 - [ ] Heading error over time
-- [ ] Outage battery: multiple durations, multiple start points, across all test routes
-- [ ] GNSS masking enforced in the harness, not by convention
+- [~] Outage battery: multiple durations and start points — exists for TRAIN+VAL drives
+      (executed Phase 9); **not yet over the test routes**
+- [~] GNSS masking enforced in the harness, not by convention — done in the replay engine;
+      the harness itself does not exist yet
 - [ ] **Per-stage ablation table:** INS → +AI → +Fusion → +NHC → +Map Matching
 - [ ] Stamp every result with script, commit, split, seed, timestamp
 - [ ] Single command regenerates all published numbers
@@ -277,37 +307,44 @@ calibration items below.
 
 ## Phase 12 — Model Export & Python/Android Numerical Parity
 
-**BLOCKED until a JDK and the Android SDK are installed.**
+**IN PROGRESS.** Python side done; Kotlin side written but **never run** (no JDK / Android
+SDK on the authoring machine).
 
-- [ ] Export Phase 7–7 models to ONNX and/or TFLite
-- [ ] **Re-run each exported graph on the trainer's own inputs and compare numerically**
+- [x] Export Phase 6 models to ONNX (with model cards: SHA-256 + feature order)
+- [x] **Re-run each exported graph on the trainer's own inputs and compare numerically** (Phase 6 gate)
 - [ ] Generate the shared constants file for both languages from one source
-- [ ] Golden-vector fixtures: geodesy, rotations, INS steps, filter updates, NHC, full pipeline
-- [ ] Cross-language parity runner reporting max absolute and relative deviation
-- [ ] Document the float vs double policy per module
-- [ ] Wire the parity suite into CI; any failure blocks release
+- [x] Golden-vector fixtures: geodesy, rotations, INS steps, filter updates, NHC, features,
+      Model A, full pipeline, map matching (`tests/regression/golden/`)
+- [~] Kotlin parity tests replaying the vectors — written, **never run**; they assert
+      tolerances but do not print a max abs / rel deviation report
+- [ ] Document the float vs double policy per module (only in code comments so far)
+- [~] Parity suite wired into CI (`.github/workflows/android.yml`) — written, **not yet run**
 
 ---
 
 ## Phase 13 — Android Application
 
-**BLOCKED until JDK + Android SDK + Gradle are installed and a handset is confirmed.**
+**BLOCKED on a build machine (JDK 17 + Android SDK) and a handset.** Source complete for
+Part A (base & sensors) and Part B (ML & dead reckoning); **never compiled**.
 
-- [ ] Android project scaffolding
-- [ ] Sensor acquisition using real hardware timestamps; honest rate handling
-- [ ] Port calibration, AHRS, INS, EKF, NHC — each validated against golden vectors
-- [ ] On-device inference (ONNX Runtime Mobile / TFLite / NNAPI)
-- [ ] Background-service lifecycle and doze-mode behaviour
+- [x] Android project scaffolding (`:core`, `:sensors`, `:gnss`, `:app`)
+- [x] Sensor acquisition using real hardware timestamps; honest rate handling (+ 10 Hz resampler)
+- [~] INS, EKF and NHC ported against golden vectors; calibration and AHRS not ported as
+      separate stages
+- [x] On-device inference (ONNX Runtime, Model A, integrity-checked)
+- [~] Foreground service written; **doze-mode behaviour not tested**
 - [ ] **Measure** battery, CPU, and thermal behaviour — do not estimate
-- [ ] Offline map tiles and on-device map matching
+- [~] On-device map matching written; **no map tiles** (track canvas only)
 - [ ] On-device parity harness: replay a golden recording, diff against Python
-- [ ] UI: position, uncertainty ellipse, current pipeline mode, GNSS status
+- [~] UI: position, σ and confidence, pipeline mode, GNSS status; **no uncertainty ellipse drawn**
 - [ ] Verify full operation with GNSS disabled and no network
+- [ ] Compiles; `./gradlew :core:test` and `./gradlew :app:assembleDebug` pass
 
 ---
 
 ## Phase 14 — End-to-End Validation, Documentation & Demo
 
+- [ ] Teammate build and field test in Nagpur (`TESTING_GUIDE.md`), with a local road bundle
 - [ ] Collect new field data: tunnels, underpasses, urban canyon, multi-storey car parks
 - [ ] Log GNSS truth for **evaluation only**, never fed to outage-mode code
 - [ ] Compare on-device results against the Phase 11 Python benchmarks
