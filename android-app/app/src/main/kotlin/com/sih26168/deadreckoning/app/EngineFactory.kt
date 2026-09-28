@@ -20,7 +20,7 @@ import java.security.MessageDigest
  *    Without it: AI speed OFF, and therefore NHC OFF too (the Phase 7 pairing rule: NHC
  *    alone measured harmful).
  *  - roads/*.roads.bin (+ .roads.json manifest) : the offline road graph, SHA-256-checked,
- *    loaded separately (it takes seconds): absent -> no map matching, said so.
+ *    loaded separately (it takes seconds): absent, or more than one -> no map matching, said so.
  * Every downgrade is recorded in [Built.notes] and shown on the diagnostics screen.
  */
 object EngineFactory {
@@ -65,7 +65,9 @@ object EngineFactory {
 
     /** The offline road network, or null (with the reason) when none is bundled or it fails its check. */
     fun loadRoads(assets: AssetManager): Pair<RoadNetwork?, String> {
-        val bin = assets.list("roads").orEmpty().filter { it.endsWith(".roads.bin") }.minOrNull()
+        val bins = assets.list("roads").orEmpty().filter { it.endsWith(".roads.bin") }.sorted()
+        if (bins.size > 1) return null to "${bins.size} road bundles in the APK (${bins.joinToString()}): keep exactly one in models/roads/"
+        val bin = bins.firstOrNull()
             ?: return null to "no offline road bundle in the APK (scripts/export/export_road_bundle.py)"
         val bytes = assets.open("roads/$bin").use { it.readBytes() }
         val manifest = runCatching {

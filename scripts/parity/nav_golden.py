@@ -1,4 +1,4 @@
-"""Golden vectors for the Phase 11 Kotlin port of the navigation core (AGENTS.md 4).
+"""Golden vectors for the Phase 12 parity check of the Kotlin port of the navigation core (AGENTS.md 4).
 
 Each function returns a JSON-able dict: the INPUTS, fully spelled out, and the Python
 reference's OUTPUTS. The Kotlin tests (android-app/core/src/test/.../nav/) replay the

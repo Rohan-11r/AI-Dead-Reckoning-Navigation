@@ -3,7 +3,7 @@
 **Project:** AI-ML based Intelligent Dead Reckoning system for seamless navigation
 **Workspace:** `C:\Users\Shreeyash\OneDrive\Desktop\dead reckening`
 **Governing document:** [`AGENTS.md`](./AGENTS.md) — the core directive overrides anything here.
-**Last updated:** 2026-09-28 (Android work re-filed as Phases 12-13; CI + testing guide)
+**Last updated:** 2026-09-28 (Phase 5-9 crosswalk to TODO.md; road bundle for any area; Phase 12/13 labels in code)
 
 > **Status honesty rule.** A phase is `COMPLETED` only when its exit criteria are met by
 > code in this repo that anyone can re-run. Nothing is marked done on intent. No metric
@@ -34,8 +34,8 @@
 | 5 | ML Training Pipeline (pipeline + smoke test; full training not yet run) | **COMPLETED** |
 | 6 | ML Evaluation & Export (sweep, selection, evaluation, ONNX + parity gate) | **COMPLETED** |
 | 7 | Sensor Fusion & NHC (AI-assisted EKF, NHC, GNSS state machine; real-data gain mixed) | **COMPLETED** |
-| 8 | Offline Map Matching (OSM road graph, HMM matcher; real gain only while drift < ~30 m) | **COMPLETED** |
-| 9 | GNSS Outage Detection, Recovery & Replay (code + tests; recovery manager OFF pending real-drive evidence) | **COMPLETED** |
+| 8 | Offline Map Matching (OSM road graph, HMM matcher; real gain only while drift < ~30 m). *TODO.md 8 is "Fusion Engine (Error-State EKF)": see crosswalk* | **COMPLETED** |
+| 9 | GNSS Outage Detection, Recovery & Replay (code + tests; recovery manager OFF pending real-drive evidence). *TODO.md 9 is "Non-Holonomic Constraints (NHC)": see crosswalk* | **COMPLETED** |
 | 10 | *(TODO.md "Map Matching": delivered as Phase 8 above)* | — |
 | 11 | Evaluation Harness & Benchmarking | `NOT STARTED` |
 | 12 | Model Export & Python/Android Numerical Parity (Python side + golden vectors done; Kotlin parity tests + CI written, **never run**) | `IN PROGRESS` |
@@ -53,9 +53,24 @@
 > **Renumbering (2026-09-28), Android work.** The Kotlin work committed as "Phase 10"
 > (`4556c2e`) and "Phase 11" (`f832719`) is re-filed to match TODO.md: its parity parts
 > under **Phase 12**, the app under **Phase 13** (Parts A and B). Phase 11 is the
-> Evaluation Harness again. Commit messages and code comments keep the old labels.
-> Phases 5-9 in this file still carry the per-phase redefinitions agreed at the time and
-> do not match TODO.md's titles one-to-one.
+> Evaluation Harness again. Commit messages keep the old labels; code comments, docstrings
+> and the app's `versionName` (`0.13.0-phase13`) were updated to Phases 12/13. Remaining
+> "Phase 10" mentions in `docs/map_matching.md`, `requirements*.txt` and `README.md` mean
+> TODO.md's Phase 10 (Map Matching), delivered as Phase 8 below.
+
+**Crosswalk, Phases 5-9: executed phase (this file) vs TODO.md's title.** Phases 5-9 were
+redefined by the owner as the work went, so from 8 on the executed phase under a number is
+not the phase TODO.md lists under it. Each TODO.md scope is either delivered elsewhere or
+still open:
+
+| # | TODO.md title | Executed here under that number | Where TODO.md's scope for that number stands |
+| --- | --- | --- | --- |
+| 5 | ML Training Pipeline (was AHRS) | same | done. Original AHRS scope not scheduled (attitude from the Phase 4 EKF + gravity levelling) |
+| 6 | ML Evaluation & Export | same | done |
+| 7 | Sensor Fusion & NHC | same | done. Also delivers much of TODO.md 8 and 9 (below) |
+| 8 | Fusion Engine (Error-State EKF) | Offline Map Matching (= TODO.md **10**) | 15-state EKF built in Phase 4 (Monte Carlo NEES/NIS consistent); AI-speed update, NIS gating and stillness ZUPT added in Phase 7. TODO.md's Phase 8 checklist has not been re-ticked against this work |
+| 9 | Non-Holonomic Constraints (NHC) | GNSS Outage Detection, Recovery & Replay (feeds TODO.md **11**'s outage battery) | NHC built in Phase 7; open per §7.7: correlated-error model, time-varying tilt, lateral NHC untested on real data |
+| 10 | Map Matching | *(not reused)* | delivered as Phase 8 |
 
 ---
 
@@ -1421,6 +1436,7 @@ overall; a real gain only while dead reckoning is within ~30 m of the truth (§8
 **Date:** 2026-09-27
 **Evidence:** `reports/phase8/map_matching_evaluation.json`, `reports/phase8/osm_manifest.json`;
 `tests/navigation/test_map_matching.py` (15); `ruff check .` clean
+**TODO.md title for #8:** "Fusion Engine (Error-State EKF)", delivered in Phases 4 and 7 (crosswalk above).
 **Scope note:** redefined by the user as "Offline Map Matching". It delivers the original
 Phase 10 plan (`docs/map_matching.md`, which now opens with an "as built" section). The
 original Phase 8 (fusion EKF) and Phase 9 (NHC) plans were delivered in Phases 4 and 7.
@@ -1536,6 +1552,7 @@ smooths: continuity costs accuracy on this data.
 `tests/navigation/test_recovery.py` (2, Phase 4, unchanged); **full suite 271 passed**, `ruff` clean;
 `reports/phase9/outage_benchmark_first_design.json`, `..._second_design.json` (failed designs,
 kept on purpose); `reports/phase9/outage_benchmark.json` (third run, when complete)
+**TODO.md title for #9:** "Non-Holonomic Constraints (NHC)", delivered in Phase 7 (crosswalk above).
 **Scope note:** redefined by the user as "GNSS Outage Detection, Recovery & Replay". The
 original Phase 9 (NHC) was delivered in Phase 7.
 
@@ -2053,3 +2070,4 @@ processing coroutine as a message. Round trip tested in Python (`test_road_bundl
 | 2026-09-28 | Phase 10 source complete, BLOCKED on verification (redefined "Android Application — Base & Sensors"): android-app/ Gradle KTS monorepo (:core JVM, :sensors, :gnss, :app), shared schema + GNSS state machine ported, foreground acquisition service with independent coroutines, Compose navigation + diagnostics screens, outage toggle, CSV/JSON session logger, ONNX latency probe, 27 Kotlin tests; golden vectors from the Python reference (state machine, sample validation, WGS84 radii) with a passing Python regression test. Nothing compiled: no JDK/Android SDK on this machine. |
 | 2026-09-28 | Display default set to the filter position (owner decision; cc73ed2). Phase 11 source complete, BLOCKED on verification (redefined "Android ML & Dead Reckoning Integration"): Kotlin ports of geometry, INS, 15-state EKF, NHC, features, ONNX Model A (SHA-256 + feature-order checked), fused navigator, streaming engine with heading hypotheses, 10 Hz resampler, map matcher reading a new binary road bundle (Coventry: 13.2 MB, gitignored, manifest tracked); app shows the DR marker moving when GNSS is lost plus map-matched positions; 13 golden files from the Python reference (regenerated byte-identically) replayed by 37 Kotlin tests. Nothing compiled: no JDK/Android SDK here. |
 | 2026-09-28 | **Renumbering to match TODO.md:** the Android work committed as "Phase 10" (`4556c2e`) and "Phase 11" (`f832719`) is re-filed as Phase 12 (parity: golden vectors + Kotlin parity tests; `IN PROGRESS`) and Phase 13 Parts A/B (the app; `BLOCKED` on build machine + handset); Phase 11 is the Evaluation Harness again (`NOT STARTED`). Added `.github/workflows/android.yml` (golden-vector check; `./gradlew :core:test :app:assembleDebug`) and `TESTING_GUIDE.md`. Neither the workflow nor any Kotlin has run yet. No code or result changed. |
+| 2026-09-28 | Housekeeping before field testing: Phase 5-9 crosswalk to TODO.md titles added (no phase renamed; executed 8/9 differ from TODO.md 8/9). Old "Phase 10"/"Phase 11" labels for the Android work replaced by Phase 12/13 in code comments, docstrings, `docs/architecture.md`, `.gitignore`; `versionName` and the session-manifest version `0.10.0-phase10` -> `0.13.0-phase13`. Road bundle for any area: `scripts/export/export_road_bundle.py` (and `scripts/download/fetch_osm_roads.py`) take `--city` or `--bbox S W N E`; per-area provenance `reports/osm/<name>_osm_manifest.json` (Coventry's Phase 8 files unchanged, its query asserted byte-identical by `tests/unit/test_osm_area.py`, 14 tests); run once for "Nagpur, India" (7.8 MB bundle, 279,967 directed segments; not committed). `EngineFactory` now refuses to choose between several bundles instead of loading the alphabetically first. `TESTING_GUIDE.md` step 5 added. The Kotlin change is uncompiled like the rest. |

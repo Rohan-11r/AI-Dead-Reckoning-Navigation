@@ -15,7 +15,7 @@ import java.io.File
 import kotlin.math.abs
 
 /**
- * Phase 11 golden-vector parity: the Kotlin port against the Python reference, layer by layer
+ * Phase 12 golden-vector parity: the Kotlin port against the Python reference, layer by layer
  * (AGENTS.md 4). Vectors: tests/regression/golden/nav_*.json (scripts/parity/nav_golden.py).
  * Tolerances are per layer: tight for single operations, looser for the 1,800-step pipeline
  * (different summation order accumulates); discrete outcomes (GNSS state, gate decisions,

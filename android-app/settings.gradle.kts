@@ -1,4 +1,4 @@
-// SIH26168 -- AI-ML dead reckoning, Android app (Phase 10: base & sensors).
+// SIH26168 -- AI-ML dead reckoning, Android app (Phase 13: Part A base & sensors, Part B ML & dead reckoning).
 // Build machine requirements: JDK 17, Android SDK 35. See README.md.
 pluginManagement {
     repositories {

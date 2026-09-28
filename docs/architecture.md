@@ -194,7 +194,7 @@ before it is allowed into `models/exported/`.
 | `navigation-core/diagnostics/` | NIS/NEES, covariance PD, kinematic sanity | the honesty enforcement layer |
 | `training/` | datasets, models, losses, trainers, export | models output physical quantities only |
 | `edge-engine/` | portable on-device engine | second implementation |
-| `android-app/` | Android application (Kotlin, Gradle KTS: `:core` JVM, `:sensors`, `:gnss`, `:app`) | Phase 10 base & sensors: source complete, not yet compiled (no JDK/SDK on the authoring machine); DR engine port pending |
+| `android-app/` | Android application (Kotlin, Gradle KTS: `:core` JVM, `:sensors`, `:gnss`, `:app`) | Phase 13 (Part A base & sensors, Part B ML & dead reckoning; parity tests under Phase 12): source complete, not yet compiled (no JDK/SDK on the authoring machine) |
 | `simulation/outage/` | GNSS outage injection | masks columns, does not set a flag |
 | `simulation/synthetic/` | analytically-known motion | test fixtures, explicitly labelled |
 | `evaluation/` | ATE, RPE, drift %, ablations | sole source of published numbers |

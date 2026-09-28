@@ -24,8 +24,8 @@ data class NavSnapshot(
 )
 
 /** The on-device navigation engine contract. The dead-reckoning implementation is
- * [com.sih26168.deadreckoning.core.nav.DeadReckoningNavigation] (Phase 11, a port of
- * `navcore.fusion.engine.NavigationEngine`); [GnssOnlyEngine] is the Phase 10 fallback. */
+ * [com.sih26168.deadreckoning.core.nav.DeadReckoningNavigation] (Phase 13 Part B, a port of
+ * `navcore.fusion.engine.NavigationEngine`); [GnssOnlyEngine] is the Phase 13 Part A fallback. */
 interface NavigationEngine {
     val name: String
     fun onImu(sample: ImuSample)
@@ -35,9 +35,9 @@ interface NavigationEngine {
 }
 
 /**
- * HONEST PLACEHOLDER engine for Phase 10 (base & sensors). It runs the ported GNSS state
- * machine and reports the latest GNSS fix -- it does NOT dead-reckon: the INS/EKF/AI stack
- * is not ported to the device yet (golden-vector parity first, AGENTS.md 4). So in LOST
+ * HONEST PLACEHOLDER engine from Phase 13 Part A (base & sensors), kept as the fallback that
+ * EngineFactory uses when the measured IMU noise is missing. It runs the ported GNSS state
+ * machine and reports the latest GNSS fix -- it does NOT dead-reckon. So in LOST
  * ("DEAD_RECKONING") it reports NO position, rather than a stale or invented one, and says
  * why. With no filter there is no NIS gate: every fix counts as accepted.
  */

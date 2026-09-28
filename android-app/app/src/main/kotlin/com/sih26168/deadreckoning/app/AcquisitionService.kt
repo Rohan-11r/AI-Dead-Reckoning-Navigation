@@ -43,7 +43,7 @@ import kotlinx.coroutines.channels.Channel as KChannel
 /**
  * Foreground service (type "location") that owns acquisition for the whole session.
  *
- * Engine (Phase 11): EngineFactory builds the on-device dead-reckoning engine from the APK
+ * Engine (Phase 13 Part B): EngineFactory builds the on-device dead-reckoning engine from the APK
  * assets (INS + EKF + Model A speed + NHC + GNSS state machine; map matching once the road
  * bundle has loaded), falling back -- visibly -- when a resource is missing or refused.
  *
@@ -277,5 +277,5 @@ class AcquisitionService : Service() {
 
 /** Version string without enabling the BuildConfig feature. */
 internal object BuildConfigInfo {
-    const val VERSION = "0.10.0-phase10"
+    const val VERSION = "0.13.0-phase13" // keep equal to versionName in app/build.gradle.kts
 }

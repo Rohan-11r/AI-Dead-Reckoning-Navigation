@@ -13,7 +13,7 @@ import com.sih26168.deadreckoning.core.positionConfidence
 import kotlin.math.hypot
 
 /**
- * The on-device DEAD-RECKONING engine behind the app's [NavigationEngine] contract (Phase 11):
+ * The on-device DEAD-RECKONING engine behind the app's [NavigationEngine] contract (Phase 13 Part B):
  *   raw ChannelSamples -> [TenHzResampler] -> [DrEngine] (INS + EKF + Model A speed + NHC +
  *   GNSS state machine, heading hypotheses) -> optional [DeadReckoningMapMatcher].
  * GNSS fixes are queued and handed to the engine with the first 10 Hz sample at or after

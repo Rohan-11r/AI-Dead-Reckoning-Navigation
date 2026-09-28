@@ -13,7 +13,7 @@ Vectors:
                             plus a seeded random stretch; the expected state after each event
   sample_validation.json    GnssSample inputs and whether the reference accepts them
   wgs84_radii.json          meridian / prime-vertical radii at fixed latitudes
-  nav_*.json, mm_*.bin      Phase 11: geometry, INS, EKF ops, features, Model A, fused
+  nav_*.json, mm_*.bin      Phase 12: geometry, INS, EKF ops, features, Model A, fused
                             navigator, streaming engine, map matcher (scripts/parity/nav_golden.py)
 """
 
@@ -129,7 +129,7 @@ VECTORS = {"gnss_state_machine.json": gnss_state_machine, "sample_validation.jso
 
 
 def render(obj: dict, compact: bool = False) -> str:
-    if compact:  # the large Phase 11 vectors: one line, still exact (repr floats)
+    if compact:  # the large Phase 12 vectors: one line, still exact (repr floats)
         return json.dumps(obj, sort_keys=True, separators=(",", ":")) + "\n"
     return json.dumps(obj, indent=1, sort_keys=True) + "\n"
 
