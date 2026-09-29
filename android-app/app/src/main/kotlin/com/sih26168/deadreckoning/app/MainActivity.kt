@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -37,6 +36,7 @@ import com.sih26168.deadreckoning.app.ui.DiagnosticsScreen
 import com.sih26168.deadreckoning.app.ui.NavigationScreen
 import com.sih26168.deadreckoning.app.ui.OnboardingScreen
 import com.sih26168.deadreckoning.app.ui.RequirementStatus
+import com.sih26168.deadreckoning.app.ui.theme.RouteonTheme
 
 class MainActivity : ComponentActivity() {
     private val repo get() = (application as NavApplication).repository
@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme {
+            RouteonTheme {
                 // onboarding first; the navigation UI only once a name is stored AND every
                 // onboarding requirement holds (re-checked at each launch: grants can be revoked)
                 var onboarded by rememberSaveable { mutableStateOf(isOnboarded()) }

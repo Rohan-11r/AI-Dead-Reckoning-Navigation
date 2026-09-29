@@ -2,6 +2,8 @@ package com.sih26168.deadreckoning.app.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import android.graphics.DashPathEffect
 import android.view.MotionEvent
 import androidx.compose.foundation.background
@@ -28,6 +30,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -40,6 +44,9 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.sih26168.deadreckoning.app.AlignmentStatus
 import com.sih26168.deadreckoning.app.R
+import com.sih26168.deadreckoning.app.ui.theme.RouteonOrange
+import com.sih26168.deadreckoning.app.ui.theme.RouteonRed
+import com.sih26168.deadreckoning.app.ui.theme.RouteonRedDeep
 import com.sih26168.deadreckoning.core.Display
 import com.sih26168.deadreckoning.core.GnssState
 import com.sih26168.deadreckoning.core.NavSnapshot
@@ -54,9 +61,10 @@ import org.osmdroid.views.overlay.Polyline
  * Primary screen: OpenStreetMap view + telemetry HUD + "Simulate GNSS outage" toggle.
  * The map draws the ENGINE's (filter) track exactly as the engine reported it (degrees, no
  * re-projection), the map-matched positions in green, and a car at the latest position:
- * blue while GNSS is fused, orange with an "AI Dead Reckoning Active" banner while the engine
- * is dead reckoning (simulated outage OR real GNSS loss). Tiles are display only: with no
- * network the map is blank but the track, car and HUD keep updating.
+ * red while GNSS is fused, glowing orange with an "AI Dead Reckoning Active" banner while the
+ * engine is dead reckoning (simulated outage OR real GNSS loss). Tiles are display only and
+ * drawn colour-inverted ([DARK_TILES]) for the dark theme: with no network the map is blank
+ * but the track, car and HUD keep updating.
  *
  * The flag + faint dashed line are a DEMO DESTINATION ([DEMO_DESTINATION]): a fixed,
  * display-only pin, labelled as such, never an input to the engine or map matching; the line
@@ -86,9 +94,9 @@ fun NavigationScreen(
         Card(Modifier.fillMaxWidth()) {
             Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text("Simulate GNSS outage", fontWeight = FontWeight.Bold)
+                    Text("Simulate GNSS outage", fontWeight = FontWeight.Bold, color = Color.White)
                     Text("Withholds every fix from the engine; still logged, flagged withheld_by_sim",
-                        style = MaterialTheme.typography.bodySmall)
+                        style = MaterialTheme.typography.bodySmall, color = LABEL_MUTED)
                 }
                 Switch(checked = outageOn, onCheckedChange = onOutage, enabled = running)
             }
@@ -99,11 +107,12 @@ fun NavigationScreen(
 /** Display-only demo destination: Manish Nagar underpass, Nagpur (approximate). */
 private val DEMO_DESTINATION = GeoPoint(21.093, 79.068)
 private const val GNSS_ONLY_ENGINE_PREFIX = "gnss-only" // GnssOnlyEngine.name: it cannot dead-reckon
-private val CAR_GNSS = Color(0xFF1565C0)
-private val CAR_DR = Color(0xFFEF6C00)
-private val NO_DR = Color(0xFFC62828)
-private val TRACK = Color(0xFF1565C0)
-private val MATCHED = Color(0xFF2E7D32)
+private val CAR_GNSS = RouteonRed
+private val CAR_DR = RouteonOrange
+private val NO_DR = RouteonRedDeep
+private val TRACK = RouteonRedDeep // darker than the car, so the bright car stands out at the track head
+private val MATCHED = Color(0xFF00E676) // bright green: readable on the inverted (dark) tiles
+private val LABEL_MUTED = Color(0xFFB8B8C0)
 private const val FOLLOW_ZOOM = 17.0
 
 @Composable
@@ -113,10 +122,17 @@ private fun DeadReckoningBanner(simulated: Boolean, isDrEngine: Boolean) {
         simulated -> "AI Dead Reckoning Active" to "GNSS withheld (simulated outage): position from IMU + AI speed"
         else -> "AI Dead Reckoning Active" to "GNSS signal lost: position from IMU + AI speed"
     }
+    val glow = if (isDrEngine) CAR_DR else NO_DR
+    val shape = RoundedCornerShape(12.dp)
     Column(
         Modifier
             .fillMaxWidth()
-            .background(if (isDrEngine) CAR_DR else NO_DR, RoundedCornerShape(12.dp))
+            // coloured shadow = the "glow" around the banner on the black background
+            .shadow(elevation = 18.dp, shape = shape, ambientColor = glow, spotColor = glow)
+            .background(
+                if (isDrEngine) Brush.horizontalGradient(listOf(RouteonRed, CAR_DR)) else Brush.horizontalGradient(listOf(NO_DR, NO_DR)),
+                shape,
+            )
             .padding(horizontal = 16.dp, vertical = 10.dp),
     ) {
         Text(title, color = Color.White, fontWeight = FontWeight.ExtraBold, style = MaterialTheme.typography.titleMedium)
@@ -129,14 +145,15 @@ private fun DeadReckoningBanner(simulated: Boolean, isDrEngine: Boolean) {
 private fun AlignmentBar(a: AlignmentStatus) {
     if (a.phase == AlignmentStatus.Phase.UNAVAILABLE) return
     val (label, color) = when (a.phase) {
-        AlignmentStatus.Phase.WAITING_FOR_GNSS -> "Heading alignment: waiting for GNSS at > 5 m/s" to Color.Gray
+        AlignmentStatus.Phase.WAITING_FOR_GNSS -> "Heading alignment: waiting for GNSS at > 5 m/s" to LABEL_MUTED
         AlignmentStatus.Phase.ALIGNING -> "Heading alignment: ${a.percent} %  (keep GNSS until locked)" to CAR_DR
         else -> "Heading locked: dead reckoning ready" to MATCHED
     }
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(label, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
-            LinearProgressIndicator(progress = { a.percent / 100f }, color = color, modifier = Modifier.fillMaxWidth())
+            Text(label, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold, color = Color.White)
+            LinearProgressIndicator(progress = { a.percent / 100f }, color = color,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant, modifier = Modifier.fillMaxWidth())
         }
     }
 }
@@ -148,13 +165,13 @@ private fun Hud(s: NavSnapshot?, outageOn: Boolean, hasMap: Boolean) {
         GnssState.DEGRADED -> Color(0xFFF9A825)
         GnssState.RECOVERING -> Color(0xFF1565C0)
         GnssState.LOST -> Color(0xFFC62828)
-        null -> Color.Gray
+        null -> LABEL_MUTED
     }
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(Display.speedKmh(s?.speedMps), style = MaterialTheme.typography.displaySmall,
-                    modifier = Modifier.weight(1f))
+                    color = Color.White, modifier = Modifier.weight(1f))
                 Text(Display.stateLabel(s?.state, outageOn), color = Color.White, fontWeight = FontWeight.Bold,
                     modifier = Modifier.background(stateColor).padding(horizontal = 8.dp, vertical = 4.dp))
             }
@@ -172,15 +189,30 @@ private fun Hud(s: NavSnapshot?, outageOn: Boolean, hasMap: Boolean) {
 @Composable
 internal fun HudRow(label: String, value: String) {
     Row(Modifier.fillMaxWidth()) {
-        Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-        Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+        Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, color = LABEL_MUTED)
+        Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = Color.White)
     }
 }
+
+/**
+ * Dark-mode tiles: invert RGB (c' = 255 - c), keep alpha. Applied to the tiles overlay only, so
+ * the track, matched line, flag and car keep their true colours on top of the dark map.
+ */
+private val DARK_TILES = ColorMatrixColorFilter(
+    ColorMatrix(
+        floatArrayOf(
+            -1f, 0f, 0f, 0f, 255f,
+            0f, -1f, 0f, 0f, 255f,
+            0f, 0f, -1f, 0f, 255f,
+            0f, 0f, 0f, 1f, 0f,
+        ),
+    ),
+)
 
 /** Overlays created once per MapView; [TrackMap] only moves them. */
 private class MapOverlays(map: MapView, ctx: Context) {
     val demoLine = Polyline(map).apply {
-        outlinePaint.color = Color.Gray.copy(alpha = 0.55f).toArgb()
+        outlinePaint.color = LABEL_MUTED.copy(alpha = 0.55f).toArgb()
         outlinePaint.strokeWidth = 5f
         outlinePaint.pathEffect = DashPathEffect(floatArrayOf(24f, 16f), 0f)
         title = "Demo destination - straight line, not a route"
@@ -228,6 +260,11 @@ private fun TrackMap(
         Configuration.getInstance().userAgentValue = context.packageName
         MapView(context).apply {
             setTileSource(TileSourceFactory.MAPNIK)
+            overlayManager.tilesOverlay.setColorFilter(DARK_TILES)
+            // placeholder grid while tiles load / with no network: black, not osmdroid's light grey
+            overlayManager.tilesOverlay.setLoadingBackgroundColor(android.graphics.Color.BLACK)
+            overlayManager.tilesOverlay.setLoadingLineColor(android.graphics.Color.rgb(0x2A, 0x2A, 0x2E))
+            setBackgroundColor(android.graphics.Color.BLACK)
             setMultiTouchControls(true)
             controller.setZoom(FOLLOW_ZOOM)
             controller.setCenter(DEMO_DESTINATION)
@@ -279,7 +316,8 @@ private fun TrackMap(
         Text(
             "© OpenStreetMap contributors",
             style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.align(Alignment.BottomStart).background(Color.White.copy(alpha = 0.7f)).padding(4.dp),
+            color = LABEL_MUTED,
+            modifier = Modifier.align(Alignment.BottomStart).background(Color.Black.copy(alpha = 0.7f)).padding(4.dp),
         )
     }
 }

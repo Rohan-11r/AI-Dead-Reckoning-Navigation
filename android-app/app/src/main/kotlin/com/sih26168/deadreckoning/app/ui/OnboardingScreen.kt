@@ -13,6 +13,7 @@ import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +41,7 @@ import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -55,7 +57,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -65,6 +69,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
+import com.sih26168.deadreckoning.app.ui.theme.RouteonRedDeep
 import kotlinx.coroutines.delay
 
 /**
@@ -124,19 +129,24 @@ private const val NAME_MAX_CHARS = 40
 
 @Composable
 private fun Splash() {
+    val scheme = MaterialTheme.colorScheme
     Column(
-        Modifier.fillMaxSize(),
+        Modifier
+            .fillMaxSize()
+            // faint red glow rising from the centre of the black background
+            .background(Brush.radialGradient(listOf(scheme.primary.copy(alpha = 0.22f), Color.Transparent))),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         RouteonLogo(size = 132)
         Spacer(Modifier.height(24.dp))
-        Text("Routeon", style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Bold)
+        Text("Routeon", style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Bold,
+            color = scheme.onBackground)
         Spacer(Modifier.height(8.dp))
         Text(
             "Keeps navigating when GNSS drops",
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = scheme.onSurfaceVariant,
         )
     }
 }
@@ -148,8 +158,10 @@ private fun RouteonLogo(size: Int) {
     Box(Modifier.size(size.dp), contentAlignment = Alignment.Center) {
         Box(
             Modifier
+                .shadow(elevation = (size * 0.18f).dp, shape = CircleShape,
+                    ambientColor = scheme.primary, spotColor = scheme.primary)
                 .size(size.dp)
-                .background(Brush.linearGradient(listOf(scheme.primary, scheme.tertiary)), CircleShape),
+                .background(Brush.linearGradient(listOf(scheme.primary, RouteonRedDeep)), CircleShape),
             contentAlignment = Alignment.Center,
         ) {
             Icon(Icons.Filled.Explore, contentDescription = null, tint = scheme.onPrimary,
@@ -159,7 +171,7 @@ private fun RouteonLogo(size: Int) {
             Modifier
                 .align(Alignment.BottomEnd)
                 .size((size * 0.36f).dp)
-                .background(scheme.surface, CircleShape)
+                .background(scheme.background, CircleShape)
                 .padding(4.dp)
                 .background(scheme.primaryContainer, CircleShape),
             contentAlignment = Alignment.Center,
@@ -199,7 +211,8 @@ private fun Setup(initialName: String, onComplete: (String) -> Unit) {
     ) {
         RouteonLogo(size = 72)
         Spacer(Modifier.height(16.dp))
-        Text("Welcome to Routeon", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
+        Text("Welcome to Routeon", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onBackground)
         Spacer(Modifier.height(6.dp))
         Text(
             "Routeon estimates your position from the phone's motion sensors when satellite signals are lost.",
@@ -220,7 +233,7 @@ private fun Setup(initialName: String, onComplete: (String) -> Unit) {
         Spacer(Modifier.height(24.dp))
 
         Text("Required permissions", style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.fillMaxWidth())
+            color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.fillMaxWidth())
         Spacer(Modifier.height(8.dp))
 
         RequirementRow(
@@ -295,19 +308,29 @@ private fun RequirementRow(
     onAction: () -> Unit,
     enabled: Boolean = true,
 ) {
-    Card(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+    val scheme = MaterialTheme.colorScheme
+    Card(
+        Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = scheme.surfaceContainerHigh, contentColor = scheme.onSurface),
+        // granted rows get a red edge; pending rows a neutral one
+        border = BorderStroke(1.dp, if (met) scheme.primary else scheme.outline),
+    ) {
         Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            Icon(icon, contentDescription = null, tint = scheme.primary)
             Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.titleSmall)
+                Text(title, style = MaterialTheme.typography.titleSmall, color = scheme.onSurface)
                 Text(detail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Spacer(Modifier.width(12.dp))
             when {
                 met -> Icon(Icons.Filled.CheckCircle, contentDescription = "Granted",
                     tint = MaterialTheme.colorScheme.primary)
-                actionLabel != null -> OutlinedButton(onClick = onAction, enabled = enabled) { Text(actionLabel) }
+                actionLabel != null -> OutlinedButton(
+                    onClick = onAction,
+                    enabled = enabled,
+                    border = BorderStroke(1.dp, if (enabled) scheme.primary else scheme.outline),
+                ) { Text(actionLabel) }
             }
         }
     }
