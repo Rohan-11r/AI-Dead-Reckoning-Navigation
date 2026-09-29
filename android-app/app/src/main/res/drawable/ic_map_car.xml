@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Material "directions_car" (Apache 2.0). Tinted at runtime: red = GNSS, orange = dead reckoning. -->
+<!-- Material "directions_car" (Apache 2.0). Tinted at runtime: white = GNSS, orange = dead reckoning. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="40dp"
     android:height="40dp"

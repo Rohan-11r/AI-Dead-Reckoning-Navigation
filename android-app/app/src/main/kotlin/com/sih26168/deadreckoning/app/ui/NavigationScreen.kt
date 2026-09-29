@@ -61,7 +61,7 @@ import org.osmdroid.views.overlay.Polyline
  * Primary screen: OpenStreetMap view + telemetry HUD + "Simulate GNSS outage" toggle.
  * The map draws the ENGINE's (filter) track exactly as the engine reported it (degrees, no
  * re-projection), the map-matched positions in green, and a car at the latest position:
- * red while GNSS is fused, glowing orange with an "AI Dead Reckoning Active" banner while the
+ * white while GNSS is fused, glowing orange with an "AI Dead Reckoning Active" banner while the
  * engine is dead reckoning (simulated outage OR real GNSS loss). Tiles are display only and
  * drawn colour-inverted ([DARK_TILES]) for the dark theme: with no network the map is blank
  * but the track, car and HUD keep updating.
@@ -107,7 +107,7 @@ fun NavigationScreen(
 /** Display-only demo destination: Manish Nagar underpass, Nagpur (approximate). */
 private val DEMO_DESTINATION = GeoPoint(21.093, 79.068)
 private const val GNSS_ONLY_ENGINE_PREFIX = "gnss-only" // GnssOnlyEngine.name: it cannot dead-reckon
-private val CAR_GNSS = RouteonRed
+private val CAR_GNSS = Color.White // clearly distinct from the orange dead-reckoning car
 private val CAR_DR = RouteonOrange
 private val NO_DR = RouteonRedDeep
 private val TRACK = RouteonRedDeep // darker than the car, so the bright car stands out at the track head
