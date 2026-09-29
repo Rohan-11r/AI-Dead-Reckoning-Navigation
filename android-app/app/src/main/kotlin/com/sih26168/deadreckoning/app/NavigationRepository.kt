@@ -63,9 +63,9 @@ class NavigationRepository {
     private val _matchedTrack = MutableStateFlow<List<Pair<Double, Double>>>(emptyList())
     val matchedTrack: StateFlow<List<Pair<Double, Double>>> = _matchedTrack.asStateFlow()
 
-    // the same positions in degrees (lat, lon), exactly as the engine reported them: for the map
-    private val _geoTrack = MutableStateFlow<List<Pair<Double, Double>>>(emptyList())
-    val geoTrack: StateFlow<List<Pair<Double, Double>>> = _geoTrack.asStateFlow()
+    // the same positions in degrees, exactly as the engine reported them, flagged dead reckoning or not: for the map
+    private val _geoTrack = MutableStateFlow<List<GeoTrackPoint>>(emptyList())
+    val geoTrack: StateFlow<List<GeoTrackPoint>> = _geoTrack.asStateFlow()
 
     private val _geoMatchedTrack = MutableStateFlow<List<Pair<Double, Double>>>(emptyList())
     val geoMatchedTrack: StateFlow<List<Pair<Double, Double>>> = _geoMatchedTrack.asStateFlow()
@@ -79,7 +79,7 @@ class NavigationRepository {
     fun publish(
         snapshot: NavSnapshot?, diagnostics: DiagnosticsState, track: List<Pair<Double, Double>>,
         matchedTrack: List<Pair<Double, Double>> = emptyList(),
-        geoTrack: List<Pair<Double, Double>> = emptyList(),
+        geoTrack: List<GeoTrackPoint> = emptyList(),
         geoMatchedTrack: List<Pair<Double, Double>> = emptyList(),
     ) {
         _snapshot.value = snapshot

@@ -14,6 +14,7 @@ import androidx.core.app.ServiceCompat
 import com.sih26168.deadreckoning.core.Channel
 import com.sih26168.deadreckoning.core.ChannelSample
 import com.sih26168.deadreckoning.core.GnssOnlyEngine
+import com.sih26168.deadreckoning.core.GnssState
 import com.sih26168.deadreckoning.core.GnssStateMachine
 import com.sih26168.deadreckoning.core.mapmatch.RoadNetwork
 import com.sih26168.deadreckoning.core.ImuAssembler
@@ -159,7 +160,7 @@ class AcquisitionService : Service() {
         val latest = HashMap<Channel, Vec3>()
         val track = TrackProjector()
         // for the map: the engine's own positions in degrees, no re-projection (bounded like TrackProjector)
-        val geoTrack = ArrayDeque<Pair<Double, Double>>()
+        val geoTrack = ArrayDeque<GeoTrackPoint>()
         val geoMatched = ArrayDeque<Pair<Double, Double>>()
         var nTransitions = 0
         var fixesOk = 0L
@@ -225,7 +226,9 @@ class AcquisitionService : Service() {
                     val lo = snap.lonRad
                     if (la != null && lo != null) {
                         track.add(la, lo)
-                        geoTrack.addBounded(Math.toDegrees(la) to Math.toDegrees(lo))
+                        // dead reckoning = no GNSS reaching the filter: every fix withheld, or the engine's state LOST
+                        val deadReckoning = outage.enabled || snap.state == GnssState.LOST
+                        geoTrack.addBounded(GeoTrackPoint(Math.toDegrees(la), Math.toDegrees(lo), deadReckoning))
                     }
                     val mla = snap.matchedLatRad
                     val mlo = snap.matchedLonRad
@@ -295,7 +298,7 @@ internal object BuildConfigInfo {
 }
 
 /** Map track buffer: keeps the most recent [max] points (TrackProjector's bound). */
-private fun ArrayDeque<Pair<Double, Double>>.addBounded(p: Pair<Double, Double>, max: Int = 3000) {
+private fun <T> ArrayDeque<T>.addBounded(p: T, max: Int = 3000) {
     addLast(p)
     while (size > max) removeFirst()
 }

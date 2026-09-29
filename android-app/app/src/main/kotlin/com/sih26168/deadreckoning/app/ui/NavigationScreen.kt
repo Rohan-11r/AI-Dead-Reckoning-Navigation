@@ -1,10 +1,14 @@
 package com.sih26168.deadreckoning.app.ui
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.DashPathEffect
+import android.location.Location
+import android.location.LocationManager
 import android.view.MotionEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -43,7 +47,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.sih26168.deadreckoning.app.AlignmentStatus
+import com.sih26168.deadreckoning.app.GeoTrackPoint
+import com.sih26168.deadreckoning.app.MODE_WAITING
 import com.sih26168.deadreckoning.app.R
+import com.sih26168.deadreckoning.app.gnssOutShown
+import com.sih26168.deadreckoning.app.trackRuns
 import com.sih26168.deadreckoning.app.ui.theme.RouteonOrange
 import com.sih26168.deadreckoning.app.ui.theme.RouteonRed
 import com.sih26168.deadreckoning.app.ui.theme.RouteonRedDeep
@@ -54,17 +62,26 @@ import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.FolderOverlay
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
+import org.osmdroid.views.overlay.mylocation.IMyLocationProvider
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
 /**
  * Primary screen: OpenStreetMap view + telemetry HUD + "Simulate GNSS outage" toggle.
  * The map draws the ENGINE's (filter) track exactly as the engine reported it (degrees, no
- * re-projection), the map-matched positions in green, and a car at the latest position:
- * white while GNSS is fused, glowing orange with an "AI Dead Reckoning Active" banner while the
- * engine is dead reckoning (simulated outage OR real GNSS loss). Tiles are display only and
- * drawn colour-inverted ([DARK_TILES]) for the dark theme: with no network the map is blank
- * but the track, car and HUD keep updating.
+ * re-projection) -- red where GNSS was fused, orange where the engine was dead reckoning --
+ * the map-matched positions in green, and a car at the latest position: white while GNSS is
+ * fused, glowing orange with an "AI Dead Reckoning Active" banner while the engine is dead
+ * reckoning (simulated outage OR real GNSS loss after initialisation, see [gnssOutShown]).
+ *
+ * Until the engine has a position the map centres on the DEVICE's own location (osmdroid
+ * [MyLocationNewOverlay], raw platform location, display only -- never an engine input). That
+ * dot is hidden during a simulated outage so the display does not show the withheld GNSS.
+ * Tiles are display only and drawn colour-inverted ([DARK_TILES]) for the dark theme: with no
+ * network the map is blank but the track, car and HUD keep updating.
  *
  * The flag + faint dashed line are a DEMO DESTINATION ([DEMO_DESTINATION]): a fixed,
  * display-only pin, labelled as such, never an input to the engine or map matching; the line
@@ -73,7 +90,7 @@ import org.osmdroid.views.overlay.Polyline
 @Composable
 fun NavigationScreen(
     snapshot: NavSnapshot?,
-    geoTrack: List<Pair<Double, Double>>,
+    geoTrack: List<GeoTrackPoint>,
     geoMatchedTrack: List<Pair<Double, Double>>,
     hasMap: Boolean,
     alignment: AlignmentStatus,
@@ -83,11 +100,13 @@ fun NavigationScreen(
     modifier: Modifier = Modifier,
 ) {
     val isDrEngine = snapshot != null && !snapshot.engineName.startsWith(GNSS_ONLY_ENGINE_PREFIX)
-    val gnssOut = outageOn || snapshot?.state == GnssState.LOST
+    val initialised = snapshot != null && snapshot.mode != MODE_WAITING
+    val gnssOut = gnssOutShown(snapshot?.state, snapshot?.mode, outageOn, running)
     Column(modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        if (gnssOut) DeadReckoningBanner(simulated = outageOn, isDrEngine = isDrEngine)
+        if (gnssOut) DeadReckoningBanner(simulated = outageOn, isDrEngine = isDrEngine, initialised = initialised)
         Card(Modifier.fillMaxWidth().weight(1f)) {
-            TrackMap(geoTrack, geoMatchedTrack, drActive = gnssOut, modifier = Modifier.fillMaxSize())
+            TrackMap(geoTrack, geoMatchedTrack, drActive = gnssOut, showDeviceLocation = !outageOn,
+                modifier = Modifier.fillMaxSize())
         }
         AlignmentBar(alignment)
         Hud(snapshot, outageOn, hasMap)
@@ -111,14 +130,17 @@ private val CAR_GNSS = Color.White // clearly distinct from the orange dead-reck
 private val CAR_DR = RouteonOrange
 private val NO_DR = RouteonRedDeep
 private val TRACK = RouteonRedDeep // darker than the car, so the bright car stands out at the track head
+private val TRACK_DR = CAR_DR // dead-reckoned stretches of the track
 private val MATCHED = Color(0xFF00E676) // bright green: readable on the inverted (dark) tiles
 private val LABEL_MUTED = Color(0xFFB8B8C0)
 private const val FOLLOW_ZOOM = 17.0
 
 @Composable
-private fun DeadReckoningBanner(simulated: Boolean, isDrEngine: Boolean) {
+private fun DeadReckoningBanner(simulated: Boolean, isDrEngine: Boolean, initialised: Boolean) {
     val (title, detail) = when {
         !isDrEngine -> "GNSS lost - no dead reckoning" to "GNSS-only engine is running: the position is not updating"
+        !initialised -> "GNSS withheld - dead reckoning not started" to
+            "The engine starts from a moving GNSS fix (> 5 m/s): turn the outage off to let it initialise"
         simulated -> "AI Dead Reckoning Active" to "GNSS withheld (simulated outage): position from IMU + AI speed"
         else -> "AI Dead Reckoning Active" to "GNSS signal lost: position from IMU + AI speed"
     }
@@ -209,8 +231,42 @@ private val DARK_TILES = ColorMatrixColorFilter(
     ),
 )
 
+/** Fine or coarse location granted: the device-location dot and initial centre need one. */
+private fun hasLocationPermission(ctx: Context): Boolean =
+    listOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+        .any { ContextCompat.checkSelfPermission(ctx, it) == PackageManager.PERMISSION_GRANTED }
+
+/** The freshest platform last-known location, for the map's first centre only (display only). */
+@SuppressLint("MissingPermission") // guarded by hasLocationPermission
+private fun lastKnownLocation(ctx: Context): GeoPoint? {
+    if (!hasLocationPermission(ctx)) return null
+    val lm = ctx.getSystemService(LocationManager::class.java) ?: return null
+    return lm.getProviders(true)
+        .mapNotNull { provider ->
+            try {
+                lm.getLastKnownLocation(provider)
+            } catch (x: SecurityException) { // permission revoked between the check and the call
+                null
+            }
+        }
+        .maxByOrNull { it.elapsedRealtimeNanos }
+        ?.let { GeoPoint(it.latitude, it.longitude) }
+}
+
+/**
+ * osmdroid's device-location dot, also handing every location to [onFix]. Raw platform
+ * location, display only: it centres the map, it never reaches the engine.
+ */
+private class DeviceLocationOverlay(ctx: Context, map: MapView, private val onFix: (GeoPoint) -> Unit) :
+    MyLocationNewOverlay(GpsMyLocationProvider(ctx), map) {
+    override fun onLocationChanged(location: Location?, source: IMyLocationProvider?) {
+        super.onLocationChanged(location, source)
+        if (location != null) onFix(GeoPoint(location.latitude, location.longitude))
+    }
+}
+
 /** Overlays created once per MapView; [TrackMap] only moves them. */
-private class MapOverlays(map: MapView, ctx: Context) {
+private class MapOverlays(private val map: MapView, ctx: Context, onDeviceFix: (GeoPoint) -> Unit) {
     val demoLine = Polyline(map).apply {
         outlinePaint.color = LABEL_MUTED.copy(alpha = 0.55f).toArgb()
         outlinePaint.strokeWidth = 5f
@@ -221,16 +277,17 @@ private class MapOverlays(map: MapView, ctx: Context) {
         outlinePaint.color = MATCHED.toArgb()
         outlinePaint.strokeWidth = 6f
     }
-    val track = Polyline(map).apply {
-        outlinePaint.color = TRACK.toArgb()
-        outlinePaint.strokeWidth = 9f
-    }
+
+    /** The engine track, one Polyline per GNSS / dead-reckoning run ([trackRuns]). */
+    private val track = FolderOverlay()
+    private val segments = mutableListOf<Polyline>()
     val destination = Marker(map).apply {
         position = DEMO_DESTINATION
         icon = ContextCompat.getDrawable(ctx, R.drawable.ic_map_flag)
         setAnchor(0.2f, 1.0f) // the foot of the flag pole
         title = "Demo destination: Manish Nagar underpass (display only)"
     }
+    private val device = DeviceLocationOverlay(ctx, map, onDeviceFix)
     val car = Marker(map).apply {
         icon = ContextCompat.getDrawable(ctx, R.drawable.ic_map_car)?.mutate()
         setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
@@ -238,22 +295,53 @@ private class MapOverlays(map: MapView, ctx: Context) {
         setInfoWindow(null)
     }
 
+    var resumed = false
+    var deviceWanted = false
+
     init {
-        // bottom to top: demo line, matched, track, flag, car
-        map.overlays.addAll(listOf(demoLine, matched, track, destination, car))
+        // bottom to top: demo line, matched, track, flag, device dot, car
+        map.overlays.addAll(listOf(demoLine, matched, track, destination, device, car))
+    }
+
+    fun setTrack(points: List<GeoTrackPoint>) {
+        val runs = trackRuns(points)
+        while (segments.size > runs.size) track.remove(segments.removeAt(segments.lastIndex))
+        while (segments.size < runs.size) {
+            val line = Polyline(map).apply { outlinePaint.strokeWidth = 9f }
+            segments += line
+            track.add(line)
+        }
+        runs.forEachIndexed { i, (deadReckoning, pts) ->
+            segments[i].outlinePaint.color = (if (deadReckoning) TRACK_DR else TRACK).toArgb()
+            segments[i].setPoints(pts.map { GeoPoint(it.latDeg, it.lonDeg) })
+        }
+    }
+
+    /**
+     * Runs the device-location provider only while the map is resumed, the dot is wanted and
+     * location is granted. Compares with the overlay's own flag, which osmdroid's onPause/onResume also toggle.
+     */
+    @SuppressLint("MissingPermission") // guarded by hasLocationPermission
+    fun syncDevice() {
+        val on = resumed && deviceWanted && hasLocationPermission(map.context)
+        if (on == device.isMyLocationEnabled) return
+        if (on) device.enableMyLocation() else device.disableMyLocation()
     }
 }
 
 @SuppressLint("ClickableViewAccessibility") // the touch listener only turns auto-follow off; the map handles the gesture
 @Composable
 private fun TrackMap(
-    geoTrack: List<Pair<Double, Double>>,
+    geoTrack: List<GeoTrackPoint>,
     geoMatched: List<Pair<Double, Double>>,
     drActive: Boolean,
+    showDeviceLocation: Boolean,
     modifier: Modifier,
 ) {
     val context = LocalContext.current
     var follow by rememberSaveable { mutableStateOf(true) }
+    // latest device location (display only): the map follows it until the engine has a position
+    var deviceFix by remember { mutableStateOf<GeoPoint?>(null) }
     val mapView = remember {
         // OSM tile usage policy: identify the app; tiles cache in app-private storage
         Configuration.getInstance().load(context, context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE))
@@ -267,44 +355,59 @@ private fun TrackMap(
             setBackgroundColor(android.graphics.Color.BLACK)
             setMultiTouchControls(true)
             controller.setZoom(FOLLOW_ZOOM)
-            controller.setCenter(DEMO_DESTINATION)
+            // the demo pin only when the device has never had a location (or it is not granted)
+            controller.setCenter(lastKnownLocation(context) ?: DEMO_DESTINATION)
             setOnTouchListener { _, e ->
                 if (e.action == MotionEvent.ACTION_DOWN) follow = false
                 false
             }
         }
     }
-    val overlays = remember(mapView) { MapOverlays(mapView, context) }
+    val overlays = remember(mapView) {
+        MapOverlays(mapView, context) { p -> mapView.post { deviceFix = p } } // provider thread -> main
+    }
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     DisposableEffect(lifecycle, mapView) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_RESUME -> mapView.onResume()
-                Lifecycle.Event.ON_PAUSE -> mapView.onPause()
+                Lifecycle.Event.ON_RESUME -> {
+                    mapView.onResume()
+                    overlays.resumed = true
+                    overlays.syncDevice()
+                }
+                Lifecycle.Event.ON_PAUSE -> {
+                    overlays.resumed = false
+                    overlays.syncDevice()
+                    mapView.onPause()
+                }
                 else -> Unit
             }
         }
         lifecycle.addObserver(observer)
         onDispose {
             lifecycle.removeObserver(observer)
-            mapView.onDetach()
+            mapView.onDetach() // detaches every overlay: stops the device-location provider too
         }
     }
 
     Box(modifier) {
         AndroidView(factory = { mapView }, modifier = Modifier.fillMaxSize(), update = { map ->
-            val pts = geoTrack.map { (lat, lon) -> GeoPoint(lat, lon) }
-            overlays.track.setPoints(pts)
+            overlays.deviceWanted = showDeviceLocation
+            overlays.syncDevice()
+            overlays.setTrack(geoTrack)
             overlays.matched.setPoints(geoMatched.map { (lat, lon) -> GeoPoint(lat, lon) })
-            val start = pts.firstOrNull()
+            val start = geoTrack.firstOrNull()?.let { GeoPoint(it.latDeg, it.lonDeg) }
             overlays.demoLine.setPoints(if (start != null) listOf(start, DEMO_DESTINATION) else emptyList())
-            val here = pts.lastOrNull()
-            overlays.car.setVisible(here != null)
-            if (here != null) {
+            val last = geoTrack.lastOrNull()
+            overlays.car.setVisible(last != null)
+            if (last != null) {
+                val here = GeoPoint(last.latDeg, last.lonDeg)
                 overlays.car.position = here
                 overlays.car.icon?.setTint((if (drActive) CAR_DR else CAR_GNSS).toArgb())
                 if (follow) map.controller.setCenter(here)
+            } else if (follow) {
+                deviceFix?.let { map.controller.setCenter(it) } // engine not initialised yet: follow the device
             }
             map.invalidate()
         })
