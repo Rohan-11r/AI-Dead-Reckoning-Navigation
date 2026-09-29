@@ -2,7 +2,7 @@
 """Edge-engine live demo: a recorded IO-VNBD drive streamed through navcore in real time.
 
     .venv/Scripts/python.exe scripts/demo_edge_live.py                     # S3a, 200 samples/s
-    .venv/Scripts/python.exe scripts/demo_edge_live.py --session Vta2 --outage-s 120
+    .venv/Scripts/python.exe scripts/demo_edge_live.py --outage-s 60        # longer outage
     .venv/Scripts/python.exe scripts/demo_edge_live.py --no-plot --max-samples 3000
 
 A pure-Python, laptop-side simulation of the phone/edge deployment. It does NOT touch the
@@ -21,8 +21,12 @@ input stream -- and the readout states both rates so nobody can mistake it for a
 sensor. Use ``--stream-hz 10`` for true 1x live pace.
 
 GNSS OUTAGE. So that the plot shows dead reckoning rather than GNSS tracking, one full GNSS
-dropout (``--outage-s``, default 60 s) is injected ``--outage-after-s`` after initialisation
+dropout (``--outage-s``, default 10 s) is injected ``--outage-after-s`` after initialisation
 with the Phase 9 simulator (simulation.outage): fixes inside it are WITHHELD from the engine.
+The 10 s default (a short tunnel / underpass) is where the current engine is strong; longer
+outages are not hidden -- on the demo protocol (outage at init + 150 s) a 60 s outage ended
+with 53-144 % drift on every verified train/val drive, 120 % on S3a (Phase 9 VAL, 60 s: p50
+294 m, p90 989 m at the outage end; reports/phase9/outage_benchmark.json).
 No GNSS field reaches the engine during the outage (enforced by the simulator, not here).
 
 TRUTH. The VBOX reference (``gt_*``) is loaded separately by simulation.replay and is NEVER
@@ -74,7 +78,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--segment", type=int, default=None, help="segment id (default: first >= 5 min)")
     p.add_argument("--stream-hz", type=float, default=200.0, help="samples delivered per wall-clock second")
     p.add_argument("--outage-after-s", type=float, default=150.0, help="outage start, seconds after init")
-    p.add_argument("--outage-s", type=float, default=60.0, help="GNSS outage length [s]; 0 = none")
+    p.add_argument("--outage-s", type=float, default=10.0, help="GNSS outage length [s]; 0 = none")
     p.add_argument("--plot-every", type=int, default=20, help="redraw the plot every N samples")
     p.add_argument("--print-every", type=int, default=10, help="refresh the terminal readout every N samples")
     p.add_argument("--max-samples", type=int, default=None, help="stop after N samples")
