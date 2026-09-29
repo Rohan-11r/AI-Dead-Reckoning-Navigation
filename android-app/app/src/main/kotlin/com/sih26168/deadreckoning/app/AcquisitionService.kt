@@ -158,6 +158,9 @@ class AcquisitionService : Service() {
         val gnssRate = RateMeter(windowS = 10.0, gapS = 30.0)
         val latest = HashMap<Channel, Vec3>()
         val track = TrackProjector()
+        // for the map: the engine's own positions in degrees, no re-projection (bounded like TrackProjector)
+        val geoTrack = ArrayDeque<Pair<Double, Double>>()
+        val geoMatched = ArrayDeque<Pair<Double, Double>>()
         var nTransitions = 0
         var fixesOk = 0L
         var fixesBad = 0L
@@ -220,10 +223,16 @@ class AcquisitionService : Service() {
                     val snap = engine.snapshot()
                     val la = snap.latRad
                     val lo = snap.lonRad
-                    if (la != null && lo != null) track.add(la, lo)
+                    if (la != null && lo != null) {
+                        track.add(la, lo)
+                        geoTrack.addBounded(Math.toDegrees(la) to Math.toDegrees(lo))
+                    }
                     val mla = snap.matchedLatRad
                     val mlo = snap.matchedLonRad
-                    if (mla != null && mlo != null) track.addMatched(mla, mlo)
+                    if (mla != null && mlo != null) {
+                        track.addMatched(mla, mlo)
+                        if (geoTrack.isNotEmpty()) geoMatched.addBounded(Math.toDegrees(mla) to Math.toDegrees(mlo))
+                    }
                     repo.publish(
                         snap,
                         repo.diagnostics.value.copy(
@@ -240,6 +249,8 @@ class AcquisitionService : Service() {
                         ),
                         track.points,
                         track.matchedPoints,
+                        geoTrack.toList(),
+                        geoMatched.toList(),
                     )
                 }
             }
@@ -278,4 +289,10 @@ class AcquisitionService : Service() {
 /** Version string without enabling the BuildConfig feature. */
 internal object BuildConfigInfo {
     const val VERSION = "0.13.0-phase13" // keep equal to versionName in app/build.gradle.kts
+}
+
+/** Map track buffer: keeps the most recent [max] points (TrackProjector's bound). */
+private fun ArrayDeque<Pair<Double, Double>>.addBounded(p: Pair<Double, Double>, max: Int = 3000) {
+    addLast(p)
+    while (size > max) removeFirst()
 }

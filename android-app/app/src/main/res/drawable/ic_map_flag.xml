@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material "flag" (Apache 2.0): the demo destination pin. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="36dp"
+    android:height="36dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFC62828"
+        android:pathData="M14.4,6L14,4H5v17h2v-7h5.6l0.4,2h7V6z" />
+</vector>

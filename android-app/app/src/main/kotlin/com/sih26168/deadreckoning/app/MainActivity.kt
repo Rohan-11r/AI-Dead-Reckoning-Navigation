@@ -104,8 +104,8 @@ private fun AppRoot(repo: NavigationRepository, onStart: () -> Unit, onStop: () 
     val route by nav.currentBackStackEntryAsState()
     val snapshot by repo.snapshot.collectAsStateWithLifecycle()
     val diagnostics by repo.diagnostics.collectAsStateWithLifecycle()
-    val track by repo.track.collectAsStateWithLifecycle()
-    val matchedTrack by repo.matchedTrack.collectAsStateWithLifecycle()
+    val geoTrack by repo.geoTrack.collectAsStateWithLifecycle()
+    val geoMatchedTrack by repo.geoMatchedTrack.collectAsStateWithLifecycle()
     val running by repo.running.collectAsStateWithLifecycle()
     val outage by repo.outageRequested.collectAsStateWithLifecycle()
     Scaffold(
@@ -134,7 +134,7 @@ private fun AppRoot(repo: NavigationRepository, onStart: () -> Unit, onStop: () 
     ) { padding ->
         NavHost(nav, startDestination = "nav", modifier = Modifier.padding(padding)) {
             composable("nav") {
-                NavigationScreen(snapshot, track, matchedTrack, diagnostics.hasMap, outage, running,
+                NavigationScreen(snapshot, geoTrack, geoMatchedTrack, diagnostics.hasMap, outage, running,
                     onOutage = { repo.outageRequested.value = it })
             }
             composable("diag") { DiagnosticsScreen(diagnostics) }

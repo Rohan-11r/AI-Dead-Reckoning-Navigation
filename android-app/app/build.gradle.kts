@@ -77,6 +77,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.onnxruntime.android)
+    implementation(libs.osmdroid.android) // OpenStreetMap tiles under the track
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     testImplementation(libs.junit)
