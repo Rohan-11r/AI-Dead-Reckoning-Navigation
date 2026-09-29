@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- GNSS: precise location is the product. Background location is NOT requested: the
-         foreground service (type location) is what keeps acquisition alive. -->
+    <!-- GNSS: precise location is the product. Background location is required by the Routeon
+         onboarding flow (ui/OnboardingScreen.kt) so navigation continues with the screen off;
+         the foreground service (type location) still keeps acquisition alive. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <!-- Android 12+: sensor rates above 200 Hz. A normal (install-time) permission, never prompted. -->
+    <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS" />
+    <!-- lets onboarding open the "stop optimizing battery usage" dialog for this app -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />

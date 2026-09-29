@@ -1,6 +1,7 @@
 package com.sih26168.deadreckoning.app
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -20,7 +21,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -30,9 +35,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.sih26168.deadreckoning.app.ui.DiagnosticsScreen
 import com.sih26168.deadreckoning.app.ui.NavigationScreen
+import com.sih26168.deadreckoning.app.ui.OnboardingScreen
+import com.sih26168.deadreckoning.app.ui.RequirementStatus
 
 class MainActivity : ComponentActivity() {
     private val repo get() = (application as NavApplication).repository
+    private val prefs get() = getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
     private val permissions = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { granted ->
         if (granted[Manifest.permission.ACCESS_FINE_LOCATION] == true) {
@@ -46,10 +54,23 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                AppRoot(repo, onStart = ::requestAndStart, onStop = ::stopAcquisition)
+                // onboarding first; the navigation UI only once a name is stored AND every
+                // onboarding requirement holds (re-checked at each launch: grants can be revoked)
+                var onboarded by rememberSaveable { mutableStateOf(isOnboarded()) }
+                if (onboarded) {
+                    AppRoot(repo, onStart = ::requestAndStart, onStop = ::stopAcquisition)
+                } else {
+                    OnboardingScreen(initialName = prefs.getString(KEY_NAME, null).orEmpty()) { name ->
+                        prefs.edit().putString(KEY_NAME, name).apply()
+                        onboarded = isOnboarded()
+                    }
+                }
             }
         }
     }
+
+    private fun isOnboarded(): Boolean =
+        !prefs.getString(KEY_NAME, null).isNullOrBlank() && RequirementStatus.of(this).allMet
 
     private fun requestAndStart() {
         val wanted = buildList {
@@ -69,6 +90,11 @@ class MainActivity : ComponentActivity() {
         startService(Intent(this, AcquisitionService::class.java).setAction(AcquisitionService.ACTION_STOP))
         repo.outageRequested.value = false
     }
+
+    private companion object {
+        const val PREFS = "routeon_onboarding"
+        const val KEY_NAME = "user_name"
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,7 +111,7 @@ private fun AppRoot(repo: NavigationRepository, onStart: () -> Unit, onStop: () 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("SIH26168 DR") },
+                title = { Text(stringResource(R.string.app_name)) },
                 actions = {
                     Row(Modifier.padding(end = 8.dp)) {
                         if (running) Button(onClick = onStop) { Text("Stop") } else Button(onClick = onStart) { Text("Start") }
