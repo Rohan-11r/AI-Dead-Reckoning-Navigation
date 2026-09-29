@@ -56,7 +56,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.sih26168.deadreckoning.app.AlignmentStatus
 import com.sih26168.deadreckoning.app.GeoTrackPoint
 import com.sih26168.deadreckoning.app.MODE_WAITING
+import com.sih26168.deadreckoning.app.NhcStatus
 import com.sih26168.deadreckoning.app.R
+import com.sih26168.deadreckoning.app.VibrationStatus
 import com.sih26168.deadreckoning.app.gnssOutShown
 import com.sih26168.deadreckoning.app.trackRuns
 import com.sih26168.deadreckoning.app.ui.theme.RouteonOrange
@@ -80,8 +82,9 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 /**
  * Primary screen, laid out like a navigation app: the OpenStreetMap view fills the whole screen
  * (under the translucent top bar) and everything else floats on top of it -- the dead-reckoning
- * banner at the top, a bottom panel with speed, state, alignment, the "Simulate GNSS outage"
- * toggle and, on tap, the full HUD details.
+ * banner and the real-time AI diagnostics card ([AiDiagnosticsCard], while running) at the
+ * top, a bottom panel with speed, state, alignment, the "Simulate GNSS outage" toggle and, on
+ * tap, the full HUD details.
  *
  * The map draws the ENGINE's (filter) track exactly as the engine reported it (degrees, no
  * re-projection) -- red where GNSS was fused, orange where the engine was dead reckoning --
@@ -113,6 +116,8 @@ fun NavigationScreen(
     outageOn: Boolean,
     running: Boolean,
     onOutage: (Boolean) -> Unit,
+    vibration: VibrationStatus,
+    nhc: NhcStatus,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
@@ -132,8 +137,13 @@ fun NavigationScreen(
                 .onSizeChanged { topInsetPx = it.height }
                 .padding(top = contentPadding.calculateTopPadding())
                 .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             if (gnssOut) DeadReckoningBanner(simulated = outageOn, isDrEngine = isDrEngine, initialised = initialised)
+            if (running) {
+                AiDiagnosticsCard(vibration, nhc, snapshot?.aiLatencyMs, hasMap, snapshot?.mapMatchConfidence,
+                    snapshot?.roadName, deadReckoning = gnssOut)
+            }
         }
         BottomPanel(
             snapshot, hasMap, alignment, outageOn, running, onOutage,

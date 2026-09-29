@@ -42,6 +42,8 @@ data class DiagnosticsState(
     val resamplerSkipped: Long = 0, // 10 Hz bins skipped for a missing channel
     val hasMap: Boolean = false,
     val alignment: AlignmentStatus = AlignmentStatus.UNAVAILABLE, // the engine's heading alignment
+    val vibration: VibrationStatus = VibrationStatus(), // raw-accelerometer spikes vs the engine's 10 Hz averaging
+    val nhc: NhcStatus = NhcStatus(), // the engine's NHC update outcome, from its own counters
     val error: String? = null,
 )
 

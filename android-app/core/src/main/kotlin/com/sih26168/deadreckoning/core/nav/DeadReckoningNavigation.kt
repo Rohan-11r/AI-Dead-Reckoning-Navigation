@@ -30,7 +30,7 @@ class DeadReckoningNavigation(
     axisMap: AxisMap = AxisMap.ANDROID_LIVE,
     testModel: SpeedModel? = null,
 ) : NavigationEngine {
-    private val hasModel = speedModel != null || testModel != null
+    val hasModel = speedModel != null || testModel != null // false: AI speed and NHC are off
     override val name: String
         get() = buildString {
             append("DR engine (INS + EKF")

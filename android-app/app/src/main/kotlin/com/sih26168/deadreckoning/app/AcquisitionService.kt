@@ -162,6 +162,9 @@ class AcquisitionService : Service() {
         // for the map: the engine's own positions in degrees, no re-projection (bounded like TrackProjector)
         val geoTrack = ArrayDeque<GeoTrackPoint>()
         val geoMatched = ArrayDeque<Pair<Double, Double>>()
+        // display-only monitors for the diagnostics card: they read the engine, never feed it
+        val shocks = ShockMonitor()
+        val nhcMonitor = NhcMonitor()
         var nTransitions = 0
         var fixesOk = 0L
         var fixesBad = 0L
@@ -178,6 +181,7 @@ class AcquisitionService : Service() {
                         rates.getValue(c.channel).record(c.tS)
                         latest[c.channel] = c.value
                         engine.onChannel(c)
+                        if (c.channel == Channel.ACCEL) shocks.offer(c.tS, c.value.x, c.value.y, c.value.z)
                         assembler.offer(c)?.let { engine.onImu(it) }
                     }
                     is Input.Gnss -> when (val e = input.e) {
@@ -252,6 +256,12 @@ class AcquisitionService : Service() {
                             alignment = if (dr != null) {
                                 AlignmentStatus.of(snap.mode, snap.tS, dr.engine.tInit, dr.engine.cfg.mhWindowS)
                             } else AlignmentStatus.UNAVAILABLE,
+                            vibration = shocks.status(now, active = dr != null),
+                            nhc = when {
+                                dr == null -> NhcStatus(NhcStatus.Phase.UNAVAILABLE)
+                                !dr.hasModel -> NhcStatus(NhcStatus.Phase.OFF_NO_MODEL)
+                                else -> nhcMonitor.update(dr.engine.nav?.counts)
+                            },
                         ),
                         track.points,
                         track.matchedPoints,

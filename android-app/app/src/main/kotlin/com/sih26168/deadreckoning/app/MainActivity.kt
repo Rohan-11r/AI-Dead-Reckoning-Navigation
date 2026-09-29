@@ -180,7 +180,8 @@ private fun AppRoot(repo: NavigationRepository, onStart: () -> Unit, onStop: () 
         NavHost(nav, startDestination = "nav") {
             composable("nav") {
                 NavigationScreen(snapshot, geoTrack, geoMatchedTrack, diagnostics.hasMap, diagnostics.alignment, outage, running,
-                    onOutage = { repo.outageRequested.value = it }, contentPadding = padding)
+                    onOutage = { repo.outageRequested.value = it }, vibration = diagnostics.vibration, nhc = diagnostics.nhc,
+                    contentPadding = padding)
             }
             composable("diag") { DiagnosticsScreen(diagnostics, Modifier.padding(padding)) }
         }
