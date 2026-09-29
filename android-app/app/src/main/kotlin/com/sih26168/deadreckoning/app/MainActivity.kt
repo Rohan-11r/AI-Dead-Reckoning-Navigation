@@ -22,9 +22,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -35,9 +32,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.sih26168.deadreckoning.app.ui.DiagnosticsScreen
+import com.sih26168.deadreckoning.app.ui.NameScreen
 import com.sih26168.deadreckoning.app.ui.NavigationScreen
-import com.sih26168.deadreckoning.app.ui.OnboardingScreen
+import com.sih26168.deadreckoning.app.ui.PermissionsScreen
 import com.sih26168.deadreckoning.app.ui.RequirementStatus
+import com.sih26168.deadreckoning.app.ui.SplashScreen
+import com.sih26168.deadreckoning.app.ui.WelcomeTransitionScreen
 import com.sih26168.deadreckoning.app.ui.theme.RouteonTheme
 
 class MainActivity : ComponentActivity() {
@@ -55,21 +55,49 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            RouteonTheme {
-                // onboarding first; the navigation UI only once a name is stored AND every
-                // onboarding requirement holds (re-checked at each launch: grants can be revoked)
-                var onboarded by rememberSaveable { mutableStateOf(isOnboarded()) }
-                if (onboarded) {
-                    AppRoot(repo, onStart = ::requestAndStart, onStop = ::stopAcquisition)
-                } else {
-                    OnboardingScreen(initialName = prefs.getString(KEY_NAME, null).orEmpty()) { name ->
-                        prefs.edit().putString(KEY_NAME, name).apply()
-                        onboarded = isOnboarded()
-                    }
-                }
-            }
+            RouteonTheme { RootGraph() }
         }
     }
+
+    /**
+     * Splash -> WelcomeTransition -> Name -> Permissions -> Map. The splash runs on EVERY launch;
+     * after it, a returning user whose name is stored and whose grants all still hold goes straight
+     * to the map (re-checked at each launch: grants can be revoked), one with a stored name but a
+     * revoked grant goes to Permissions, anyone else starts at the welcome screen.
+     */
+    @Composable
+    private fun RootGraph() {
+        val root = rememberNavController()
+        // the map replaces the whole onboarding back stack: Back from the map leaves the app
+        fun toMap() = root.navigate(Route.MAP) { popUpTo(root.graph.id) { inclusive = true } }
+        NavHost(root, startDestination = Route.SPLASH) {
+            composable(Route.SPLASH) {
+                SplashScreen(onFinished = {
+                    val next = when {
+                        isOnboarded() -> Route.MAP
+                        !storedName().isNullOrBlank() -> Route.PERMISSIONS
+                        else -> Route.WELCOME
+                    }
+                    root.navigate(next) { popUpTo(Route.SPLASH) { inclusive = true } }
+                })
+            }
+            composable(Route.WELCOME) { WelcomeTransitionScreen(onStart = { root.navigate(Route.NAME) { launchSingleTop = true } }) }
+            composable(Route.NAME) {
+                NameScreen(initialName = storedName().orEmpty(), onNext = { name ->
+                    prefs.edit().putString(KEY_NAME, name).apply()
+                    root.navigate(Route.PERMISSIONS) { launchSingleTop = true }
+                })
+            }
+            composable(Route.PERMISSIONS) {
+                PermissionsScreen(onComplete = {
+                    if (isOnboarded()) toMap() else root.navigate(Route.NAME) { launchSingleTop = true } // name missing: ask for it
+                })
+            }
+            composable(Route.MAP) { AppRoot(repo, onStart = ::requestAndStart, onStop = ::stopAcquisition) }
+        }
+    }
+
+    private fun storedName(): String? = prefs.getString(KEY_NAME, null)
 
     private fun isOnboarded(): Boolean =
         !prefs.getString(KEY_NAME, null).isNullOrBlank() && RequirementStatus.of(this).allMet
@@ -97,6 +125,15 @@ class MainActivity : ComponentActivity() {
         const val PREFS = "routeon_onboarding"
         const val KEY_NAME = "user_name"
     }
+}
+
+/** Top-level routes, in onboarding order. */
+private object Route {
+    const val SPLASH = "splash"
+    const val WELCOME = "welcome"
+    const val NAME = "name"
+    const val PERMISSIONS = "permissions"
+    const val MAP = "map"
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

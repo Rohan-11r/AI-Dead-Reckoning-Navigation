@@ -12,7 +12,6 @@ import android.os.PowerManager
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +27,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -46,13 +46,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -72,26 +72,23 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import com.sih26168.deadreckoning.app.ui.theme.RouteonRedDeep
 import kotlinx.coroutines.delay
 
-/**
- * Routeon onboarding: a short splash, then the user's name and every permission the navigation
- * service needs. [onComplete] fires only when the name is non-blank AND [RequirementStatus.allMet];
- * the status is re-read on every resume, because background location and the battery exemption
- * are granted on system settings pages, outside this activity.
+/*
+ * Routeon onboarding screens. MainActivity's navigation graph runs them in this order:
+ *   SplashScreen -> WelcomeTransitionScreen -> NameScreen -> PermissionsScreen -> map
+ * The splash is shown for [SPLASH_MS] on EVERY launch; nothing stored skips it.
  *
  * Pure UI: no navigation, filter or engine code is touched here.
  */
+
+/** Routeon logo splash; calls [onFinished] once, [SPLASH_MS] after it first appears. */
 @Composable
-fun OnboardingScreen(initialName: String, onComplete: (name: String) -> Unit) {
-    var showSplash by rememberSaveable { mutableStateOf(true) }
+fun SplashScreen(onFinished: () -> Unit) {
+    val finish by rememberUpdatedState(onFinished)
     LaunchedEffect(Unit) {
         delay(SPLASH_MS)
-        showSplash = false
+        finish()
     }
-    Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-        Crossfade(targetState = showSplash, label = "onboarding") { splash ->
-            if (splash) Splash() else Setup(initialName, onComplete)
-        }
-    }
+    Splash()
 }
 
 /** What onboarding requires. The single definition used by both the screen and MainActivity's gate. */
@@ -124,7 +121,7 @@ data class RequirementStatus(
     }
 }
 
-private const val SPLASH_MS = 1_200L
+private const val SPLASH_MS = 2_000L
 private const val NAME_MAX_CHARS = 40
 
 @Composable
@@ -133,6 +130,7 @@ private fun Splash() {
     Column(
         Modifier
             .fillMaxSize()
+            .background(scheme.background)
             // faint red glow rising from the centre of the black background
             .background(Brush.radialGradient(listOf(scheme.primary.copy(alpha = 0.22f), Color.Transparent))),
         verticalArrangement = Arrangement.Center,
@@ -153,7 +151,7 @@ private fun Splash() {
 
 /** Compass disc with a car badge -- standard Material icons only. */
 @Composable
-private fun RouteonLogo(size: Int) {
+internal fun RouteonLogo(size: Int) {
     val scheme = MaterialTheme.colorScheme
     Box(Modifier.size(size.dp), contentAlignment = Alignment.Center) {
         Box(
@@ -182,10 +180,55 @@ private fun RouteonLogo(size: Int) {
     }
 }
 
+/** "Enter your name": [onNext] gets the trimmed, non-blank name. */
 @Composable
-private fun Setup(initialName: String, onComplete: (String) -> Unit) {
-    val context = LocalContext.current
+fun NameScreen(initialName: String, onNext: (name: String) -> Unit) {
     var name by rememberSaveable { mutableStateOf(initialName) }
+    val valid = name.isNotBlank()
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 24.dp, vertical = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        RouteonLogo(size = 72)
+        Spacer(Modifier.height(16.dp))
+        Text("What should we call you?", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onBackground)
+        Spacer(Modifier.height(6.dp))
+        Text(
+            "Your name is stored on this phone only.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(Modifier.height(24.dp))
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it.take(NAME_MAX_CHARS) },
+            label = { Text("Your name") },
+            leadingIcon = { Icon(Icons.Filled.Person, contentDescription = null) },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words, imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { if (valid) onNext(name.trim()) }),
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(Modifier.height(24.dp))
+        Button(onClick = { onNext(name.trim()) }, enabled = valid, modifier = Modifier.fillMaxWidth().height(52.dp)) {
+            Text("Next")
+        }
+    }
+}
+
+/**
+ * Every permission the navigation service needs. [onComplete] is only clickable when
+ * [RequirementStatus.allMet]; the status is re-read on every resume, because background
+ * location and the battery exemption are granted on system settings pages, outside this activity.
+ */
+@Composable
+fun PermissionsScreen(onComplete: () -> Unit) {
+    val context = LocalContext.current
     var status by remember { mutableStateOf(RequirementStatus.of(context)) }
     // after a denial the system may stop showing the dialog; the button then opens app settings
     var locationDenied by rememberSaveable { mutableStateOf(false) }
@@ -205,13 +248,14 @@ private fun Setup(initialName: String, onComplete: (String) -> Unit) {
     Column(
         Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         RouteonLogo(size = 72)
         Spacer(Modifier.height(16.dp))
-        Text("Welcome to Routeon", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold,
+        Text("Required permissions", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onBackground)
         Spacer(Modifier.height(6.dp))
         Text(
@@ -220,21 +264,6 @@ private fun Setup(initialName: String, onComplete: (String) -> Unit) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(Modifier.height(24.dp))
-
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it.take(NAME_MAX_CHARS) },
-            label = { Text("Your name") },
-            leadingIcon = { Icon(Icons.Filled.Person, contentDescription = null) },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words, imeAction = ImeAction.Done),
-            modifier = Modifier.fillMaxWidth(),
-        )
-        Spacer(Modifier.height(24.dp))
-
-        Text("Required permissions", style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.fillMaxWidth())
-        Spacer(Modifier.height(8.dp))
 
         RequirementRow(
             icon = Icons.Filled.MyLocation,
@@ -282,15 +311,13 @@ private fun Setup(initialName: String, onComplete: (String) -> Unit) {
         )
 
         Spacer(Modifier.height(24.dp))
-        val ready = name.isNotBlank() && status.allMet
-        Button(onClick = { onComplete(name.trim()) }, enabled = ready, modifier = Modifier.fillMaxWidth().height(52.dp)) {
+        Button(onClick = onComplete, enabled = status.allMet, modifier = Modifier.fillMaxWidth().height(52.dp)) {
             Text("Start navigating")
         }
-        if (!ready) {
+        if (!status.allMet) {
             Spacer(Modifier.height(8.dp))
             Text(
-                if (name.isBlank()) "Enter your name and grant every permission to continue."
-                else "Grant every permission above to continue.",
+                "Grant every permission above to continue.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
