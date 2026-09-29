@@ -41,6 +41,7 @@ data class DiagnosticsState(
     val engineNotes: List<String> = emptyList(),
     val resamplerSkipped: Long = 0, // 10 Hz bins skipped for a missing channel
     val hasMap: Boolean = false,
+    val alignment: AlignmentStatus = AlignmentStatus.UNAVAILABLE, // the engine's heading alignment
     val error: String? = null,
 )
 

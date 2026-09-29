@@ -246,6 +246,9 @@ class AcquisitionService : Service() {
                             covarianceDiag = snap.covarianceDiag, aiLatency = latency(), liveAiLatencyMs = snap.aiLatencyMs,
                             engineNotes = notes.toList(), resamplerSkipped = dr?.resampler?.nSkippedIncomplete ?: 0L,
                             hasMap = dr?.hasMap ?: false,
+                            alignment = if (dr != null) {
+                                AlignmentStatus.of(snap.mode, snap.tS, dr.engine.tInit, dr.engine.cfg.mhWindowS)
+                            } else AlignmentStatus.UNAVAILABLE,
                         ),
                         track.points,
                         track.matchedPoints,

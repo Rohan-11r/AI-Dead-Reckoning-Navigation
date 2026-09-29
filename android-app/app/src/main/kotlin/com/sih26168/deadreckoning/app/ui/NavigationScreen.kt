@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -37,6 +38,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.sih26168.deadreckoning.app.AlignmentStatus
 import com.sih26168.deadreckoning.app.R
 import com.sih26168.deadreckoning.core.Display
 import com.sih26168.deadreckoning.core.GnssState
@@ -66,6 +68,7 @@ fun NavigationScreen(
     geoTrack: List<Pair<Double, Double>>,
     geoMatchedTrack: List<Pair<Double, Double>>,
     hasMap: Boolean,
+    alignment: AlignmentStatus,
     outageOn: Boolean,
     running: Boolean,
     onOutage: (Boolean) -> Unit,
@@ -78,6 +81,7 @@ fun NavigationScreen(
         Card(Modifier.fillMaxWidth().weight(1f)) {
             TrackMap(geoTrack, geoMatchedTrack, drActive = gnssOut, modifier = Modifier.fillMaxSize())
         }
+        AlignmentBar(alignment)
         Hud(snapshot, outageOn, hasMap)
         Card(Modifier.fillMaxWidth()) {
             Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -117,6 +121,23 @@ private fun DeadReckoningBanner(simulated: Boolean, isDrEngine: Boolean) {
     ) {
         Text(title, color = Color.White, fontWeight = FontWeight.ExtraBold, style = MaterialTheme.typography.titleMedium)
         Text(detail, color = Color.White, style = MaterialTheme.typography.bodySmall)
+    }
+}
+
+/** The engine's heading alignment ([AlignmentStatus]): locked = the engine chose its heading. */
+@Composable
+private fun AlignmentBar(a: AlignmentStatus) {
+    if (a.phase == AlignmentStatus.Phase.UNAVAILABLE) return
+    val (label, color) = when (a.phase) {
+        AlignmentStatus.Phase.WAITING_FOR_GNSS -> "Heading alignment: waiting for GNSS at > 5 m/s" to Color.Gray
+        AlignmentStatus.Phase.ALIGNING -> "Heading alignment: ${a.percent} %  (keep GNSS until locked)" to CAR_DR
+        else -> "Heading locked: dead reckoning ready" to MATCHED
+    }
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(label, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
+            LinearProgressIndicator(progress = { a.percent / 100f }, color = color, modifier = Modifier.fillMaxWidth())
+        }
     }
 }
 
