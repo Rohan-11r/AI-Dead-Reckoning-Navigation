@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Premium navigation arrow (points north / up; the map rotates it to the direction of travel).
+  Drawn in GREYSCALE on purpose: NavigationScreen tints it with PorterDuff MULTIPLY, so every
+  shade below keeps its light/dark relation and the bevel, rim and shadow survive the tint:
+  icy white-cyan while GNSS is fused, orange while dead reckoning. The halo is white-to-clear,
+  so it becomes a cyan or orange glow under the same tint.
+
+  Layers, bottom to top: halo, ground shadow, drop shadow, left face (lit), right face (shade),
+  rim, specular highlight, notch crease.
+  64 x 64 viewport drawn at 48 dp: the arrow body is ~30 dp long, the rest is glow.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+
+    <!-- halo: soft radial glow, fully transparent at the edge -->
+    <path android:pathData="M2,32a30,30 0,1 0,60 0a30,30 0,1 0,-60 0z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="32"
+                android:centerY="32"
+                android:gradientRadius="30">
+                <item android:offset="0.0" android:color="#8CFFFFFF" />
+                <item android:offset="0.45" android:color="#40FFFFFF" />
+                <item android:offset="1.0" android:color="#00FFFFFF" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- ground shadow: flattened ellipse under the arrow -->
+    <path android:pathData="M19,51a13,4 0,1 0,26 0a13,4 0,1 0,-26 0z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="32"
+                android:centerY="51"
+                android:gradientRadius="13">
+                <item android:offset="0.0" android:color="#73000000" />
+                <item android:offset="1.0" android:color="#00000000" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- drop shadow: the arrow silhouette, offset down-right -->
+    <path
+        android:fillColor="#59000000"
+        android:pathData="M33.5,13.5L49,52.5L33.5,45L18,52.5Z" />
+
+    <!-- left face: lit side, bright top to soft grey -->
+    <path android:pathData="M32,10L32,42L17,50Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="22"
+                android:startY="12"
+                android:endX="30"
+                android:endY="48">
+                <item android:offset="0.0" android:color="#FFFFFFFF" />
+                <item android:offset="0.6" android:color="#FFEDEDED" />
+                <item android:offset="1.0" android:color="#FFC8C8C8" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- right face: shaded side -->
+    <path android:pathData="M32,10L47,50L32,42Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="34"
+                android:startY="12"
+                android:endX="44"
+                android:endY="50">
+                <item android:offset="0.0" android:color="#FFC4C4C4" />
+                <item android:offset="0.55" android:color="#FF9E9E9E" />
+                <item android:offset="1.0" android:color="#FF7A7A7A" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- rim: dark outline, keeps the arrow readable on light and dark tiles -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M32,10L47,50L32,42L17,50Z"
+        android:strokeWidth="1.6"
+        android:strokeColor="#E61A1A1A"
+        android:strokeLineJoin="round" />
+
+    <!-- specular highlight along the lit leading edge -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M31,14L19.5,45.5"
+        android:strokeWidth="1.2"
+        android:strokeAlpha="0.9"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round" />
+
+    <!-- crease from the tip to the notch: the ridge between the two faces -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M32,11.5L32,41.5"
+        android:strokeWidth="0.8"
+        android:strokeAlpha="0.55"
+        android:strokeColor="#FF5A5A5A"
+        android:strokeLineCap="round" />
+</vector>

@@ -13,11 +13,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -108,10 +110,15 @@ private fun AppRoot(repo: NavigationRepository, onStart: () -> Unit, onStop: () 
     val geoMatchedTrack by repo.geoMatchedTrack.collectAsStateWithLifecycle()
     val running by repo.running.collectAsStateWithLifecycle()
     val outage by repo.outageRequested.collectAsStateWithLifecycle()
+    // the map runs full-screen under the top bar; "nav" is also the start route (null before the first frame)
+    val onMap = route?.destination?.route.let { it == null || it == "nav" }
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.app_name)) },
+                colors = if (onMap) {
+                    TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f))
+                } else TopAppBarDefaults.topAppBarColors(),
                 actions = {
                     Row(Modifier.padding(end = 8.dp)) {
                         if (running) Button(onClick = onStop) { Text("Stop") } else Button(onClick = onStart) { Text("Start") }
@@ -132,12 +139,13 @@ private fun AppRoot(repo: NavigationRepository, onStart: () -> Unit, onStop: () 
             }
         },
     ) { padding ->
-        NavHost(nav, startDestination = "nav", modifier = Modifier.padding(padding)) {
+        // padding per route: the map draws under the bars, its floating panels take the padding
+        NavHost(nav, startDestination = "nav") {
             composable("nav") {
                 NavigationScreen(snapshot, geoTrack, geoMatchedTrack, diagnostics.hasMap, diagnostics.alignment, outage, running,
-                    onOutage = { repo.outageRequested.value = it })
+                    onOutage = { repo.outageRequested.value = it }, contentPadding = padding)
             }
-            composable("diag") { DiagnosticsScreen(diagnostics) }
+            composable("diag") { DiagnosticsScreen(diagnostics, Modifier.padding(padding)) }
         }
     }
 }

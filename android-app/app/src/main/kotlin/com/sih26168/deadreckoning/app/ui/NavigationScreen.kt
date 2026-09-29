@@ -7,19 +7,23 @@ import android.content.pm.PackageManager
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.DashPathEffect
+import android.graphics.PorterDuff
 import android.location.Location
 import android.location.LocationManager
 import android.view.MotionEvent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -38,7 +43,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -61,6 +68,7 @@ import com.sih26168.deadreckoning.core.NavSnapshot
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.FolderOverlay
 import org.osmdroid.views.overlay.Marker
@@ -70,12 +78,17 @@ import org.osmdroid.views.overlay.mylocation.IMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
 /**
- * Primary screen: OpenStreetMap view + telemetry HUD + "Simulate GNSS outage" toggle.
+ * Primary screen, laid out like a navigation app: the OpenStreetMap view fills the whole screen
+ * (under the translucent top bar) and everything else floats on top of it -- the dead-reckoning
+ * banner at the top, a bottom panel with speed, state, alignment, the "Simulate GNSS outage"
+ * toggle and, on tap, the full HUD details.
+ *
  * The map draws the ENGINE's (filter) track exactly as the engine reported it (degrees, no
  * re-projection) -- red where GNSS was fused, orange where the engine was dead reckoning --
- * the map-matched positions in green, and a car at the latest position: white while GNSS is
- * fused, glowing orange with an "AI Dead Reckoning Active" banner while the engine is dead
- * reckoning (simulated outage OR real GNSS loss after initialisation, see [gnssOutShown]).
+ * the map-matched positions in green, and a navigation arrow at the latest position: icy
+ * white-cyan while GNSS is fused, glowing orange with an "AI Dead Reckoning Active" banner while
+ * the engine is dead reckoning (simulated outage OR real GNSS loss after initialisation, see
+ * [gnssOutShown]). The arrow points along the displayed track ([displayBearingDeg]).
  *
  * Until the engine has a position the map centres on the DEVICE's own location (osmdroid
  * [MyLocationNewOverlay], raw platform location, display only -- never an engine input). That
@@ -86,6 +99,9 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
  * The flag + faint dashed line are a DEMO DESTINATION ([DEMO_DESTINATION]): a fixed,
  * display-only pin, labelled as such, never an input to the engine or map matching; the line
  * is a straight line, not a computed route.
+ *
+ * [contentPadding] is the Scaffold's (top bar, bottom navigation): the map ignores it and draws
+ * underneath; the floating panels respect it.
  */
 @Composable
 fun NavigationScreen(
@@ -98,35 +114,42 @@ fun NavigationScreen(
     running: Boolean,
     onOutage: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     val isDrEngine = snapshot != null && !snapshot.engineName.startsWith(GNSS_ONLY_ENGINE_PREFIX)
     val initialised = snapshot != null && snapshot.mode != MODE_WAITING
     val gnssOut = gnssOutShown(snapshot?.state, snapshot?.mode, outageOn, running)
-    Column(modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        if (gnssOut) DeadReckoningBanner(simulated = outageOn, isDrEngine = isDrEngine, initialised = initialised)
-        Card(Modifier.fillMaxWidth().weight(1f)) {
-            TrackMap(geoTrack, geoMatchedTrack, drActive = gnssOut, showDeviceLocation = !outageOn,
-                modifier = Modifier.fillMaxSize())
+    // screen space covered by the floating UI: the map centres the car in what is left visible
+    var topInsetPx by remember { mutableIntStateOf(0) }
+    var bottomInsetPx by remember { mutableIntStateOf(0) }
+    Box(modifier.fillMaxSize()) {
+        TrackMap(geoTrack, geoMatchedTrack, drActive = gnssOut, showDeviceLocation = !outageOn,
+            insetTopPx = topInsetPx, insetBottomPx = bottomInsetPx, modifier = Modifier.fillMaxSize())
+        Column(
+            Modifier
+                .align(Alignment.TopCenter)
+                .fillMaxWidth()
+                .onSizeChanged { topInsetPx = it.height }
+                .padding(top = contentPadding.calculateTopPadding())
+                .padding(12.dp),
+        ) {
+            if (gnssOut) DeadReckoningBanner(simulated = outageOn, isDrEngine = isDrEngine, initialised = initialised)
         }
-        AlignmentBar(alignment)
-        Hud(snapshot, outageOn, hasMap)
-        Card(Modifier.fillMaxWidth()) {
-            Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text("Simulate GNSS outage", fontWeight = FontWeight.Bold, color = Color.White)
-                    Text("Withholds every fix from the engine; still logged, flagged withheld_by_sim",
-                        style = MaterialTheme.typography.bodySmall, color = LABEL_MUTED)
-                }
-                Switch(checked = outageOn, onCheckedChange = onOutage, enabled = running)
-            }
-        }
+        BottomPanel(
+            snapshot, hasMap, alignment, outageOn, running, onOutage,
+            Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .onSizeChanged { bottomInsetPx = it.height }
+                .padding(bottom = contentPadding.calculateBottomPadding()),
+        )
     }
 }
 
 /** Display-only demo destination: Manish Nagar underpass, Nagpur (approximate). */
 private val DEMO_DESTINATION = GeoPoint(21.093, 79.068)
 private const val GNSS_ONLY_ENGINE_PREFIX = "gnss-only" // GnssOnlyEngine.name: it cannot dead-reckon
-private val CAR_GNSS = Color.White // clearly distinct from the orange dead-reckoning car
+private val CAR_GNSS = Color(0xFFBFF4FF) // icy white-cyan: clearly distinct from the orange dead-reckoning car
 private val CAR_DR = RouteonOrange
 private val NO_DR = RouteonRedDeep
 private val TRACK = RouteonRedDeep // darker than the car, so the bright car stands out at the track head
@@ -134,6 +157,8 @@ private val TRACK_DR = CAR_DR // dead-reckoned stretches of the track
 private val MATCHED = Color(0xFF00E676) // bright green: readable on the inverted (dark) tiles
 private val LABEL_MUTED = Color(0xFFB8B8C0)
 private const val FOLLOW_ZOOM = 17.0
+private val PANEL_SHAPE = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+private const val PANEL_ALPHA = 0.94f // the map shows faintly through the panels
 
 @Composable
 private fun DeadReckoningBanner(simulated: Boolean, isDrEngine: Boolean, initialised: Boolean) {
@@ -162,6 +187,75 @@ private fun DeadReckoningBanner(simulated: Boolean, isDrEngine: Boolean, initial
     }
 }
 
+/**
+ * Floating bottom panel: speed + GNSS state, heading alignment and the outage toggle always;
+ * road / map match / engine / mode behind the grab handle, so the map stays mostly visible.
+ */
+@Composable
+private fun BottomPanel(
+    s: NavSnapshot?,
+    hasMap: Boolean,
+    alignment: AlignmentStatus,
+    outageOn: Boolean,
+    running: Boolean,
+    onOutage: (Boolean) -> Unit,
+    modifier: Modifier,
+) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    Column(
+        modifier
+            .shadow(elevation = 24.dp, shape = PANEL_SHAPE)
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = PANEL_ALPHA), PANEL_SHAPE)
+            .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .clickable(onClickLabel = if (expanded) "Hide details" else "Show details") { expanded = !expanded }
+                .padding(top = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Box(Modifier.size(width = 40.dp, height = 4.dp).background(LABEL_MUTED.copy(alpha = 0.6f), RoundedCornerShape(2.dp)))
+            Text(if (expanded) "Hide details" else "Details", style = MaterialTheme.typography.labelSmall,
+                color = LABEL_MUTED, modifier = Modifier.padding(top = 4.dp))
+        }
+        SpeedRow(s, outageOn)
+        AlignmentBar(alignment)
+        AnimatedVisibility(visible = expanded) { Details(s, hasMap) }
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("Simulate GNSS outage", fontWeight = FontWeight.Bold, color = Color.White)
+                Text("Withholds every fix from the engine; still logged, flagged withheld_by_sim",
+                    style = MaterialTheme.typography.bodySmall, color = LABEL_MUTED)
+            }
+            Switch(checked = outageOn, onCheckedChange = onOutage, enabled = running)
+        }
+    }
+}
+
+@Composable
+private fun SpeedRow(s: NavSnapshot?, outageOn: Boolean) {
+    val stateColor = when (s?.state) {
+        GnssState.GOOD -> Color(0xFF2E7D32)
+        GnssState.DEGRADED -> Color(0xFFF9A825)
+        GnssState.RECOVERING -> Color(0xFF1565C0)
+        GnssState.LOST -> Color(0xFFC62828)
+        null -> LABEL_MUTED
+    }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f)) {
+            Text(Display.speedKmh(s?.speedMps), style = MaterialTheme.typography.displaySmall,
+                fontWeight = FontWeight.Bold, color = Color.White)
+            Text("Confidence (within 10 m) ${Display.percent(s?.confidence)}  ·  σ ${Display.metres(s?.sigmaHm)}",
+                style = MaterialTheme.typography.bodySmall, color = LABEL_MUTED)
+        }
+        Text(Display.stateLabel(s?.state, outageOn), color = Color.White, fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.background(stateColor, RoundedCornerShape(8.dp)).padding(horizontal = 10.dp, vertical = 6.dp))
+    }
+}
+
 /** The engine's heading alignment ([AlignmentStatus]): locked = the engine chose its heading. */
 @Composable
 private fun AlignmentBar(a: AlignmentStatus) {
@@ -171,40 +265,21 @@ private fun AlignmentBar(a: AlignmentStatus) {
         AlignmentStatus.Phase.ALIGNING -> "Heading alignment: ${a.percent} %  (keep GNSS until locked)" to CAR_DR
         else -> "Heading locked: dead reckoning ready" to MATCHED
     }
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(label, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold, color = Color.White)
-            LinearProgressIndicator(progress = { a.percent / 100f }, color = color,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant, modifier = Modifier.fillMaxWidth())
-        }
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(label, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold, color = Color.White)
+        LinearProgressIndicator(progress = { a.percent / 100f }, color = color,
+            trackColor = MaterialTheme.colorScheme.surfaceVariant, modifier = Modifier.fillMaxWidth())
     }
 }
 
 @Composable
-private fun Hud(s: NavSnapshot?, outageOn: Boolean, hasMap: Boolean) {
-    val stateColor = when (s?.state) {
-        GnssState.GOOD -> Color(0xFF2E7D32)
-        GnssState.DEGRADED -> Color(0xFFF9A825)
-        GnssState.RECOVERING -> Color(0xFF1565C0)
-        GnssState.LOST -> Color(0xFFC62828)
-        null -> LABEL_MUTED
-    }
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(Display.speedKmh(s?.speedMps), style = MaterialTheme.typography.displaySmall,
-                    color = Color.White, modifier = Modifier.weight(1f))
-                Text(Display.stateLabel(s?.state, outageOn), color = Color.White, fontWeight = FontWeight.Bold,
-                    modifier = Modifier.background(stateColor).padding(horizontal = 8.dp, vertical = 4.dp))
-            }
-            HudRow("Confidence (within 10 m)", Display.percent(s?.confidence))
-            HudRow("Horizontal σ", Display.metres(s?.sigmaHm))
-            HudRow("Road", Display.roadName(s?.roadName, hasMap))
-            HudRow("Map match (confidence)", Display.percent(s?.mapMatchConfidence))
-            HudRow("Engine", s?.engineName ?: Display.NA)
-            HudRow("Mode", s?.mode ?: Display.NA)
-            s?.note?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
-        }
+private fun Details(s: NavSnapshot?, hasMap: Boolean) {
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        HudRow("Road", Display.roadName(s?.roadName, hasMap))
+        HudRow("Map match (confidence)", Display.percent(s?.mapMatchConfidence))
+        HudRow("Engine", s?.engineName ?: Display.NA)
+        HudRow("Mode", s?.mode ?: Display.NA)
+        s?.note?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
     }
 }
 
@@ -289,14 +364,41 @@ private class MapOverlays(private val map: MapView, ctx: Context, onDeviceFix: (
     }
     private val device = DeviceLocationOverlay(ctx, map, onDeviceFix)
     val car = Marker(map).apply {
-        icon = ContextCompat.getDrawable(ctx, R.drawable.ic_map_car)?.mutate()
+        // greyscale + MULTIPLY tint: the state colour keeps the arrow's bevel and shadow (see the XML)
+        icon = ContextCompat.getDrawable(ctx, R.drawable.ic_premium_car)?.mutate()?.apply {
+            setTintMode(PorterDuff.Mode.MULTIPLY)
+        }
         setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+        isFlat = true // rotation is relative to the map, not the screen
         title = "Engine position"
         setInfoWindow(null)
     }
 
     var resumed = false
     var deviceWanted = false
+    private var carTint: Int? = null
+    private var centerOffsetY = 0
+
+    /** Arrow colour for the engine's mode; re-tints only on a change. */
+    fun tintCar(argb: Int) {
+        if (argb == carTint) return
+        car.icon?.setTint(argb)
+        carTint = argb
+    }
+
+    /** Arrow direction; with no bearing (not moving far enough) it keeps the last one. */
+    fun pointCar(bearingDeg: Double?) {
+        // osmdroid's Marker rotation is counter-clockwise in degrees; a bearing is clockwise from north
+        if (bearingDeg != null) car.rotation = -bearingDeg.toFloat()
+    }
+
+    /** Puts the map's centre in the middle of what the floating panels leave visible. */
+    fun setCenterOffset(insetTopPx: Int, insetBottomPx: Int) {
+        val y = (insetTopPx - insetBottomPx) / 2
+        if (y == centerOffsetY) return
+        map.setMapCenterOffset(0, y)
+        centerOffsetY = y
+    }
 
     init {
         // bottom to top: demo line, matched, track, flag, device dot, car
@@ -336,9 +438,12 @@ private fun TrackMap(
     geoMatched: List<Pair<Double, Double>>,
     drActive: Boolean,
     showDeviceLocation: Boolean,
+    insetTopPx: Int,
+    insetBottomPx: Int,
     modifier: Modifier,
 ) {
     val context = LocalContext.current
+    val insetBottom = with(LocalDensity.current) { insetBottomPx.toDp() }
     var follow by rememberSaveable { mutableStateOf(true) }
     // latest device location (display only): the map follows it until the engine has a position
     var deviceFix by remember { mutableStateOf<GeoPoint?>(null) }
@@ -354,6 +459,7 @@ private fun TrackMap(
             overlayManager.tilesOverlay.setLoadingLineColor(android.graphics.Color.rgb(0x2A, 0x2A, 0x2E))
             setBackgroundColor(android.graphics.Color.BLACK)
             setMultiTouchControls(true)
+            zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER) // pinch to zoom: no +/- clutter
             controller.setZoom(FOLLOW_ZOOM)
             // the demo pin only when the device has never had a location (or it is not granted)
             controller.setCenter(lastKnownLocation(context) ?: DEMO_DESTINATION)
@@ -393,6 +499,7 @@ private fun TrackMap(
 
     Box(modifier) {
         AndroidView(factory = { mapView }, modifier = Modifier.fillMaxSize(), update = { map ->
+            overlays.setCenterOffset(insetTopPx, insetBottomPx)
             overlays.deviceWanted = showDeviceLocation
             overlays.syncDevice()
             overlays.setTrack(geoTrack)
@@ -404,7 +511,8 @@ private fun TrackMap(
             if (last != null) {
                 val here = GeoPoint(last.latDeg, last.lonDeg)
                 overlays.car.position = here
-                overlays.car.icon?.setTint((if (drActive) CAR_DR else CAR_GNSS).toArgb())
+                overlays.tintCar((if (drActive) CAR_DR else CAR_GNSS).toArgb())
+                overlays.pointCar(displayBearingDeg(geoTrack))
                 if (follow) map.controller.setCenter(here)
             } else if (follow) {
                 deviceFix?.let { map.controller.setCenter(it) } // engine not initialised yet: follow the device
@@ -412,7 +520,8 @@ private fun TrackMap(
             map.invalidate()
         })
         if (!follow) {
-            FilledTonalButton(onClick = { follow = true }, modifier = Modifier.align(Alignment.BottomEnd).padding(12.dp)) {
+            FilledTonalButton(onClick = { follow = true },
+                modifier = Modifier.align(Alignment.BottomEnd).padding(bottom = insetBottom).padding(12.dp)) {
                 Text("Recenter")
             }
         }
@@ -420,7 +529,27 @@ private fun TrackMap(
             "© OpenStreetMap contributors",
             style = MaterialTheme.typography.labelSmall,
             color = LABEL_MUTED,
-            modifier = Modifier.align(Alignment.BottomStart).background(Color.Black.copy(alpha = 0.7f)).padding(4.dp),
+            modifier = Modifier.align(Alignment.BottomStart).padding(bottom = insetBottom)
+                .background(Color.Black.copy(alpha = 0.7f)).padding(4.dp),
         )
     }
+}
+
+private const val HEADING_MIN_M = 3.0 // below this the direction is position noise, not travel
+private const val HEADING_LOOKBACK = 50 // track points (5 s at the 10 Hz publish rate)
+
+/**
+ * Direction of travel for the arrow, degrees clockwise from north: from the most recent track
+ * point at least [HEADING_MIN_M] behind the head to the head, within the last
+ * [HEADING_LOOKBACK] points; null when the car has not moved that far. Display only: derived
+ * from the engine's own positions, never fed back.
+ */
+private fun displayBearingDeg(track: List<GeoTrackPoint>): Double? {
+    val head = track.lastOrNull() ?: return null
+    val here = GeoPoint(head.latDeg, head.lonDeg)
+    for (i in track.size - 2 downTo maxOf(0, track.size - 1 - HEADING_LOOKBACK)) {
+        val p = GeoPoint(track[i].latDeg, track[i].lonDeg)
+        if (p.distanceToAsDouble(here) >= HEADING_MIN_M) return p.bearingTo(here)
+    }
+    return null
 }
