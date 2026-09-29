@@ -25,6 +25,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
     buildFeatures { compose = true }
 
     // Assets (task copyExportedModels): models/ = the parity-validated exports + cards (the SAME
@@ -33,8 +36,6 @@ android {
     sourceSets["main"].assets.srcDir(layout.buildDirectory.dir("generated/modelAssets"))
     androidResources { noCompress += listOf("onnx", "bin") }
 }
-
-kotlin { jvmToolchain(17) }
 
 val copyExportedModels by tasks.registering(Sync::class) {
     description = "Bundles the validated models + cards, the measured IMU noise, and any road bundle"

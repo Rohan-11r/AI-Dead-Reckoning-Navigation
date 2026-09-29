@@ -1,5 +1,7 @@
 package com.sih26168.deadreckoning.core.nav
 
+import com.sih26168.deadreckoning.core.Channel
+import com.sih26168.deadreckoning.core.ChannelSample
 import com.sih26168.deadreckoning.core.GnssSample
 import com.sih26168.deadreckoning.core.GnssState
 import kotlin.math.PI
@@ -171,17 +173,17 @@ class TenHzResampler(private val periodS: Double = 0.1) {
     data class Sample(val tS: Double, val acc: DoubleArray, val grav: DoubleArray, val gyro: DoubleArray)
 
     private var binIndex: Long? = null  // bin (k-1, k] * period; ends from the INDEX, so they do not drift
-    private val sums = HashMap<com.sih26168.deadreckoning.core.Channel, DoubleArray>()
-    private val counts = HashMap<com.sih26168.deadreckoning.core.Channel, Int>()
+    private val sums = HashMap<Channel, DoubleArray>()
+    private val counts = HashMap<Channel, Int>()
     var nEmitted = 0L
         private set
     var nSkippedIncomplete = 0L
         private set
 
     /** Feed one channel sample; returns the finished 10 Hz sample(s), oldest first. */
-    fun offer(s: com.sih26168.deadreckoning.core.ChannelSample): List<Sample> {
+    fun offer(s: ChannelSample): List<Sample> {
         val out = mutableListOf<Sample>()
-        if (s.channel == com.sih26168.deadreckoning.core.Channel.MAG) return out
+        if (s.channel == Channel.MAG) return out
         var k = binIndex ?: (Math.floor(s.tS / periodS).toLong() + 1)
         while (s.tS >= k * periodS - 1e-12) {
             flush(k * periodS)?.let { out += it }
@@ -195,12 +197,14 @@ class TenHzResampler(private val periodS: Double = 0.1) {
     }
 
     private fun flush(end: Double): Sample? {
-        val ch = com.sih26168.deadreckoning.core.Channel
-        val have = listOf(ch.ACCEL, ch.GYRO, ch.GRAVITY).all { (counts[it] ?: 0) > 0 }
+        val have = listOf(Channel.ACCEL, Channel.GYRO, Channel.GRAVITY).all { (counts[it] ?: 0) > 0 }
         val r = if (have) {
-            fun mean(c: com.sih26168.deadreckoning.core.Channel) = sums.getValue(c).let { v -> val k = counts.getValue(c); doubleArrayOf(v[0] / k, v[1] / k, v[2] / k) }
+            fun mean(c: Channel) = sums.getOrDefault(c, DoubleArray(3)).let { sum ->
+                val cnt = counts[c] ?: 1
+                DoubleArray(3) { i -> sum[i] / cnt }
+            }
             nEmitted++
-            Sample(end, mean(ch.ACCEL), mean(ch.GRAVITY), mean(ch.GYRO))
+            Sample(end, acc = mean(Channel.ACCEL), grav = mean(Channel.GRAVITY), gyro = mean(Channel.GYRO))
         } else {
             if (counts.values.any { it > 0 }) nSkippedIncomplete++
             null

@@ -1,0 +1,21 @@
+{
+ "file": "nagpur.roads.bin",
+ "bytes": 1379082,
+ "sha256": "4d16bbda961579498a9d9df3b8c2c776383c7d1c7e6b4e34ef734311d33c233e",
+ "nodes": 22581,
+ "directed_segments": 50249,
+ "ways": 5485,
+ "origin_lat_rad": 0.3683111265670386,
+ "origin_lon_rad": 1.3790742629124806,
+ "bbox_s_w_n_e_deg": [
+  21.08,
+  78.95,
+  21.12,
+  79.08
+ ],
+ "source": "data/raw/osm/nagpur_drivable.osm",
+ "source_manifest": "reports/osm/nagpur_osm_manifest.json",
+ "licence": "Map data (c) OpenStreetMap contributors, ODbL 1.0",
+ "generated": "2026-09-28T14:35:23",
+ "script": "scripts/export/export_road_bundle.py"
+}

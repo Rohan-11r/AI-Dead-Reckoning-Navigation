@@ -1,0 +1,16 @@
+{
+ "file": "data/raw/osm/nagpur_drivable.osm",
+ "bytes": 2746281,
+ "sha256": "8ed1ab5d3cdccf7da74217a9f5d8e87fa8a8c01431d115e6c21918e5df7d8134",
+ "downloaded_utc": "2026-09-28T09:03:55+00:00",
+ "endpoint": "https://overpass.kumi.systems/api/interpreter",
+ "query": "[out:xml][timeout:300];(way[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|service|living_street|road|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link)$\"](21.08,78.95,21.12,79.08););(._;>;);out body;",
+ "bbox_s_w_n_e_deg": [
+  21.08,
+  78.95,
+  21.12,
+  79.08
+ ],
+ "licence": "Map data (c) OpenStreetMap contributors, ODbL 1.0 (https://www.openstreetmap.org/copyright)",
+ "note": "one-time offline cache; the matcher never accesses the network"
+}

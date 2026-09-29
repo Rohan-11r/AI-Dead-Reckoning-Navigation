@@ -39,7 +39,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 OUT = REPO_ROOT / "data" / "raw" / "osm" / "coventry_drivable.osm"
 MANIFEST = REPO_ROOT / "reports" / "phase8" / "osm_manifest.json"
-ENDPOINT = "https://overpass-api.de/api/interpreter"
+ENDPOINT = "https://overpass.kumi.systems/api/interpreter"
 GEOCODER = "https://nominatim.openstreetmap.org/search"
 USER_AGENT = "SIH26168-dead-reckoning/phase8 (offline cache)"
 BBOX = (52.34, -1.62, 52.58, -1.21)  # south, west, north, east (degrees)

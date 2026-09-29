@@ -19,7 +19,7 @@ import java.security.MessageDigest
  *  - models/model_a_*.onnx + card : Model A, refused unless its SHA-256 matches its card.
  *    Without it: AI speed OFF, and therefore NHC OFF too (the Phase 7 pairing rule: NHC
  *    alone measured harmful).
- *  - roads/*.roads.bin (+ .roads.json manifest) : the offline road graph, SHA-256-checked,
+ *  - roads/<name>.roads.bin (+ .roads.json manifest) : the offline road graph, SHA-256-checked,
  *    loaded separately (it takes seconds): absent, or more than one -> no map matching, said so.
  * Every downgrade is recorded in [Built.notes] and shown on the diagnostics screen.
  */

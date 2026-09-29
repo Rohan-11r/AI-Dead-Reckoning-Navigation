@@ -1,5 +1,8 @@
 package com.sih26168.deadreckoning.core.nav
 
+import com.sih26168.deadreckoning.core.Channel
+import com.sih26168.deadreckoning.core.ChannelSample
+import com.sih26168.deadreckoning.core.Vec3
 import com.sih26168.deadreckoning.core.GnssSample
 import com.sih26168.deadreckoning.core.GnssState
 import com.sih26168.deadreckoning.core.mapmatch.DeadReckoningMapMatcher
@@ -322,15 +325,14 @@ class NavParityTest {
         val byStep = HashMap<Long, EngineOutput>()
         nav.onOutput = { o -> byStep[Math.round(o.tS * 10)] = o }
         val inputs = g.getJSONArray("inputs")
-        val ch = com.sih26168.deadreckoning.core.Channel
-        fun vec(a: JSONArray) = com.sih26168.deadreckoning.core.Vec3(a.getDouble(0), a.getDouble(1), a.getDouble(2))
+        fun vec(a: JSONArray) = Vec3(a.getDouble(0), a.getDouble(1), a.getDouble(2))
         for (k in 0 until inputs.length()) {
             val st = inputs.getJSONObject(k)
             fixes(st).forEach { nav.onFix(it) }
             val t = st.getDouble("t") - 0.05
-            nav.onChannel(com.sih26168.deadreckoning.core.ChannelSample(t, ch.ACCEL, vec(st.getJSONArray("acc"))))
-            nav.onChannel(com.sih26168.deadreckoning.core.ChannelSample(t, ch.GRAVITY, vec(st.getJSONArray("grav"))))
-            nav.onChannel(com.sih26168.deadreckoning.core.ChannelSample(t, ch.GYRO, vec(st.getJSONArray("gyro"))))
+            nav.onChannel(ChannelSample(t, Channel.ACCEL, vec(st.getJSONArray("acc"))))
+            nav.onChannel(ChannelSample(t, Channel.GRAVITY, vec(st.getJSONArray("grav"))))
+            nav.onChannel(ChannelSample(t, Channel.GYRO, vec(st.getJSONArray("gyro"))))
         }
         val outs = g.getJSONArray("outputs")
         var compared = 0
@@ -352,17 +354,16 @@ class NavParityTest {
     @Test
     fun `ten hz resampler averages bins and never fills a missing channel`() {
         val r = TenHzResampler()
-        val ch = com.sih26168.deadreckoning.core.Channel
         val out = mutableListOf<TenHzResampler.Sample>()
-        fun feed(t: Double, c: com.sih26168.deadreckoning.core.Channel, v: Double) {
-            out += r.offer(com.sih26168.deadreckoning.core.ChannelSample(t, c, com.sih26168.deadreckoning.core.Vec3(v, 0.0, 9.8)))
+        fun feed(t: Double, c: Channel, v: Double) {
+            out += r.offer(ChannelSample(t, c, Vec3(v, 0.0, 9.8)))
         }
-        feed(0.01, ch.ACCEL, 1.0); feed(0.05, ch.ACCEL, 3.0); feed(0.02, ch.GYRO, 0.1); feed(0.03, ch.GRAVITY, 0.0)
-        feed(0.12, ch.ACCEL, 5.0)  // closes bin (0, 0.1]
+        feed(0.01, Channel.ACCEL, 1.0); feed(0.05, Channel.ACCEL, 3.0); feed(0.02, Channel.GYRO, 0.1); feed(0.03, Channel.GRAVITY, 0.0)
+        feed(0.12, Channel.ACCEL, 5.0)  // closes bin (0, 0.1]
         assertEquals(1, out.size)
         assertEquals(0.1, out[0].tS, 1e-12)
         assertEquals(2.0, out[0].acc[0], 1e-12)  // mean of 1 and 3
-        feed(0.25, ch.ACCEL, 7.0)  // bin (0.1, 0.2] had no gyro/gravity: skipped, not filled
+        feed(0.25, Channel.ACCEL, 7.0)  // bin (0.1, 0.2] had no gyro/gravity: skipped, not filled
         assertEquals(1, out.size)
         assertEquals(1L, r.nSkippedIncomplete)
         assertEquals(1L, r.nEmitted)

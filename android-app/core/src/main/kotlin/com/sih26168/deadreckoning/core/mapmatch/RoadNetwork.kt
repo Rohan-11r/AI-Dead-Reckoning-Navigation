@@ -77,10 +77,10 @@ class RoadNetwork(
 
     /** Every directed segment within [radiusM], ordered by segment id. */
     fun candidates(x: Double, y: Double, radiusM: Double): List<Candidate> =
-        segmentsNear(x, y, radiusM).mapNotNull { s ->
+        segmentsNear(x, y, radiusM).map { s ->
             val p = project(s, x, y)
             if (p[3] <= radiusM) Candidate(s, p[0], p[1], p[2], p[3]) else null
-        }
+        }.filterNotNull()
 
     /** Shortest directed distances from [node] to every node within [cutoffM]. */
     fun distancesFromNode(node: Int, cutoffM: Double): Map<Int, Double> {

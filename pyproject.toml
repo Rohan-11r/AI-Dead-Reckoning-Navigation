@@ -9,7 +9,7 @@ description = "AI-ML based Intelligent Dead Reckoning system for seamless naviga
 readme = "README.md"
 # Validated interpreters: 3.14.4 (chosen) and 3.13.5 (verified fallback). Both have
 # complete win_amd64 wheel coverage for every pin below. See PROJECT_STATUS.md Phase 1.
-requires-python = ">=3.13,<3.15"
+requires-python = ">=3.12,<3.15"
 license = { text = "Proprietary" }
 classifiers = [
   "Private :: Do Not Upload",
